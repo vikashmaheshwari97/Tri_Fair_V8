@@ -3,18 +3,26 @@
 from __future__ import annotations
 import argparse
 import hashlib
+import json
 from pathlib import Path, PurePosixPath
 
 
 def verify(root):
     root = Path(root).resolve()
-    checksum_file = root / "RELEASE_SHA256SUMS.txt"
+    checksum_file = root / "RELEASE_SHA256SUMS.json"
+    if checksum_file.is_file():
+        checksums = json.loads(checksum_file.read_text(encoding="utf-8")).items()
+    else:
+        legacy_file = root / "RELEASE_SHA256SUMS.txt"
+        checksums = [
+            line.split("  ", 1)
+            for line in legacy_file.read_text(encoding="utf-8").splitlines()
+            if line.strip()
+        ]
+        checksums = [(relative, expected) for expected, relative in checksums]
     failures = []
     count = 0
-    for line in checksum_file.read_text(encoding="utf-8").splitlines():
-        if not line.strip():
-            continue
-        expected, relative = line.split("  ", 1)
+    for relative, expected in checksums:
         relative_path = PurePosixPath(relative)
         if relative_path.is_absolute() or ".." in relative_path.parts:
             raise ValueError("unsafe checksum path")

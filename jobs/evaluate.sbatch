@@ -21,6 +21,7 @@ cd "$ROOT"
 export PYTHONPATH="$ROOT${PYTHONPATH:+:$PYTHONPATH}"
 source jobs/lib/common.sh
 tf_require_research_gpu_node
+tf_configure_cpp_runtime
 source jobs/lib/model_cache.sh
 tf_log "Allocation: job=${SLURM_JOB_ID:-local} nodes=${SLURM_JOB_NODELIST:-unknown}"
 nvidia-smi --query-gpu=name,memory.total,driver_version --format=csv

@@ -19,6 +19,7 @@ source "${TF_VENV:-$HOME/venvs/tri-fair-v8}/bin/activate"
 cd "${SLURM_SUBMIT_DIR:?Submit from the project root}"
 source jobs/lib/common.sh
 tf_require_research_gpu_node
+tf_configure_cpp_runtime
 source jobs/lib/model_cache.sh
 tf_log "Allocation: job=${SLURM_JOB_ID:-local} nodes=${SLURM_JOB_NODELIST:-unknown}"
 nvidia-smi --query-gpu=name,memory.total,driver_version --format=csv

@@ -9,7 +9,7 @@
   "upstream_base_commit": "5f748223b8c6c2f62023ded41ec898b95557df9c",
   "prior_v8_release_commit": "f7e853e",
   "checkpoint_schema": 5,
-  "file_count": 118,
+  "file_count": 120,
   "files": [
     ".gitattributes",
     ".github/workflows/cpu-tests.yml",
@@ -19,7 +19,7 @@
     "NOTICE.md",
     "README.md",
     "RELEASE_MANIFEST.json",
-    "RELEASE_SHA256SUMS.txt",
+    "RELEASE_SHA256SUMS.json",
     "configs/sensitivity/archive_cap_15.json",
     "configs/sensitivity/archive_cap_24.json",
     "configs/sensitivity/archive_cap_8.json",
@@ -52,6 +52,7 @@
     "src/tri_fair/__init__.py",
     "src/tri_fair/cli/__init__.py",
     "src/tri_fair/cli/common.py",
+    "src/tri_fair/cli/cpp_runtime.py",
     "src/tri_fair/cli/doctor.py",
     "src/tri_fair/cli/evaluate.py",
     "src/tri_fair/cli/matrix.py",
@@ -117,6 +118,7 @@
     "tests/test_bbq_loader.py",
     "tests/test_block_sampler.py",
     "tests/test_budget_control.py",
+    "tests/test_cpp_runtime.py",
     "tests/test_fairness_metrics.py",
     "tests/test_gptoss_runtime.py",
     "tests/test_gpu_preflight.py",
@@ -158,7 +160,7 @@
     "real-model experimental results"
   ],
   "hotfix": {
-    "id": "8.1.0-hf4-shepard2",
+    "id": "8.1.0-hf5-cpp-runtime",
     "includes_prior_utf8_hotfix": true,
     "gpu_request": "untyped GPU:1; one node; 16 CPU cores",
     "default_models": [
@@ -168,12 +170,12 @@
     ],
     "training_tasks": 162,
     "evaluation_tasks": 27,
-    "cpu_tests_passed": 80,
+    "cpu_tests_passed": 86,
     "ruff": "passed",
     "shell_syntax": "passed",
     "submission_dry_runs": "passed",
     "native_gpu_validation": false,
-    "note": "Scheduler-only patch over hf3; prior CPU-test evidence remains historical. B200 model loading must be smoke-tested on Rocket.",
+    "note": "Validated on Linux CPU; no Rocket FlashInfer or B200 model execution available. Existing historical reports are retained.",
     "eligible_nodes": [
       "pegasus2",
       "firefly1",
@@ -181,6 +183,10 @@
       "firefly3",
       "shepard2"
     ],
-    "scheduler_validation": "Shell syntax; nine hostname guard cases; four batch resource headers; no live Slurm or B200 model execution"
+    "scheduler_validation": "Shell syntax; nine hostname guard cases; four batch resource headers; no live Slurm or B200 model execution",
+    "cause": "FlashInfer fp4_quantization_100.so requires GLIBCXX_3.4.29; job 2500099 loaded GCC 9 libstdc++ instead",
+    "runtime_selection": "Check ABI and loadability; export LD_PRELOAD before model and GPU imports; explicit TF_LIBSTDCXX_PATH override",
+    "cpp_validation": "Ruff, shell syntax, six C++ resolver regression tests, actual Linux library load in a fresh process",
+    "checksum_format": "JSON; verifier prefers JSON and retains support for older TXT manifests"
   }
 }

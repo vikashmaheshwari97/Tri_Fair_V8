@@ -29,6 +29,16 @@ tf_require_research_gpu_node() {
   esac
 }
 
+tf_configure_cpp_runtime() {
+  # Run after all module loads, before torch/vLLM/FlashInfer imports. LD_PRELOAD
+  # also reaches multiprocessing workers, unlike changing paths inside Python.
+  local preload
+  preload="$(python -m tri_fair.cli.cpp_runtime --preload-value)" \
+    || tf_die "Compatible C++ runtime preflight failed; stopping before model loading."
+  export LD_PRELOAD="$preload"
+  tf_log "C++ runtime preload: $LD_PRELOAD"
+}
+
 tf_is_true() {
   case "${1:-}" in
     1|true|TRUE|yes|YES|y|Y|on|ON) return 0 ;;
