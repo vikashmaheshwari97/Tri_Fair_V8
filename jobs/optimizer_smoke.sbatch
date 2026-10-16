@@ -5,7 +5,7 @@
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=16
 #SBATCH --gpus-per-task=1
-#SBATCH --exclude=falcon[1-6],pegasus,shepard[2-3]
+#SBATCH --exclude=falcon[1-6],pegasus,shepard3
 #SBATCH --hint=nomultithread
 #SBATCH --mem=160G
 #SBATCH --time=01:00:00

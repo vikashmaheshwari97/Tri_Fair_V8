@@ -22,10 +22,10 @@ tf_require_research_gpu_node() {
   # Refuse unknown/future nodes too, before loading weights or running CUDA.
   local node="${SLURMD_NODENAME:-$(hostname -s)}"
   case "$node" in
-    pegasus2|firefly1|firefly2|firefly3)
+    pegasus2|firefly1|firefly2|firefly3|shepard2)
       tf_log "Eligible GPU node: $node (one GPU requested)"
       ;;
-    *) tf_die "Unsupported node '$node'; use pegasus2 or firefly[1-3]." ;;
+    *) tf_die "Unsupported node '$node'; use pegasus2, firefly[1-3], or shepard2." ;;
   esac
 }
 
