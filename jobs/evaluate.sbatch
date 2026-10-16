@@ -3,8 +3,9 @@
 #SBATCH --partition=gpu
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
-#SBATCH --cpus-per-task=32
-#SBATCH --gpus-per-task=h200-141g:1
+#SBATCH --cpus-per-task=16
+#SBATCH --gpus-per-task=1
+#SBATCH --exclude=falcon[1-6],pegasus,shepard[2-3]
 #SBATCH --hint=nomultithread
 #SBATCH --mem=160G
 #SBATCH --time=24:00:00
@@ -19,6 +20,7 @@ ROOT="${SLURM_SUBMIT_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
 cd "$ROOT"
 export PYTHONPATH="$ROOT${PYTHONPATH:+:$PYTHONPATH}"
 source jobs/lib/common.sh
+tf_require_research_gpu_node
 source jobs/lib/model_cache.sh
 tf_log "Allocation: job=${SLURM_JOB_ID:-local} nodes=${SLURM_JOB_NODELIST:-unknown}"
 nvidia-smi --query-gpu=name,memory.total,driver_version --format=csv

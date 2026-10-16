@@ -3,8 +3,9 @@
 #SBATCH --partition=gpu
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
-#SBATCH --cpus-per-task=32
-#SBATCH --gpus-per-task=h200-141g:1
+#SBATCH --cpus-per-task=16
+#SBATCH --gpus-per-task=1
+#SBATCH --exclude=falcon[1-6],pegasus,shepard[2-3]
 #SBATCH --hint=nomultithread
 #SBATCH --mem=160G
 #SBATCH --time=01:00:00
@@ -17,6 +18,7 @@ module --ignore_cache load python-venv/1.0
 source "${TF_VENV:-$HOME/venvs/tri-fair-v8}/bin/activate"
 cd "${SLURM_SUBMIT_DIR:?Submit from the project root}"
 source jobs/lib/common.sh
+tf_require_research_gpu_node
 source jobs/lib/model_cache.sh
 tf_log "Allocation: job=${SLURM_JOB_ID:-local} nodes=${SLURM_JOB_NODELIST:-unknown}"
 nvidia-smi --query-gpu=name,memory.total,driver_version --format=csv

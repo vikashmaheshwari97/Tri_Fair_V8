@@ -158,9 +158,9 @@
     "real-model experimental results"
   ],
   "hotfix": {
-    "id": "8.1.0-hf2-firefly-gptoss",
+    "id": "8.1.0-hf3-flexible-gpu-pool",
     "includes_prior_utf8_hotfix": true,
-    "gpu_request": "h200-141g:1",
+    "gpu_request": "untyped GPU:1; one node; 16 CPU cores",
     "default_models": [
       "qwen-3-30b",
       "mistral-3-24b",
@@ -173,6 +173,13 @@
     "shell_syntax": "passed",
     "submission_dry_runs": "passed",
     "native_gpu_validation": false,
-    "note": "Earlier validation reports describe the original release; this hotfix has not been executed on Rocket."
+    "note": "GPU pool patch over hf2. Existing CPU test evidence is from hf2; scheduler changes checked separately. No live Rocket execution available.",
+    "eligible_nodes": [
+      "pegasus2",
+      "firefly1",
+      "firefly2",
+      "firefly3"
+    ],
+    "scheduler_validation": "Shell syntax; eight host guard cases; four batch headers; both submission paths with mock sbatch"
   }
 }

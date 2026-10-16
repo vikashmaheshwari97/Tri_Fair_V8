@@ -17,6 +17,18 @@ tf_die() {
   exit 1
 }
 
+tf_require_research_gpu_node() {
+  # Batch headers exclude other nodes in the current Rocket GPU inventory.
+  # Refuse unknown/future nodes too, before loading weights or running CUDA.
+  local node="${SLURMD_NODENAME:-$(hostname -s)}"
+  case "$node" in
+    pegasus2|firefly1|firefly2|firefly3)
+      tf_log "Eligible GPU node: $node (one GPU requested)"
+      ;;
+    *) tf_die "Unsupported node '$node'; use pegasus2 or firefly[1-3]." ;;
+  esac
+}
+
 tf_is_true() {
   case "${1:-}" in
     1|true|TRUE|yes|YES|y|Y|on|ON) return 0 ;;
