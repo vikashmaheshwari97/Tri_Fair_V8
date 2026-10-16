@@ -183,7 +183,8 @@ def _mistral_snapshot_is_complete(snapshot: Path) -> tuple[bool, str]:
     if not snapshot.is_dir():
         return (False, "not a directory")
     missing = [
-        name for name in MISTRAL_REQUIRED_FILES if not (snapshot / name).is_file()
+        name for name in MISTRAL_REQUIRED_FILES
+        if not (snapshot / name).is_file() or (snapshot / name).stat().st_size == 0
     ]
     if missing:
         return (False, f"missing {missing}")
@@ -193,13 +194,47 @@ def _mistral_snapshot_is_complete(snapshot: Path) -> tuple[bool, str]:
     empty = [path.name for path in weights if path.stat().st_size <= 0]
     if empty:
         return (False, f"empty weight files {empty}")
+    for path in weights:
+        with path.open("rb") as handle:
+            if handle.read(100).startswith(b"version https://git-lfs.github.com/spec/"):
+                return (False, f"Git LFS pointer instead of downloaded weights: {path.name}")
     return (True, "ok")
 
 
 def _resolve_mistral_snapshot(model_config: ModelConfig) -> Path:
-    """Resolve Mistral from an explicit path or the configured model directory."""
+    """Resolve an explicit directory or the pinned official-format cache snapshot."""
     explicit = os.environ.get("MISTRAL_LOCAL_SNAPSHOT", "").strip()
-    candidates = _unique_paths((explicit or None, model_config.model_storage_path))
+    candidates = []
+    if explicit:
+        if "/absolute/path/to/" in explicit.replace("\\", "/"):
+            raise FileNotFoundError(
+                "MISTRAL_LOCAL_SNAPSHOT contains an example placeholder. "
+                "Run 'unset MISTRAL_LOCAL_SNAPSHOT' to use pinned cache discovery, "
+                "or set it to the real complete Mistral snapshot directory."
+            )
+        # An explicit override is intentional: do not silently select another model.
+        candidates = _unique_paths((explicit,))
+    else:
+        revision = model_config.llm_kwargs.get("revision")
+        repository = "models--mistralai--Mistral-Small-3.2-24B-Instruct-2506"
+        roots = _unique_paths((
+            *_cache_roots(model_config),
+            os.environ.get("MISTRAL_HF_CACHE"),
+            os.environ.get("TF_HF_HUB_CACHE"),
+            Path(os.environ["TF_HF_HOME"]) / "hub" if os.environ.get("TF_HF_HOME") else None,
+            Path.home() / "projects/models/Mistral-3-24b",
+            Path.home() / "models/Mistral-3-24b",
+        ))
+        # A deliberately staged flat model directory remains supported.
+        candidates.append(model_config.model_storage_path)
+        for root in roots:
+            if revision:
+                candidates.extend((
+                    root / repository / "snapshots" / str(revision),
+                    root / "snapshots" / str(revision),
+                    root / str(revision),
+                ))
+        candidates = _unique_paths(candidates)
     checked: list[str] = []
     for candidate in candidates:
         complete, reason = _mistral_snapshot_is_complete(candidate)

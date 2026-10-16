@@ -9,7 +9,7 @@
   "upstream_base_commit": "5f748223b8c6c2f62023ded41ec898b95557df9c",
   "prior_v8_release_commit": "f7e853e",
   "checkpoint_schema": 5,
-  "file_count": 120,
+  "file_count": 122,
   "files": [
     ".gitattributes",
     ".github/workflows/cpu-tests.yml",
@@ -56,6 +56,7 @@
     "src/tri_fair/cli/doctor.py",
     "src/tri_fair/cli/evaluate.py",
     "src/tri_fair/cli/matrix.py",
+    "src/tri_fair/cli/model_snapshot.py",
     "src/tri_fair/cli/prepare.py",
     "src/tri_fair/cli/smoke.py",
     "src/tri_fair/cli/train.py",
@@ -123,6 +124,7 @@
     "tests/test_gptoss_runtime.py",
     "tests/test_gpu_preflight.py",
     "tests/test_integration.py",
+    "tests/test_mistral_snapshot.py",
     "tests/test_reporting.py",
     "tests/test_search.py",
     "tests/test_statistical_fairness.py",
@@ -160,7 +162,7 @@
     "real-model experimental results"
   ],
   "hotfix": {
-    "id": "8.1.0-hf5-cpp-runtime",
+    "id": "8.1.0-hf6-mistral-snapshot",
     "includes_prior_utf8_hotfix": true,
     "gpu_request": "untyped GPU:1; one node; 16 CPU cores",
     "default_models": [
@@ -170,12 +172,12 @@
     ],
     "training_tasks": 162,
     "evaluation_tasks": 27,
-    "cpu_tests_passed": 86,
+    "cpu_tests_passed": 93,
     "ruff": "passed",
     "shell_syntax": "passed",
     "submission_dry_runs": "passed",
     "native_gpu_validation": false,
-    "note": "Validated on Linux CPU; no Rocket FlashInfer or B200 model execution available. Existing historical reports are retained.",
+    "note": "93 CPU tests, Ruff, shell syntax and CPU CLI/shell path integration passed. No real Mistral inference validated. Five-node pool retained.",
     "eligible_nodes": [
       "pegasus2",
       "firefly1",
@@ -184,9 +186,10 @@
       "shepard2"
     ],
     "scheduler_validation": "Shell syntax; nine hostname guard cases; four batch resource headers; no live Slurm or B200 model execution",
-    "cause": "FlashInfer fp4_quantization_100.so requires GLIBCXX_3.4.29; job 2500099 loaded GCC 9 libstdc++ instead",
+    "cause": "Job 2502489 inherited the example placeholder MISTRAL_LOCAL_SNAPSHOT path",
     "runtime_selection": "Check ABI and loadability; export LD_PRELOAD before model and GPU imports; explicit TF_LIBSTDCXX_PATH override",
     "cpp_validation": "Ruff, shell syntax, six C++ resolver regression tests, actual Linux library load in a fresh process",
-    "checksum_format": "JSON; verifier prefers JSON and retains support for older TXT manifests"
+    "checksum_format": "JSON; verifier prefers JSON and retains support for older TXT manifests",
+    "mistral_resolution": "Explicit complete directory, or exact configured revision in known local caches; CPU-only path check and shell reuse"
   }
 }

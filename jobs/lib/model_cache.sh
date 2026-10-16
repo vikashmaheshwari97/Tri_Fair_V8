@@ -92,13 +92,9 @@ tf_configure_model_cache() {
   export HF_HUB_CACHE="${TF_HF_HUB_CACHE:-$HF_HOME/hub}"
   export HUGGINGFACE_HUB_CACHE="$HF_HUB_CACHE"
   export HF_DATASETS_CACHE="${TF_HF_DATASETS_CACHE:-$HF_HOME/datasets}"
-  local snapshot="${MISTRAL_LOCAL_SNAPSHOT:-$PWD/../models/Mistral-3-24b}"
-  local file
-  for file in config.json params.json tekken.json; do
-    [[ -s "$snapshot/$file" ]] || tf_die "Mistral snapshot missing $file: $snapshot"
-  done
-  compgen -G "$snapshot/consolidated*.safetensors" >/dev/null \
-    || tf_die "Mistral snapshot missing consolidated weights: $snapshot"
+  local snapshot
+  snapshot="$(python -m tri_fair.cli.model_snapshot --model mistral-3-24b --print-path)" \
+    || tf_die "Mistral snapshot preflight failed. Check MISTRAL_LOCAL_SNAPSHOT or run the CPU-only model_snapshot command before submitting."
   export MISTRAL_LOCAL_SNAPSHOT="$snapshot"
   tf_log "Using Mistral local snapshot: $MISTRAL_LOCAL_SNAPSHOT"
 }
