@@ -15,7 +15,7 @@ dependencies = [
 [project.optional-dependencies]
 dev = ["pytest==9.1.1", "ruff==0.15.20"]
 analysis = ["matplotlib>=3.9", "scipy>=1.15"]
-gpu = ["vllm==0.24.0"]
+gpu = ["vllm==0.24.0", "transformers==5.16.1"]
 
 [project.scripts]
 tri-fair-train = "tri_fair.cli.train:main"

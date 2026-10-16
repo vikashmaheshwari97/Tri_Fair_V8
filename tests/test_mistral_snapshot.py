@@ -48,6 +48,13 @@ def test_hub_discovery_uses_pinned_revision(monkeypatch, tmp_path):
     assert models._resolve_mistral_snapshot(config(tmp_path)) == good.resolve()
 
 
+def test_flat_home_projects_directory_is_discovered(monkeypatch, tmp_path):
+    monkeypatch.delenv("MISTRAL_LOCAL_SNAPSHOT", raising=False)
+    monkeypatch.setattr(Path, "home", classmethod(lambda cls: tmp_path))
+    good = stage(tmp_path / "projects/models/Mistral-3-24b")
+    assert models._resolve_mistral_snapshot(config(tmp_path)) == good.resolve()
+
+
 @pytest.mark.parametrize("defect", ["missing", "empty", "pointer"])
 def test_incomplete_snapshots_are_rejected(tmp_path, defect):
     snapshot = stage(tmp_path / "snapshot")
@@ -61,6 +68,9 @@ def test_incomplete_snapshots_are_rejected(tmp_path, defect):
 
 
 def test_create_llm_uses_verified_mistral_directory(monkeypatch, tmp_path):
+    from tri_fair.runtime import backend_compatibility as backend_check
+
+    monkeypatch.setattr(backend_check, "require_mistral_backend", lambda: {"ok": True})
     snapshot = stage(tmp_path / "snapshot")
     monkeypatch.setenv("MISTRAL_LOCAL_SNAPSHOT", str(snapshot))
     monkeypatch.setattr(models, "get_available_gpu_memory_gb", lambda: 80)

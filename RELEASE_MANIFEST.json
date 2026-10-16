@@ -9,7 +9,7 @@
   "upstream_base_commit": "5f748223b8c6c2f62023ded41ec898b95557df9c",
   "prior_v8_release_commit": "f7e853e",
   "checkpoint_schema": 5,
-  "file_count": 122,
+  "file_count": 125,
   "files": [
     ".gitattributes",
     ".github/workflows/cpu-tests.yml",
@@ -51,6 +51,7 @@
     "setup_windows.ps1",
     "src/tri_fair/__init__.py",
     "src/tri_fair/cli/__init__.py",
+    "src/tri_fair/cli/backend_check.py",
     "src/tri_fair/cli/common.py",
     "src/tri_fair/cli/cpp_runtime.py",
     "src/tri_fair/cli/doctor.py",
@@ -93,6 +94,7 @@
     "src/tri_fair/reporting/objectives.py",
     "src/tri_fair/reporting/summarize.py",
     "src/tri_fair/runtime/__init__.py",
+    "src/tri_fair/runtime/backend_compatibility.py",
     "src/tri_fair/runtime/budget.py",
     "src/tri_fair/runtime/callbacks.py",
     "src/tri_fair/runtime/checkpointing.py",
@@ -116,6 +118,7 @@
     "tests/fakes.py",
     "tests/test_analysis_metrics.py",
     "tests/test_architecture.py",
+    "tests/test_backend_compatibility.py",
     "tests/test_bbq_loader.py",
     "tests/test_block_sampler.py",
     "tests/test_budget_control.py",
@@ -162,7 +165,7 @@
     "real-model experimental results"
   ],
   "hotfix": {
-    "id": "8.1.0-hf6-mistral-snapshot",
+    "id": "8.1.0-hf7-pixtral-api",
     "includes_prior_utf8_hotfix": true,
     "gpu_request": "untyped GPU:1; one node; 16 CPU cores",
     "default_models": [
@@ -172,12 +175,12 @@
     ],
     "training_tasks": 162,
     "evaluation_tasks": 27,
-    "cpu_tests_passed": 93,
+    "cpu_tests_passed": 101,
     "ruff": "passed",
     "shell_syntax": "passed",
     "submission_dry_runs": "passed",
     "native_gpu_validation": false,
-    "note": "93 CPU tests, Ruff, shell syntax and CPU CLI/shell path integration passed. No real Mistral inference validated. Five-node pool retained.",
+    "note": "CPU suite, added path regression, Ruff, shell syntax and downloaded Transformers wheel API inspection passed. Rocket must install updated GPU extra and rerun smoke; real Mistral inference remains unverified.",
     "eligible_nodes": [
       "pegasus2",
       "firefly1",
@@ -186,10 +189,18 @@
       "shepard2"
     ],
     "scheduler_validation": "Shell syntax; nine hostname guard cases; four batch resource headers; no live Slurm or B200 model execution",
-    "cause": "Job 2502489 inherited the example placeholder MISTRAL_LOCAL_SNAPSHOT path",
+    "cause": "Job 2503952: vLLM Pixtral import expects PixtralRotaryEmbedding removed in newer Transformers",
     "runtime_selection": "Check ABI and loadability; export LD_PRELOAD before model and GPU imports; explicit TF_LIBSTDCXX_PATH override",
     "cpp_validation": "Ruff, shell syntax, six C++ resolver regression tests, actual Linux library load in a fresh process",
     "checksum_format": "JSON; verifier prefers JSON and retains support for older TXT manifests",
-    "mistral_resolution": "Explicit complete directory, or exact configured revision in known local caches; CPU-only path check and shell reuse"
+    "mistral_resolution": "Explicit complete directory, or exact configured revision in known local caches; CPU-only path check and shell reuse",
+    "gpu_dependencies": {
+      "vllm": "0.24.0",
+      "transformers": "5.16.1"
+    },
+    "test_execution": {
+      "full_suite_passed": 100,
+      "additional_flat_directory_regression_passed": 1
+    }
   }
 }

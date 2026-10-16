@@ -93,6 +93,8 @@ tf_configure_model_cache() {
   export HUGGINGFACE_HUB_CACHE="$HF_HUB_CACHE"
   export HF_DATASETS_CACHE="${TF_HF_DATASETS_CACHE:-$HF_HOME/datasets}"
   local snapshot
+  python -m tri_fair.cli.backend_check --model mistral-3-24b \
+    || tf_die "Mistral backend dependencies are incompatible; repair them on the login node before submitting."
   snapshot="$(python -m tri_fair.cli.model_snapshot --model mistral-3-24b --print-path)" \
     || tf_die "Mistral snapshot preflight failed. Check MISTRAL_LOCAL_SNAPSHOT or run the CPU-only model_snapshot command before submitting."
   export MISTRAL_LOCAL_SNAPSHOT="$snapshot"

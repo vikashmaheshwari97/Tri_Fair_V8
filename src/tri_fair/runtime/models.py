@@ -228,6 +228,8 @@ def _resolve_mistral_snapshot(model_config: ModelConfig) -> Path:
         # A deliberately staged flat model directory remains supported.
         candidates.append(model_config.model_storage_path)
         for root in roots:
+            if root.name == "Mistral-3-24b":
+                candidates.append(root)
             if revision:
                 candidates.extend((
                     root / repository / "snapshots" / str(revision),
@@ -281,6 +283,9 @@ def create_llm(model_config: ModelConfig, seed: int) -> VLLM:
         wrapper_type = GPTOSSVLLM
         wrapper_kwargs["reasoning_effort"] = "low"
     elif model_config.alias == MISTRAL_ALIAS:
+        from tri_fair.runtime.backend_compatibility import require_mistral_backend
+
+        require_mistral_backend()
         model_name = str(_resolve_mistral_snapshot(model_config))
         llm_kwargs.pop("revision", None)
     return wrapper_type(
