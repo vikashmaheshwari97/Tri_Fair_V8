@@ -1,0 +1,21 @@
+{
+  "tests": 72.0,
+  "failures": 0.0,
+  "errors": 0.0,
+  "skipped": 0.0,
+  "time": 55.921,
+  "python": "3.12.14",
+  "operating_system": "Linux",
+  "before_after_cases": 22,
+  "package_modules_imported": 60,
+  "shell_scripts": 8,
+  "cli_help_checks": 7,
+  "default_matrix_runs": 108,
+  "dependency_check": "passed",
+  "source_lint": "passed",
+  "editable_install": "passed",
+  "gpu_validation": false,
+  "native_powershell_execution_validated": false,
+  "real_model_experiments": false,
+  "checkpoint_schema": 5
+}

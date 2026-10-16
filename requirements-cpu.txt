@@ -1,0 +1,2 @@
+# Run from the project root with Python 3.11 or 3.12.
+-e .[dev,analysis]

@@ -1,0 +1,17 @@
+# Experimental protocol
+
+Optimize quality, configured weighted inference-token cost, and unfairness. All methods use the same dataset-specific metric definitions, raw initial seed pool, frozen few-shot split, search/validation partition, model revision, decoding settings and requested downstream budget. Report actual consumption and underutilization. Meta-model tokens are separate and must be reported because reflection adds meta calls. Token weights are experiment settings, not current provider prices.
+
+Search sees only its partition. Feedback reads cached search examples. Demonstrations come only from the separate frozen pool. Validation chooses configurations/representatives; final test is evaluated only after those choices are frozen. The evaluator scores each unique prompt once and joins its result back to every method/archive membership.
+
+The support-aware partition uses only labels/group metadata and manifest IDs, reserving the smallest complete-block validation prefix with sufficient counts and worst-case Wilson-width support on both sides. Parent development sizes: BBQ 440, Civil Comments 576, Bios 784. Expected search/validation sizes for balanced complete blocks are 264/176, 384/192 and 448/336 respectively. Civil Comments' overlapping identities can require a different reservation or fail explicitly. Each dataset has a separate 500-item final test and frozen few-shot pool (88/96/112 respectively). Consult actual manifest reports and resolved run metadata.
+
+Bootstrap diagnostics use paired cached rows. BBQ resamples template clusters within categories, Bios stratifies by profession×gender, and Civil Comments resamples rows within label strata, retaining overlapping identity attributes. Resamples lacking readiness block early rejection. Twenty-four replicates and the Bonferroni quantile are heuristic; there is no anytime-valid sequential coverage guarantee. Main archive membership uses raw pooled objective values, not bootstrap-adjusted substitutes.
+
+Use identical optional decoding/runtime flags for all methods and the evaluator. Greedy decoding reduces sampling variation but does not itself guarantee GPU batch invariance. Structured labels, prefix caching and batch invariance require validation with the selected backend/model/hardware. They are disabled by default.
+
+The current analysis reports real checkpoints at/below budget, per-seed outcomes, mean/sample SD/count, fairness readiness and out-of-bound normalization values. Its selection lock prevents choosing a different representative from final test scores. Default analysis cost bounds are 100 for BBQ/Civil and 120 for Bios. Predeclare alternative bounds if used. Do not equate independently selected objective extremes with one prompt jointly achieving all three extremes. No superiority or significance claim follows from passing CPU tests.
+
+Sensitivity files in `configs/sensitivity` cover archive cap, bootstrap replicate count, UCB scale and warm-start count. Pass one through `--optimizer-overrides PATH.json` and keep each setting in a distinct result namespace. Evaluate/tune on validation, then freeze. The full-evaluation and enhanced NSGA-II comparators help separate effects of the search policy from stronger proposal operators. None of these tests guarantee v8 will dominate every comparator on all models/datasets.
+
+Checkpoint schema 5 rejects old formats/classes. Start fresh runs after installing the clean package. Reusing old result files, v7 manifests or pickle state without a matched protocol would confound the comparison.

@@ -1,0 +1,2 @@
+# Linux/CUDA only. vLLM selects its compatible Torch dependency.
+-e .[dev,analysis,gpu]

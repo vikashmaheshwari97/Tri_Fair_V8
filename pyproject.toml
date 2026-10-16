@@ -1,0 +1,34 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "tri-fair-research"
+version = "8.1.0"
+description = "Fairness-aware multi-objective prompt search with reproducible comparison methods"
+requires-python = ">=3.11,<3.13"
+dependencies = [
+  "promptolution[api]==2.2.3", "datasets==5.0.0", "huggingface-hub==1.22.0",
+  "pymoo==0.6.2", "scikit-learn==1.9.0", "pyarrow>=18"
+]
+
+[project.optional-dependencies]
+dev = ["pytest==9.1.1", "ruff==0.15.20"]
+analysis = ["matplotlib>=3.9", "scipy>=1.15"]
+gpu = ["vllm==0.24.0"]
+
+[project.scripts]
+tri-fair-train = "tri_fair.cli.train:main"
+tri-fair-evaluate = "tri_fair.cli.evaluate:main"
+tri-fair-prepare = "tri_fair.cli.prepare:main"
+tri-fair-matrix = "tri_fair.cli.matrix:main"
+tri-fair-report = "tri_fair.reporting.summarize:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+target-version = "py311"

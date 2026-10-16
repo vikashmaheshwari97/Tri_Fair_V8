@@ -1,0 +1,138 @@
+{
+  "source_revision": "f7e853e",
+  "scope": "deterministic synthetic models only",
+  "cases": [
+    {
+      "method": "v8",
+      "seed": 42,
+      "steps": 3,
+      "identical_prompts_archives_scores_token_counts": true
+    },
+    {
+      "method": "v8",
+      "seed": 93,
+      "steps": 3,
+      "identical_prompts_archives_scores_token_counts": true
+    },
+    {
+      "method": "no_feedback",
+      "seed": 42,
+      "steps": 3,
+      "identical_prompts_archives_scores_token_counts": true
+    },
+    {
+      "method": "no_feedback",
+      "seed": 93,
+      "steps": 3,
+      "identical_prompts_archives_scores_token_counts": true
+    },
+    {
+      "method": "no_demo",
+      "seed": 42,
+      "steps": 3,
+      "identical_prompts_archives_scores_token_counts": true
+    },
+    {
+      "method": "no_demo",
+      "seed": 93,
+      "steps": 3,
+      "identical_prompts_archives_scores_token_counts": true
+    },
+    {
+      "method": "no_uncertainty",
+      "seed": 42,
+      "steps": 3,
+      "identical_prompts_archives_scores_token_counts": true
+    },
+    {
+      "method": "no_uncertainty",
+      "seed": 93,
+      "steps": 3,
+      "identical_prompts_archives_scores_token_counts": true
+    },
+    {
+      "method": "full_eval",
+      "seed": 42,
+      "steps": 3,
+      "identical_prompts_archives_scores_token_counts": true
+    },
+    {
+      "method": "full_eval",
+      "seed": 93,
+      "steps": 3,
+      "identical_prompts_archives_scores_token_counts": true
+    },
+    {
+      "method": "standard_variation",
+      "seed": 42,
+      "steps": 3,
+      "identical_prompts_archives_scores_token_counts": true
+    },
+    {
+      "method": "standard_variation",
+      "seed": 93,
+      "steps": 3,
+      "identical_prompts_archives_scores_token_counts": true
+    },
+    {
+      "method": "spea2",
+      "seed": 42,
+      "steps": 3,
+      "identical_prompts_archives_scores_token_counts": true
+    },
+    {
+      "method": "spea2",
+      "seed": 93,
+      "steps": 3,
+      "identical_prompts_archives_scores_token_counts": true
+    },
+    {
+      "method": "nsga3",
+      "seed": 42,
+      "steps": 3,
+      "identical_prompts_archives_scores_token_counts": true
+    },
+    {
+      "method": "nsga3",
+      "seed": 93,
+      "steps": 3,
+      "identical_prompts_archives_scores_token_counts": true
+    },
+    {
+      "method": "random",
+      "seed": 42,
+      "steps": 3,
+      "identical_prompts_archives_scores_token_counts": true
+    },
+    {
+      "method": "random",
+      "seed": 93,
+      "steps": 3,
+      "identical_prompts_archives_scores_token_counts": true
+    },
+    {
+      "method": "enhanced",
+      "seed": 42,
+      "steps": 3,
+      "identical_prompts_archives_scores_token_counts": true
+    },
+    {
+      "method": "enhanced",
+      "seed": 93,
+      "steps": 3,
+      "identical_prompts_archives_scores_token_counts": true
+    },
+    {
+      "method": "nsga2",
+      "seed": 42,
+      "steps": 3,
+      "identical_prompts_archives_scores_token_counts": true
+    },
+    {
+      "method": "nsga2",
+      "seed": 93,
+      "steps": 3,
+      "identical_prompts_archives_scores_token_counts": true
+    }
+  ]
+}
