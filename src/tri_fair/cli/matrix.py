@@ -55,7 +55,7 @@ def commands(args):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--models", default="qwen-3-30b,mistral-3-24b")
+    parser.add_argument("--models", default="qwen-3-30b,mistral-3-24b,gpt-oss-120b")
     parser.add_argument("--datasets", default="bbq,civil_comments,bias_in_bios")
     parser.add_argument(
         "--methods",

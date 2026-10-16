@@ -4,7 +4,7 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"
 source jobs/lib/common.sh
 
-export TF_MODELS="${TF_MODELS:-qwen-3-30b,mistral-3-24b}"
+export TF_MODELS="${TF_MODELS:-qwen-3-30b,mistral-3-24b,gpt-oss-120b}"
 export TF_DATASETS="${TF_DATASETS:-bbq,civil_comments,bias_in_bios}"
 export TF_OPTIMIZERS="${TF_OPTIMIZERS:-Tri-Fair-v8,NSGAII-PO-Fair,SPEA2-PO-Fair,NSGAIII-PO-Fair,RandomSearch-PO-Fair,NSGAII-PO-Fair-Enhanced}"
 export TF_SEEDS="${TF_SEEDS:-72,73,74}"
@@ -23,7 +23,7 @@ export MIN_BUDGET_UTILIZATION="${MIN_BUDGET_UTILIZATION:-0.90}"
 export OUTPUT_TOKEN_RESERVE="${OUTPUT_TOKEN_RESERVE:-2}"
 export FORCE_FRESH="${FORCE_FRESH:-0}"
 export DRY_RUN="${DRY_RUN:-1}"
-export NODELIST="${NODELIST-pegasus2}"
+export NODELIST="${NODELIST:-}"
 export CPUS_PER_TASK="${CPUS_PER_TASK:-32}"
 
 declare -a models datasets optimizers seeds
@@ -35,7 +35,7 @@ total=$((${#models[@]} * ${#datasets[@]} * ${#optimizers[@]} * ${#seeds[@]}))
 array_spec="0-$((total - 1))%$MAX_CONCURRENT"
 mkdir -p logs "results/$TF_RESULTS_NAMESPACE/submissions"
 
-SBATCH_ARGS=(--parsable "--array=$array_spec" "--job-name=tfv8-${BUDGET}")
+SBATCH_ARGS=("--gpus-per-task=${GPU_TYPE:-h200-141g}:1" --parsable "--array=$array_spec" "--job-name=tfv8-${BUDGET}")
 [[ -n "${PARTITION:-}" ]] && SBATCH_ARGS+=("--partition=$PARTITION")
 [[ -n "${TIME_LIMIT:-}" ]] && SBATCH_ARGS+=("--time=$TIME_LIMIT")
 [[ -n "${MEMORY:-}" ]] && SBATCH_ARGS+=("--mem=$MEMORY")

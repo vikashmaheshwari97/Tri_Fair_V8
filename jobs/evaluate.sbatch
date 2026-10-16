@@ -3,8 +3,9 @@
 #SBATCH --partition=gpu
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
-#SBATCH --cpus-per-task=16
-#SBATCH --gpus-per-task=1
+#SBATCH --cpus-per-task=32
+#SBATCH --gpus-per-task=h200-141g:1
+#SBATCH --hint=nomultithread
 #SBATCH --mem=160G
 #SBATCH --time=24:00:00
 #SBATCH --output=logs/tri_fair_v8_eval_%A_%a.out
@@ -19,9 +20,12 @@ cd "$ROOT"
 export PYTHONPATH="$ROOT${PYTHONPATH:+:$PYTHONPATH}"
 source jobs/lib/common.sh
 source jobs/lib/model_cache.sh
+tf_log "Allocation: job=${SLURM_JOB_ID:-local} nodes=${SLURM_JOB_NODELIST:-unknown}"
+nvidia-smi --query-gpu=name,memory.total,driver_version --format=csv
+python -m tri_fair.cli.doctor --gpu
 
 declare -a models datasets seeds
-tf_split_csv "${TF_MODELS:-qwen-3-30b,mistral-3-24b}" models
+tf_split_csv "${TF_MODELS:-qwen-3-30b,mistral-3-24b,gpt-oss-120b}" models
 tf_split_csv "${TF_DATASETS:-bbq,civil_comments,bias_in_bios}" datasets
 tf_split_csv "${TF_SEEDS:-72,73,74}" seeds
 idx="${SLURM_ARRAY_TASK_ID:-0}"

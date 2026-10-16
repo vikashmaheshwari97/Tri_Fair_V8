@@ -9,12 +9,13 @@
   "upstream_base_commit": "5f748223b8c6c2f62023ded41ec898b95557df9c",
   "prior_v8_release_commit": "f7e853e",
   "checkpoint_schema": 5,
-  "file_count": 116,
+  "file_count": 118,
   "files": [
     ".gitattributes",
     ".github/workflows/cpu-tests.yml",
     ".gitignore",
     ".python-version",
+    "HOTFIX_GPU_README.md",
     "NOTICE.md",
     "README.md",
     "RELEASE_MANIFEST.json",
@@ -118,6 +119,7 @@
     "tests/test_budget_control.py",
     "tests/test_fairness_metrics.py",
     "tests/test_gptoss_runtime.py",
+    "tests/test_gpu_preflight.py",
     "tests/test_integration.py",
     "tests/test_reporting.py",
     "tests/test_search.py",
@@ -156,8 +158,21 @@
     "real-model experimental results"
   ],
   "hotfix": {
-    "id": "8.1.0-hf1-utf8",
-    "reason": "Explicit UTF-8 source and JSON text IO on Windows",
-    "validation": "See HOTFIX_UTF8_README.txt for current hotfix checks; original validation remains historical."
+    "id": "8.1.0-hf2-firefly-gptoss",
+    "includes_prior_utf8_hotfix": true,
+    "gpu_request": "h200-141g:1",
+    "default_models": [
+      "qwen-3-30b",
+      "mistral-3-24b",
+      "gpt-oss-120b"
+    ],
+    "training_tasks": 162,
+    "evaluation_tasks": 27,
+    "cpu_tests_passed": 80,
+    "ruff": "passed",
+    "shell_syntax": "passed",
+    "submission_dry_runs": "passed",
+    "native_gpu_validation": false,
+    "note": "Earlier validation reports describe the original release; this hotfix has not been executed on Rocket."
   }
 }

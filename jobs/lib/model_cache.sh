@@ -54,6 +54,7 @@ tf_configure_hf_snapshot() {
         "${GPT_OSS_LOCAL_SNAPSHOT:-}"
         "$HOME/models/gpt-oss-120b/models--openai--gpt-oss-120b/snapshots/$gptoss_revision"
         "$HOME/projects/models/gpt-oss-120b/models--openai--gpt-oss-120b/snapshots/$gptoss_revision"
+        "$HF_HUB_CACHE/models--openai--gpt-oss-120b/snapshots/$gptoss_revision"
       )
       for candidate in "${gptoss_candidates[@]}"; do
         [[ -n "$candidate" ]] || continue
