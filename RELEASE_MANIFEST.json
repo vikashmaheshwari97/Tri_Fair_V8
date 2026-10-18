@@ -9,7 +9,7 @@
   "upstream_base_commit": "5f748223b8c6c2f62023ded41ec898b95557df9c",
   "prior_v8_release_commit": "f7e853e",
   "checkpoint_schema": 5,
-  "file_count": 125,
+  "file_count": 130,
   "files": [
     ".gitattributes",
     ".github/workflows/cpu-tests.yml",
@@ -40,6 +40,7 @@
     "jobs/lib/common.sh",
     "jobs/lib/model_cache.sh",
     "jobs/optimizer_smoke.sbatch",
+    "jobs/pilot_100k.sbatch",
     "jobs/smoke.sbatch",
     "jobs/submit_evaluate.sh",
     "jobs/submit_train.sh",
@@ -58,6 +59,7 @@
     "src/tri_fair/cli/evaluate.py",
     "src/tri_fair/cli/matrix.py",
     "src/tri_fair/cli/model_snapshot.py",
+    "src/tri_fair/cli/pilot.py",
     "src/tri_fair/cli/prepare.py",
     "src/tri_fair/cli/smoke.py",
     "src/tri_fair/cli/train.py",
@@ -87,6 +89,7 @@
     "src/tri_fair/optimizers/nsga2.py",
     "src/tri_fair/optimizers/nsga2_core.py",
     "src/tri_fair/optimizers/pareto.py",
+    "src/tri_fair/optimizers/refined.py",
     "src/tri_fair/optimizers/trifair.py",
     "src/tri_fair/reporting/__init__.py",
     "src/tri_fair/reporting/membership.py",
@@ -111,6 +114,7 @@
     "src/tri_fair/search/objectives.py",
     "src/tri_fair/search/racing.py",
     "src/tri_fair/search/reference.py",
+    "src/tri_fair/search/refinement.py",
     "src/tri_fair/search/selection.py",
     "src/tri_fair/search/uncertainty.py",
     "src/tri_fair/search/variation.py",
@@ -128,6 +132,7 @@
     "tests/test_gpu_preflight.py",
     "tests/test_integration.py",
     "tests/test_mistral_snapshot.py",
+    "tests/test_refinement_pilot.py",
     "tests/test_reporting.py",
     "tests/test_search.py",
     "tests/test_statistical_fairness.py",
@@ -202,5 +207,16 @@
       "full_suite_passed": 100,
       "additional_flat_directory_regression_passed": 1
     }
+  },
+  "experimental_method": "Tri-Fair-v8.2-Experimental",
+  "experimental_patch_created_utc": "2026-10-16T18:58:50.395747+00:00",
+  "experimental_pilot": {
+    "budget_per_method": 100000,
+    "methods": 7,
+    "datasets": 3,
+    "benchmark_result": false,
+    "existing_results_deleted": false,
+    "baseline_implementations_changed": false,
+    "gpu_performance_validated": false
   }
 }

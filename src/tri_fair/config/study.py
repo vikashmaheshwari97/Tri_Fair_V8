@@ -73,4 +73,9 @@ def build_optimizer_registry():
         configs[name] = OptimizerConfig(
             name, name, dict(TRI_FAIR_PARAMETERS, **overrides), "sequential_block", 1
         )
+    configs["Tri-Fair-v8.2-Experimental"] = OptimizerConfig(
+        "Tri-Fair-v8.2-Experimental", "Tri-Fair-v8.2-Experimental",
+        dict(TRI_FAIR_PARAMETERS, smart_start_count=0, feedback_cases=6),
+        "sequential_block", 1,
+    )
     return configs

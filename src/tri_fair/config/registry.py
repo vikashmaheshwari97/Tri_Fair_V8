@@ -6,6 +6,7 @@ from pathlib import Path
 import hashlib
 import subprocess
 from tri_fair.optimizers.trifair import TriFairOptimizer
+from tri_fair.optimizers.refined import RefinedTriFairOptimizer
 from tri_fair.optimizers.nsga2 import NSGA2Fair
 from tri_fair.optimizers.baselines import (
     SPEA2POFair,
@@ -15,6 +16,7 @@ from tri_fair.optimizers.baselines import (
 )
 
 METHODS = {
+    "Tri-Fair-v8.2-Experimental": RefinedTriFairOptimizer,
     "Tri-Fair-v8": TriFairOptimizer,
     "Tri-Fair-v8-NoFeedback": TriFairOptimizer,
     "Tri-Fair-v8-NoDemo": TriFairOptimizer,

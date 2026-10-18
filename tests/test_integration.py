@@ -8,6 +8,7 @@ import pandas as pd
 import pytest
 from tri_fair.runtime.checkpointing import save_checkpoint
 from tri_fair.optimizers.trifair import TriFairOptimizer
+from tri_fair.optimizers.refined import RefinedTriFairOptimizer
 from tri_fair.optimizers.baselines import SPEA2POFair, NSGAIIIPOFair
 from tests.fakes import optimizer, task_and_pool, FakeLLM, FakePredictor
 
@@ -23,11 +24,11 @@ def signature(obj):
     )
 
 
-@pytest.mark.parametrize("cls", [TriFairOptimizer, SPEA2POFair, NSGAIIIPOFair])
+@pytest.mark.parametrize("cls", [TriFairOptimizer, RefinedTriFairOptimizer, SPEA2POFair, NSGAIIIPOFair])
 def test_interrupted_equals_uninterrupted(cls, tmp_path):
     kwargs = (
         {"smart_start_count": 0, "uncertainty_resamples": 8}
-        if cls is TriFairOptimizer
+        if issubclass(cls, TriFairOptimizer)
         else {}
     )
     random.seed(52)
@@ -51,6 +52,7 @@ def test_interrupted_equals_uninterrupted(cls, tmp_path):
     "method",
     [
         "Tri-Fair-v8",
+        "Tri-Fair-v8.2-Experimental",
         "Tri-Fair-v8-NoFeedback",
         "Tri-Fair-v8-NoDemo",
         "Tri-Fair-v8-NoUncertainty",

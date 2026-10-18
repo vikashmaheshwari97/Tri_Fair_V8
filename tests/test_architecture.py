@@ -48,7 +48,7 @@ def _check_package_boundaries():
     assert not any(
         "V7" in cls.__name__ or "V6" in cls.__name__ for cls in TriFairOptimizer.__mro__
     )
-    assert len(METHODS) == 10
+    assert len(METHODS) == 11
 
 
 def test_installed_package_doctor():
