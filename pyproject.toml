@@ -32,3 +32,6 @@ testpaths = ["tests"]
 
 [tool.ruff]
 target-version = "py311"
+
+[tool.setuptools.package-data]
+tri_fair = ["assets/*.json"]

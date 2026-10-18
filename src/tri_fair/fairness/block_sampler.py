@@ -215,6 +215,10 @@ def sample_partition(
     seed: int,
     identity_columns: Sequence[str] = (),
 ) -> SampledPartition:
+    if dataset_alias == "winobias":
+        from tri_fair.data.winobias import sample_units
+        ids = sample_units(df, size=size, seed=seed)
+        return SampledPartition(ids=ids, remainder=df[~df[MANIFEST_ID].isin(ids)].copy())
     if dataset_alias == "bbq":
         return sample_bbq_partition(df, size=size, seed=seed)
     if dataset_alias == "bias_in_bios":
@@ -335,6 +339,9 @@ def build_fairness_blocks(
         raise ValueError(
             f"Development size {len(df)} must be divisible by block size {block_size}"
         )
+    if dataset_alias == "winobias":
+        from tri_fair.data.winobias import build_blocks
+        return build_blocks(df, block_size=block_size, seed=seed)
     if dataset_alias == "bbq":
         blocks = _bbq_blocks(df, block_size=block_size, seed=seed)
     elif dataset_alias == "bias_in_bios":

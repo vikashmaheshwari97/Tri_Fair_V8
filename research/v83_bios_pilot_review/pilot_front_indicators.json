@@ -1,0 +1,62 @@
+{
+  "dataset": "bias_in_bios",
+  "model": "qwen-3-30b",
+  "seed": 72,
+  "split": "search",
+  "benchmark_result": false,
+  "significance_established": false,
+  "rows": [
+    {
+      "method": "Tri-Fair-v8.3",
+      "accuracy": 0.7276785714285714,
+      "macro_f1": 0.7321752976933177,
+      "cost": 18.842924107142856,
+      "unfairness": 0.17315416054977323,
+      "status": "measured_search_only",
+      "search_hv_shortlist_3d": 0.7681857381520063,
+      "search_r2_shortlist_3d": 0.11384744237948315,
+      "noisy_r2_3d": null,
+      "noisy_r2_reason": "requires aligned held-out outcomes for every candidate",
+      "candidates": 2,
+      "nondominated_candidates": 2,
+      "scope": "audited shortlist; may omit other search-front candidates",
+      "reference_point": [
+        1.1,
+        1.1,
+        1.1
+      ],
+      "normalization": [
+        1.0,
+        120.0,
+        1.0
+      ],
+      "preference_rule": "4096 Dirichlet(1,1,1) preferences; seed 2026; lower R2 is better"
+    },
+    {
+      "method": "NSGAII-PO-Fair",
+      "accuracy": 0.7700892857142857,
+      "macro_f1": 0.7711235276134482,
+      "cost": 22.80566964285714,
+      "unfairness": 0.181848241863327,
+      "status": "measured_search_only",
+      "search_hv_shortlist_3d": 0.7702307720861715,
+      "search_r2_shortlist_3d": 0.11410909628982135,
+      "noisy_r2_3d": null,
+      "noisy_r2_reason": "requires aligned held-out outcomes for every candidate",
+      "candidates": 2,
+      "nondominated_candidates": 2,
+      "scope": "audited shortlist; may omit other search-front candidates",
+      "reference_point": [
+        1.1,
+        1.1,
+        1.1
+      ],
+      "normalization": [
+        1.0,
+        120.0,
+        1.0
+      ],
+      "preference_rule": "4096 Dirichlet(1,1,1) preferences; seed 2026; lower R2 is better"
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+% Measured exploratory pilot; do not label these as final benchmark results.
+\paragraph{Exploratory comparison.}
+We conducted a single-seed screening experiment on Bias-in-Bios using
+Qwen3-30B-A3B-Instruct-2507 and a ceiling of one million downstream tokens per
+method. Search received 650,000 tokens, with the remaining allowance reserved
+for completing the frozen shortlist. The selected Tri-Fair-v8.3 prompt attained
+72.77\% accuracy and 73.22\% macro-F1, compared with 77.01\% and 77.11\% for
+NSGA-II-PO-Fair. Its configured inference-cost score was lower
+(18.8429 versus 22.8057), as was its unfairness loss (0.1732 versus 0.1818).
+These outcomes represent a trade-off rather than Pareto dominance.
+
+\paragraph{Approximation-set diagnostics.}
+On the two audited search candidates per method, three-objective hypervolume
+was 0.768186 for Tri-Fair-v8.3 and 0.770231 for NSGA-II-PO-Fair. In-sample R2
+was 0.113847 and 0.114109, respectively. We used loss coordinates
+$(1-q,c/120,f)$ and reference point $(1.1,1.1,1.1)$; R2 used 4,096 common
+Dirichlet preference vectors. These shortlist diagnostics may omit other
+search candidates. They do not measure held-out noisy R2 or establish
+statistical significance. No v8.4 performance claim follows from this pilot.
+
+\paragraph{Final evaluation plan.}
+Following the approximation-set reporting structure of MO-CAPO, the final
+comparison should report quality, inference cost and unfairness for a single
+validation-selected representative, together with optimistic/pessimistic
+held-out hypervolume, approximation gap, noisy R2, and optimization expenditure
+across independent seeds. The three-objective extension and fixed
+normalization protocol must be stated explicitly. WinoBias is evaluated using
+a paired two-choice accuracy adaptation; results must not be described as
+original CoNLL coreference F1.

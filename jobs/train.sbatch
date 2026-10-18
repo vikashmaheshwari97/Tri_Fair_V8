@@ -72,7 +72,7 @@ optimizer="${optimizers[$optimizer_idx]}"
 seed="${seeds[$seed_idx]}"
 
 tf_configure_model_cache "$model"
-tf_contains "$optimizer" Tri-Fair-v8 Tri-Fair-v8.3 Tri-Fair-v8.2-Experimental NSGAII-PO-Fair SPEA2-PO-Fair NSGAIII-PO-Fair RandomSearch-PO-Fair NSGAII-PO-Fair-Enhanced Tri-Fair-v8-NoFeedback Tri-Fair-v8-NoDemo Tri-Fair-v8-NoUncertainty Tri-Fair-v8-FullEval \
+tf_contains "$optimizer" Tri-Fair-v8.4-Hybrid Tri-Fair-v8 Tri-Fair-v8.3 Tri-Fair-v8.2-Experimental NSGAII-PO-Fair SPEA2-PO-Fair NSGAIII-PO-Fair RandomSearch-PO-Fair NSGAII-PO-Fair-Enhanced Tri-Fair-v8-NoFeedback Tri-Fair-v8-NoDemo Tri-Fair-v8-NoUncertainty Tri-Fair-v8-FullEval \
   || tf_die "Unsupported v8 optimizer '$optimizer'"
 
 checkpoints="$(tf_stage_checkpoints "$BUDGET")"

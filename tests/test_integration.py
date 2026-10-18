@@ -10,6 +10,7 @@ from tri_fair.runtime.checkpointing import save_checkpoint
 from tri_fair.optimizers.trifair import TriFairOptimizer
 from tri_fair.optimizers.refined import RefinedTriFairOptimizer
 from tri_fair.optimizers.attributed import AttributedTriFairOptimizer
+from tri_fair.optimizers.hybrid import HybridTriFairOptimizer
 from tri_fair.optimizers.baselines import SPEA2POFair, NSGAIIIPOFair
 from tests.fakes import optimizer, task_and_pool, FakeLLM, FakePredictor
 
@@ -25,7 +26,7 @@ def signature(obj):
     )
 
 
-@pytest.mark.parametrize("cls", [TriFairOptimizer, RefinedTriFairOptimizer, AttributedTriFairOptimizer, SPEA2POFair, NSGAIIIPOFair])
+@pytest.mark.parametrize("cls", [TriFairOptimizer, RefinedTriFairOptimizer, AttributedTriFairOptimizer, HybridTriFairOptimizer, SPEA2POFair, NSGAIIIPOFair])
 def test_interrupted_equals_uninterrupted(cls, tmp_path):
     kwargs = (
         {"smart_start_count": 0, "uncertainty_resamples": 8}
@@ -55,6 +56,7 @@ def test_interrupted_equals_uninterrupted(cls, tmp_path):
         "Tri-Fair-v8",
         "Tri-Fair-v8.2-Experimental",
         "Tri-Fair-v8.3",
+        "Tri-Fair-v8.4-Hybrid",
         "Tri-Fair-v8-NoFeedback",
         "Tri-Fair-v8-NoDemo",
         "Tri-Fair-v8-NoUncertainty",
@@ -140,7 +142,7 @@ def test_complete_public_runner_with_fake_models(method, tmp_path, monkeypatch, 
         assert report["comparable"] and report["quality_metric"] == "macro_f1"
 
 
-@pytest.mark.parametrize("method", ["Tri-Fair-v8.2-Experimental", "Tri-Fair-v8.3", "NSGAII-PO-Fair"])
+@pytest.mark.parametrize("method", ["Tri-Fair-v8.2-Experimental", "Tri-Fair-v8.3", "Tri-Fair-v8.4-Hybrid", "NSGAII-PO-Fair"])
 def test_complete_public_runner_with_reserved_search_audit(method, tmp_path, monkeypatch):
     test_complete_public_runner_with_fake_models(method, tmp_path, monkeypatch, audit=True)
 

@@ -20,6 +20,7 @@ from tri_fair.fairness.base import FairnessMetric, FairnessMetricResult, json_sa
 from tri_fair.fairness.bbq import compute_bbq_fairness
 from tri_fair.fairness.bios import compute_bios_fairness
 from tri_fair.fairness.civilcomments import compute_civilcomments_fairness
+from tri_fair.fairness.winobias import compute_winobias_fairness
 from tri_fair.fairness.statistical_metrics import (
     compute_bbq_statistical_fairness,
     compute_bios_statistical_tpr_gap,
@@ -43,6 +44,7 @@ class FairnessEvalResult:
 
 
 _METRICS: Dict[str, FairnessMetric] = {
+    "winobias_paired_gap": compute_winobias_fairness,
     "bbq_bias": compute_bbq_fairness,
     "bios_tpr_gap": compute_bios_fairness,
     "civil_worst_group": compute_civilcomments_fairness,

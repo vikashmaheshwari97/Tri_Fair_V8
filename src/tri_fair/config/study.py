@@ -85,4 +85,9 @@ def build_optimizer_registry():
              generation_input_token_limit=2100),
         "sequential_block", 1,
     )
+    configs["Tri-Fair-v8.4-Hybrid"] = OptimizerConfig(
+        "Tri-Fair-v8.4-Hybrid", "Tri-Fair-v8.4-Hybrid",
+        dict(shared, max_generation_calls=128, prompt_word_limit=96,
+             generation_input_token_limit=2100), "full", 1,
+    )
     return configs

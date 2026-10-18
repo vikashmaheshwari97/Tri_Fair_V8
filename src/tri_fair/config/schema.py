@@ -12,7 +12,7 @@ from pathlib import Path
 from typing import Any, Callable, Dict, List, Literal, Optional, Tuple
 from promptolution.tasks.base_task import EvalStrategy
 
-DatasetType = Literal["bbq", "bias_in_bios", "civil_comments"]
+DatasetType = Literal["bbq", "bias_in_bios", "civil_comments", "winobias"]
 TaskType = Literal["Classification", "Reward", "Fairness"]
 OptimizerType = str
 ModelType = Literal["gpt-oss-120b", "qwen-3-30b", "mistral-3-24b"]
@@ -23,9 +23,10 @@ FairnessMetricName = Literal[
     "bbq_bias_statistical",
     "bios_tpr_gap_statistical",
     "civil_equalized_odds",
+    "winobias_paired_gap",
 ]
 QualityMetricName = Literal["accuracy", "macro_f1"]
-DatasetLoaderName = Literal["datasets", "bbq_multi_config", "civil_comments_raw_csv"]
+DatasetLoaderName = Literal["datasets", "bbq_multi_config", "civil_comments_raw_csv", "winobias_official"]
 
 
 @dataclass(frozen=True)

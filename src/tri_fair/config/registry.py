@@ -9,6 +9,7 @@ from tri_fair.optimizers.trifair import TriFairOptimizer
 from tri_fair.optimizers.refined import RefinedTriFairOptimizer
 from tri_fair.optimizers.attributed import AttributedTriFairOptimizer
 from tri_fair.optimizers.nsga2 import NSGA2Fair
+from tri_fair.optimizers.hybrid import HybridTriFairOptimizer
 from tri_fair.optimizers.baselines import (
     SPEA2POFair,
     NSGAIIIPOFair,
@@ -17,6 +18,7 @@ from tri_fair.optimizers.baselines import (
 )
 
 METHODS = {
+    "Tri-Fair-v8.4-Hybrid": HybridTriFairOptimizer,
     "Tri-Fair-v8.3": AttributedTriFairOptimizer,
     "Tri-Fair-v8.2-Experimental": RefinedTriFairOptimizer,
     "Tri-Fair-v8": TriFairOptimizer,

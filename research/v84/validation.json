@@ -1,0 +1,22 @@
+{
+  "upgrade": "Tri-Fair-v8.4-Hybrid + WinoBias",
+  "requires": "Tri_Fair_V83_Research_Upgrade.zip already applied",
+  "cpu_tests": {
+    "passed": 155,
+    "duration_seconds": 69.44
+  },
+  "ruff": "passed",
+  "bash_syntax": "passed",
+  "wheel_build_and_packaged_resource_check": "passed",
+  "checkpoint_resume_matches_uninterrupted": true,
+  "winobias_manifests_prepared_seeds": [
+    72,
+    73,
+    74
+  ],
+  "original_baseline_optimizer_and_fairness_metric_hashes_unchanged": true,
+  "gpu_validation_of_new_method": false,
+  "measured_new_method_objective_improvement": null,
+  "pilot_evidence": "v8.3 Qwen Bias-in-Bios seed72; search-only audited shortlist",
+  "source": "https://github.com/uclanlp/corefBias/tree/0bce984dd081bbc10b0622f326727a024c607895/WinoBias/wino/data"
+}

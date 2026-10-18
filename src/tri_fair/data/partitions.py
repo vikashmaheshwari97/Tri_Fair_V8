@@ -9,6 +9,9 @@ from tri_fair.fairness.statistics import wilson_width
 def _cell_counts(task, frame):
     """Counts only: neither model predictions nor test examples enter this rule."""
     metric = task.fairness_metric_name
+    if metric.startswith("winobias"):
+        return [int(((frame.task_type == t) & (frame.stereotype == c)).sum())
+                for t in ["type1", "type2"] for c in ["pro", "anti"]]
     if metric.startswith("bios"):
         return frame.groupby([task.y_column, "gender"], dropna=False).size().tolist()
     if metric.startswith("bbq"):

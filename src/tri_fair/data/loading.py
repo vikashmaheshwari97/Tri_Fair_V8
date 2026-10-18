@@ -394,6 +394,9 @@ def _load_civil_comments(config: DatasetConfig) -> Dict[str, pd.DataFrame]:
 def load_fairness_sources(config: DatasetConfig) -> Dict[str, pd.DataFrame]:
     if config.task_type != "Fairness":
         raise ValueError("load_fairness_sources is only valid for fairness datasets")
+    if config.loader == "winobias_official":
+        from tri_fair.data.winobias import load_winobias_sources
+        return load_winobias_sources(config)
     if config.loader == "bbq_multi_config":
         return _load_bbq(config)
     if config.loader == "civil_comments_raw_csv":
@@ -456,7 +459,7 @@ def _create_manifest(
             identity_columns=fairness.protected_columns,
         )
         fs_sample = sample_partition(
-            fs_source,
+            dev_sample.remainder if fairness.fewshot_source_split == fairness.dev_source_split else fs_source,
             dataset_alias=config.alias,
             size=fairness.fs_size,
             seed=seed + 23,
@@ -513,9 +516,15 @@ def load_or_create_manifest(
     if path.exists() and (not regenerate):
         manifest = SplitManifest.from_json(path)
         _validate_manifest(config, manifest, seed=seed)
+        if config.alias == "winobias":
+            from tri_fair.data.winobias import validate_partitions
+            validate_partitions(sources, manifest.partitions, manifest.blocks)
         return (manifest, path)
     manifest = _create_manifest(config, sources, seed=seed)
     _validate_manifest(config, manifest, seed=seed)
+    if config.alias == "winobias":
+        from tri_fair.data.winobias import validate_partitions
+        validate_partitions(sources, manifest.partitions, manifest.blocks)
     manifest.save(path)
     logger.info("Created immutable split manifest at %s", path)
     return (manifest, path)

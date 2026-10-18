@@ -19,7 +19,7 @@ def commands(args):
     if (
         not set(methods) <= set(METHODS)
         or not set(models) <= {"qwen-3-30b", "mistral-3-24b", "gpt-oss-120b"}
-        or (not set(datasets) <= {"bbq", "bias_in_bios", "civil_comments"})
+        or (not set(datasets) <= {"bbq", "bias_in_bios", "civil_comments", "winobias"})
     ):
         raise ValueError("unknown model, dataset or method")
     for model, dataset, method, seed in itertools.product(

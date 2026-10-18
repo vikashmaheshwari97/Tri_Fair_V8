@@ -14,7 +14,7 @@ from uuid import uuid4
 from tri_fair.cli.common import atomic_write_json
 from tri_fair.config.registry import METHODS
 
-VARIANT = "Tri-Fair-v8.3"
+VARIANT = "Tri-Fair-v8.4-Hybrid"
 DEFAULT_METHODS = (
     VARIANT,
     "Tri-Fair-v8",
@@ -54,7 +54,7 @@ def train_command(args, method, root):
         "-m",
         "tri_fair.cli.train",
         "--experiment-name",
-        "v83_attributed_search_pilot",
+        "v84_hybrid_search_pilot",
         "--model",
         args.model,
         "--dataset",
@@ -230,6 +230,8 @@ def read_result(run_dir, method):
             ["quality", "cost", "fairness", "instruction", "few_shots_json"]
         ].to_dict("records"),
     )
+    from tri_fair.reporting.pilot_indicators import shortlist_indicators
+    result["front_indicators"] = shortlist_indicators(result)
     return result
 
 
@@ -275,7 +277,7 @@ def compare_results(records):
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
-        "--dataset", required=True, choices=["bbq", "civil_comments", "bias_in_bios"]
+        "--dataset", required=True, choices=["bbq", "civil_comments", "bias_in_bios", "winobias"]
     )
     parser.add_argument(
         "--model",
@@ -317,7 +319,7 @@ def main(argv=None):
         datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ") + "_" + uuid4().hex[:8]
     )
     root = (
-        Path(args.output_root or f"results/tri_fair_v83_pilot_{args.budget}")
+        Path(args.output_root or f"results/tri_fair_v84_pilot_{args.budget}")
         .expanduser()
         .resolve()
         / args.model
