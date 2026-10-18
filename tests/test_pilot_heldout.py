@@ -89,3 +89,51 @@ def test_final_only_membership_uses_one_real_step_and_exact_search_scores(tmp_pa
     assert final.chosen_step.iloc[0] == 2
     assert final.dev_quality.iloc[0] == pytest.approx(0.8)
     assert final.actual_budget_tokens.iloc[0] == 200
+
+
+def test_audited_membership_uses_full_search_scores_and_includes_audit_tokens(tmp_path):
+    p = Prompt("Use evidence.", ["Gold example"])
+    pd.DataFrame(
+        [
+            dict(
+                instruction=p.instruction,
+                few_shots_json=json.dumps(p.few_shots),
+                downstream_template=p.downstream_template,
+                quality=0.8,
+                cost=20,
+                fairness=0.1,
+                fairness_ready=True,
+            )
+        ]
+    ).to_parquet(tmp_path / "final_search_results.parquet")
+    summary = dict(
+        status="complete",
+        frozen_before_audit=True,
+        feedback_to_optimizer=False,
+        total_downstream_tokens=900,
+        completed_candidates=1,
+        search_steps_logged=3,
+        total_budget_tokens=1000,
+    )
+    path = tmp_path / "finalization_summary.json"
+    path.write_text(json.dumps(summary))
+    args = dict(
+        optimizer="Tri-Fair-v8.5",
+        dataset="bias_in_bios",
+        model="qwen-3-30b",
+        seed=72,
+        minimum_tokens=0,
+        maximum_tokens=1000,
+        audited_final=True,
+    )
+    frame = _membership_for_run(tmp_path, **args)
+    assert frame.prompt.iloc[0] == p.construct_prompt()
+    assert frame.actual_budget_tokens.iloc[0] == 900
+    assert frame.dev_quality.iloc[0] == 0.8
+    assert frame.selection_policy.iloc[0] == "audited_final_shortlist"
+    with pytest.raises(ValueError, match="actual-token range"):
+        _membership_for_run(tmp_path, **dict(args, maximum_tokens=800))
+    summary["status"] = "incomplete"
+    path.write_text(json.dumps(summary))
+    with pytest.raises(ValueError, match="complete frozen"):
+        _membership_for_run(tmp_path, **args)

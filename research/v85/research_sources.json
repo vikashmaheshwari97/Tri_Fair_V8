@@ -1,0 +1,176 @@
+{
+  "attachments": [
+    {
+      "filename": "2503.08051v2.pdf",
+      "sha256": "1a9e5cd4bcac3c0779f01c626beea391464a08f3a45565b7fdfcb7b4a80725e3",
+      "access": "local supplied PDF; text and methods reviewed"
+    },
+    {
+      "filename": "06826-AAAI26.GiovanelliJ-ML.pdf",
+      "sha256": "8cc68613734ecc5eae8a1f38430e9206ae71aae1825e5240cb89d51d1776939c",
+      "access": "local supplied PDF; text and methods reviewed"
+    },
+    {
+      "filename": "Bias-Fairness-Mitigating-Popularity-Bias-LLM-Based-Recommendation-Systems-via.pdf",
+      "sha256": "5c4309975ba4b360cf1b039cbbac5a18f9ea8a51c4044f46bde659bae2176956",
+      "access": "local supplied PDF; text and methods reviewed"
+    },
+    {
+      "filename": "2512.07608v1.pdf",
+      "sha256": "28ba42e0e3a7bf525df2ed0cd702abdcdc40066fce4196fc26fe3a183d71c967",
+      "access": "local supplied PDF; text and methods reviewed"
+    },
+    {
+      "filename": "11027_Cost_aware_LLM_based_Onl.pdf",
+      "sha256": "8a06e793d323fc0b719296ef740177c4c699f748e0ed1ca1e2f2e24cde837c45",
+      "access": "local supplied PDF; text and methods reviewed"
+    },
+    {
+      "filename": "ICLR-2026-more-than-what-was-chosen-llm-based-explainable-recommendation-beyond-noisy-user-preferences-Paper-Conference.pdf",
+      "sha256": "477cd1e56a125c5eb672104312ab11e82e89fa3416683379fe6cfa8ee609b55f",
+      "access": "local supplied PDF; text and methods reviewed"
+    },
+    {
+      "filename": "2606.28340v1.pdf",
+      "sha256": "66ca66f05d9add18214ff06a682070183d1ecb9cd925b2dd13086a626dd880a6",
+      "access": "local supplied PDF; text and methods reviewed"
+    },
+    {
+      "filename": "3833420.pdf",
+      "sha256": "7e80e45ad841fead366039adcf16aad3e564ed9e92de4b4e9a7bc4b7318d0ebc",
+      "access": "local supplied PDF; text and methods reviewed"
+    }
+  ],
+  "unresolved": [
+    {
+      "url": "https://openreview.net/pdf?id=M36IXztHLF",
+      "status": "OpenReview verification wall; title and content not independently resolved"
+    },
+    {
+      "url": "https://neurips.cc/virtual/2025/loc/san-diego/poster/118792",
+      "status": "poster route blocked; CaMVo was reviewed via supplied PDF and arXiv, not assumed to be this exact URL"
+    }
+  ],
+  "studies": [
+    {
+      "study": "GEPA",
+      "year_or_version": "2025/2026",
+      "url": "https://arxiv.org/abs/2507.19457",
+      "actual_method": "Reflection diagnoses failures and evolves complementary prompts from a Pareto set.",
+      "transfer_to_trifair": "Retain measured search errors as revision evidence; edit instruction and demonstrations separately.",
+      "limitation": "v8.5 is an original adaptation, not the GEPA implementation or a reproduced GEPA benchmark."
+    },
+    {
+      "study": "More Than What Was Chosen / C-APO",
+      "year_or_version": "ICLR 2026",
+      "url": "https://github.com/cpark88/C-APO",
+      "actual_method": "Reconciles revealed and coherent preference signals with a conflict-aware training objective after SFT.",
+      "transfer_to_trifair": "Motivates distinguishing useful task evidence from conflicting shortcut signals.",
+      "limitation": "C-APO means conflict-aware direct preference optimization, not cost-aware prompt optimization. We do not import its DPO loss or train model weights."
+    },
+    {
+      "study": "Neutralizing Popularity Bias / NPRec",
+      "year_or_version": "2026, supplied v2",
+      "url": "https://arxiv.org/html/2503.08051v2",
+      "actual_method": "Counterfactually refines textual recommendation guidelines to suppress popularity-driven components while retaining preference evidence.",
+      "transfer_to_trifair": "Use evidence-preserving task-specific guidance and observed WinoBias pair failures.",
+      "limitation": "Recommendation popularity is different from demographic classification fairness. We do not claim to implement the NPRec causal estimator."
+    },
+    {
+      "study": "RosePO: Customized Preference Alignment in LLM-Based Recommendation",
+      "year_or_version": "2026, supplied ACM version",
+      "url": "https://doi.org/10.1145/3833420",
+      "actual_method": "Customized rejected sampling and personalized label smoothing handle uncertain preference pairs during model alignment.",
+      "transfer_to_trifair": "Supports caution about noisy pairwise comparisons; retain existing paired uncertainty tests.",
+      "limitation": "Its training loss and user oracle are not directly applicable to fixed-model discrete prompt search."
+    },
+    {
+      "study": "Metric-Fair Prompting: Treating Similar Samples Similarly",
+      "year_or_version": "2025",
+      "url": "https://arxiv.org/abs/2512.07608",
+      "actual_method": "Pairs similar medical questions for joint inference and promotes consistency under a task-relevant metric.",
+      "transfer_to_trifair": "Retrieve related gold demonstrations and use observed paired-error feedback.",
+      "limitation": "Medical individual fairness is not our group fairness metric. No embedding model, joint-test inference, Lipschitz certificate or extra free predictions is added."
+    },
+    {
+      "study": "Cost-aware LLM-based Online Dataset Annotation / CaMVo",
+      "year_or_version": "NeurIPS 2025",
+      "url": "https://arxiv.org/abs/2505.15101",
+      "actual_method": "Selects model subsets using contextual confidence and cost before weighted voting.",
+      "transfer_to_trifair": "Preserve explicit cost accounting and avoid inference for cached stability diagnostics or deterministic demo edits.",
+      "limitation": "Cross-model routing and majority voting would alter the current single-model comparison, so are deferred."
+    },
+    {
+      "study": "HAMLET4Fairness",
+      "year_or_version": "AAAI 2026",
+      "url": "https://ojs.aaai.org/index.php/AAAI/article/view/39275",
+      "actual_method": "Combines fairness-aware AutoML, domain constraints and argumentation; code evaluates stratified cross-validation and group metrics.",
+      "transfer_to_trifair": "Use explicit task-relevant constraints and examine sensitivity across observed search blocks.",
+      "limitation": "Leave-one-block-out prompt diagnostics are not the same as HAMLET cross-validation or a statistical guarantee."
+    },
+    {
+      "study": "Rethinking Fairness in LLM-Based Recommender Systems: A Survey",
+      "year_or_version": "2026",
+      "url": "https://arxiv.org/abs/2606.28340",
+      "actual_method": "Distinguishes fairness targets, bias sources, mitigation stages and evaluation limitations.",
+      "transfer_to_trifair": "Keep group definitions and dataset-specific metrics explicit; report all trade-offs.",
+      "limitation": "Survey evidence does not prove a particular optimizer will outperform."
+    },
+    {
+      "study": "From Bias to Fairness: Mitigating Popularity Bias via SFT and DPO",
+      "year_or_version": "2026, supplied PDF",
+      "url": "",
+      "actual_method": "Caps popularity-skewed training data and uses QLoRA SFT followed by DPO on MovieLens.",
+      "transfer_to_trifair": "Supports diverse, gold-labeled example selection rather than repeatedly selecting the same dominant examples.",
+      "limitation": "Small recommendation setting; requires weight updates; not a directly transferable prompt optimizer or evidence of demographic fairness."
+    },
+    {
+      "study": "Bias Ahead: Sensitive Prompts as Early Warnings",
+      "year_or_version": "2026",
+      "url": "https://arxiv.org/html/2604.05575v1",
+      "actual_method": "SensY and a prompt-sensitivity classifier address fairness risk detection before deployment.",
+      "transfer_to_trifair": "Use it to distinguish sensitivity detection from measured fairness mitigation.",
+      "limitation": "A sensitivity classifier is not an objective optimizer; adding it would not establish accuracy/fairness gains."
+    },
+    {
+      "study": "Bias by Prompt LLM Fairness repository",
+      "year_or_version": "2026",
+      "url": "https://github.com/shuseiyokoi/bias-by-prompt-llm-fairness",
+      "actual_method": "Contrasts neutral and emotional fairness framing on the same HMDA summary.",
+      "transfer_to_trifair": "Prefer measured error feedback and task evidence over emotional appeals to fairness.",
+      "limitation": "Exploratory project, not evidence of a universally effective optimizer."
+    },
+    {
+      "study": "LLM-FAIR-PromptEngineering repository",
+      "year_or_version": "repository reviewed",
+      "url": "https://github.com/JialinDong/LLM-FAIR-PromptEngineering",
+      "actual_method": "Scores FAIR environmental-data principles: Findability, Accessibility, Interoperability and Reusability.",
+      "transfer_to_trifair": "Excluded as demographic-fairness methodology.",
+      "limitation": "The FAIR acronym here does not refer to demographic fairness."
+    },
+    {
+      "study": "Fairness Aware Reward Optimization / Faro",
+      "year_or_version": "2026, additional search",
+      "url": "https://arxiv.org/abs/2602.07799",
+      "actual_method": "Trains reward models subject to demographic, equalized-odds or counterfactual constraints.",
+      "transfer_to_trifair": "Motivates explicit fairness constraints and transparent utility trade-offs.",
+      "limitation": "No reward-model training is added; its certificates do not transfer to our prompt heuristics."
+    },
+    {
+      "study": "CAFFE: Systematic Counterfactual Fairness Evaluation",
+      "year_or_version": "2025, additional search",
+      "url": "https://arxiv.org/abs/2512.16816",
+      "actual_method": "Defines intent-aware fairness test cases and structured input variants.",
+      "transfer_to_trifair": "Preserve official paired WinoBias units in feedback, splits and bootstrap.",
+      "limitation": "We reuse existing observed pairs, not automated semantic fairness judgments or uncounted synthetic evaluations."
+    },
+    {
+      "study": "Reflection in the Dark",
+      "year_or_version": "2026, additional search",
+      "url": "https://arxiv.org/abs/2603.18388",
+      "actual_method": "Investigates failure attribution and the limitations of reflective prompt optimization.",
+      "transfer_to_trifair": "Retain diagnostics explaining what errors and measurements informed a proposal.",
+      "limitation": "Existing v8.3 already used failure attribution; this is not claimed as a new v8.5 invention."
+    }
+  ]
+}

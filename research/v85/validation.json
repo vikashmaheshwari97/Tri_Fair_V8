@@ -1,0 +1,26 @@
+{
+  "cpu_tests": {
+    "passed": 177,
+    "failed": 0,
+    "elapsed_seconds": 84.17
+  },
+  "ruff": "passed for all changed Python modules and tests",
+  "bash_syntax": "passed",
+  "submission_dry_run": "passed; no jobs submitted",
+  "checkpoint_resume": "new method equals uninterrupted execution in deterministic fake integration",
+  "gpu_validation": "not run; no CUDA/HPC access",
+  "expected_performance": "unknown until fresh pilot and validation",
+  "comparison_implementations_unchanged": [
+    "src/tri_fair/optimizers/nsga2.py",
+    "src/tri_fair/optimizers/baselines.py",
+    "src/tri_fair/optimizers/attributed.py",
+    "src/tri_fair/optimizers/trifair.py",
+    "src/tri_fair/reporting/metrics.py"
+  ],
+  "scientific_limits": [
+    "Search-block sensitivity is not a confidence interval.",
+    "One-seed screening cannot establish optimizer-level significance.",
+    "No guaranteed simultaneous dominance.",
+    "Meta and held-out tokens remain separately reported."
+  ]
+}

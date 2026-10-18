@@ -1,0 +1,37 @@
+[
+  {
+    "repository": "cpark88/C-APO",
+    "inspected_files": [
+      "README.md",
+      "src/open_r1/cadpo_trainer.py"
+    ]
+  },
+  {
+    "repository": "gepa-ai/gepa",
+    "inspected_files": [
+      "src/gepa/proposer/reflective_mutation/reflective_mutation.py",
+      "src/gepa/strategies/candidate_selector.py"
+    ]
+  },
+  {
+    "repository": "shuseiyokoi/bias-by-prompt-llm-fairness",
+    "inspected_files": [
+      "README.md",
+      "src/prompts.py"
+    ]
+  },
+  {
+    "repository": "JialinDong/LLM-FAIR-PromptEngineering",
+    "inspected_files": [
+      "README.md",
+      "scripts/LLM_FAIR_Final_1_rule-based prompting.py"
+    ]
+  },
+  {
+    "repository": "aaai-26/HAMLET4Fairness",
+    "inspected_files": [
+      "README.md",
+      "automl/hamlet/objective.py"
+    ]
+  }
+]

@@ -61,6 +61,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--output-file", default=None)
     parser.add_argument("--force", action="store_true")
     parser.add_argument(
+        "--audited-final",
+        action="store_true",
+        help="Use the frozen, fully evaluated search-audit shortlist and its total token count.",
+    )
+    parser.add_argument(
         "--final-only",
         action="store_true",
         help="Evaluate only each method's final logged incumbent set.",
@@ -132,7 +137,18 @@ def _membership_for_run(
     minimum_tokens: int,
     maximum_tokens: int,
     final_only: bool = False,
+    audited_final: bool = False,
 ) -> pd.DataFrame:
+    if audited_final:
+        return _audited_membership(
+            log_path,
+            optimizer=optimizer,
+            dataset=dataset,
+            model=model,
+            seed=seed,
+            minimum_tokens=minimum_tokens,
+            maximum_tokens=maximum_tokens,
+        )
     step_path = log_path / "step_results.parquet"
     if not step_path.is_file():
         raise FileNotFoundError(step_path)
@@ -186,6 +202,56 @@ def _membership_for_run(
     return pd.concat(parts, ignore_index=True, sort=False)
 
 
+def _audited_membership(
+    log_path, *, optimizer, dataset, model, seed, minimum_tokens, maximum_tokens
+):
+    """Align held-out outcomes with complete, frozen SEARCH audit scores."""
+    summary = json.loads(
+        (log_path / "finalization_summary.json").read_text(encoding="utf-8")
+    )
+    if (
+        summary.get("status") != "complete"
+        or not summary.get("frozen_before_audit")
+        or summary.get("feedback_to_optimizer") is not False
+    ):
+        raise ValueError(
+            "A complete frozen search audit without optimizer feedback is required"
+        )
+    tokens = int(summary["total_downstream_tokens"])
+    if not minimum_tokens <= tokens <= maximum_tokens:
+        raise ValueError("Audited run lies outside the requested actual-token range")
+    selected = pd.read_parquet(log_path / "final_search_results.parquet")
+    if len(selected) != int(summary["completed_candidates"]) or selected.empty:
+        raise ValueError("Audited candidate count mismatch")
+    if not selected.fairness_ready.eq(True).all():
+        raise ValueError("Audited search candidates lack fairness support")
+    if "downstream_template" not in selected:
+        selected["downstream_template"] = None
+    prompts = reconstruct_prompts(selected)
+    selected["prompt"] = [p.construct_prompt() for p in prompts]
+    selected["prompt_id"] = selected.prompt.map(prompt_id)
+    if selected.prompt_id.duplicated().any():
+        raise ValueError("Duplicate audited prompt identity")
+    selected = _rename_development_columns(selected)
+    for name, value in dict(
+        optimizer=optimizer,
+        dataset=dataset,
+        model=model,
+        seed=int(seed),
+        chosen_step=int(summary["search_steps_logged"]),
+        actual_budget_tokens=tokens,
+        budget_checkpoint=tokens,
+        checkpoint_signed_error=0,
+        checkpoint_relative_error=0.0,
+        checkpoint_policy="frozen_full_search_audit",
+        selection_policy="audited_final_shortlist",
+        configured_budget=int(summary["total_budget_tokens"]),
+        source_log_path=str(log_path.resolve()),
+    ).items():
+        selected[name] = value
+    return selected
+
+
 def _test_columns(frame: pd.DataFrame) -> list[str]:
     return [
         column
@@ -222,6 +288,7 @@ def run(args: argparse.Namespace) -> Path:
                 minimum_tokens=args.minimum_actual_tokens,
                 maximum_tokens=args.maximum_actual_tokens,
                 final_only=bool(getattr(args, "final_only", False)),
+                audited_final=bool(getattr(args, "audited_final", False)),
             )
         )
     membership = pd.concat(memberships, ignore_index=True, sort=False)
@@ -297,7 +364,9 @@ def run(args: argparse.Namespace) -> Path:
         "split": args.evaluation_split,
         "max_output_tokens": args.max_output_tokens,
         "structured_labels": args.structured_labels,
-        "candidate_policy": "final_incumbents"
+        "candidate_policy": "audited_final_shortlist"
+        if getattr(args, "audited_final", False)
+        else "final_incumbents"
         if getattr(args, "final_only", False)
         else "all_logged_incumbents",
         "manifest_sha256": sha256_file(

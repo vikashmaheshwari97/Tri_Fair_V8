@@ -1,0 +1,19 @@
+{
+  "status": "experimental; requires fresh GPU validation",
+  "primary_candidate": "Tri-Fair-v8.5",
+  "pilot_controls": ["Tri-Fair-v8.3", "NSGAII-PO-Fair"],
+  "retired_from_active_pilots": ["Tri-Fair-v8.4-Hybrid"],
+  "historical_implementations_retained": true,
+  "datasets": ["bbq", "civil_comments", "bias_in_bios", "winobias"],
+  "initial_model": "qwen-3-30b",
+  "initial_seed": 72,
+  "per_method_downstream_cap": 2000000,
+  "search_fraction": 0.70,
+  "audit_fraction": 0.30,
+  "initial_population_per_method": 4,
+  "maximum_demonstrations_per_method": 2,
+  "frozen_audit_candidates_per_method": 4,
+  "heldout_split": "validation",
+  "validation_scope": "additional separately reported tokens; no feedback to optimization",
+  "guaranteed_superiority": false
+}

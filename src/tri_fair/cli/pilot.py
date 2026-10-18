@@ -54,7 +54,7 @@ def train_command(args, method, root):
         "-m",
         "tri_fair.cli.train",
         "--experiment-name",
-        "v841_hybrid_termination_pilot",
+        str(getattr(args, "experiment_name", "v841_hybrid_termination_pilot")),
         "--model",
         args.model,
         "--dataset",
@@ -231,16 +231,17 @@ def read_result(run_dir, method):
         ].to_dict("records"),
     )
     from tri_fair.reporting.pilot_indicators import shortlist_indicators
+
     result["front_indicators"] = shortlist_indicators(result)
     return result
 
 
-def compare_results(records):
+def compare_results(records, variant_name=VARIANT):
     """Point estimates on search data, never a claim of held-out superiority."""
-    variant = next((row for row in records if row["method"] == VARIANT), None)
+    variant = next((row for row in records if row["method"] == variant_name), None)
     comparisons = []
     for control in records:
-        if control["method"] == VARIANT:
+        if control["method"] == variant_name:
             continue
         comparable = bool(variant and variant["comparable"] and control["comparable"])
         reason = None
@@ -274,10 +275,19 @@ def compare_results(records):
     return comparisons
 
 
-def main(argv=None):
+def main(
+    argv=None,
+    *,
+    variant_name=VARIANT,
+    namespace_prefix="tri_fair_v841_pilot",
+    default_methods=DEFAULT_METHODS,
+    defaults=None,
+):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
-        "--dataset", required=True, choices=["bbq", "civil_comments", "bias_in_bios", "winobias"]
+        "--dataset",
+        required=True,
+        choices=["bbq", "civil_comments", "bias_in_bios", "winobias"],
     )
     parser.add_argument(
         "--model",
@@ -291,14 +301,18 @@ def main(argv=None):
     parser.add_argument("--crossovers-per-iteration", type=int, default=1)
     parser.add_argument("--final-search-candidates", type=int, default=2)
     parser.add_argument("--final-search-reserve", type=float, default=0.35)
-    parser.add_argument("--unconstrained-labels", action="store_true",
-                        help="Disable the shared choice grammar for every method, never selectively.")
-    parser.add_argument("--methods", default=",".join(DEFAULT_METHODS))
+    parser.add_argument(
+        "--unconstrained-labels",
+        action="store_true",
+        help="Disable the shared choice grammar for every method, never selectively.",
+    )
+    parser.add_argument("--methods", default=",".join(default_methods))
     parser.add_argument("--manifest-dir", default="data/splits_v8_clean")
     parser.add_argument("--output-root", default=None)
     parser.add_argument(
         "--execute", action="store_true", help="Without this flag, print the plan only."
     )
+    parser.set_defaults(**(defaults or {}))
     args = parser.parse_args(argv)
     methods = list(dict.fromkeys(args.methods.split(",")))
     if (
@@ -308,7 +322,7 @@ def main(argv=None):
         or args.crossovers_per_iteration < 1
         or args.final_search_candidates < 1
         or not 0 < args.final_search_reserve < 1
-        or VARIANT not in methods
+        or variant_name not in methods
         or len(methods) < 2
         or set(methods) - set(METHODS)
     ):
@@ -319,7 +333,7 @@ def main(argv=None):
         datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ") + "_" + uuid4().hex[:8]
     )
     root = (
-        Path(args.output_root or f"results/tri_fair_v841_pilot_{args.budget}")
+        Path(args.output_root or f"results/{namespace_prefix}_{args.budget}")
         .expanduser()
         .resolve()
         / args.model
@@ -393,7 +407,7 @@ def main(argv=None):
                 comparable=False, status="failed", reason="nonzero_process_exit"
             )
         records.append(record)
-        comparisons = compare_results(records)
+        comparisons = compare_results(records, variant_name=variant_name)
         failed = any(row["status"] == "failed" for row in records)
         complete = len(records) == len(methods)
         comparable = (

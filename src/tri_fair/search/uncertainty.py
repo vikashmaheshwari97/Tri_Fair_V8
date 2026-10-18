@@ -17,6 +17,17 @@ def resample_indices(
     ids = frame["_review_id"].astype(str).tolist()
     fingerprint = hashlib.sha256((str(seed) + "|" + "|".join(ids)).encode()).digest()
     rng = np.random.default_rng(int.from_bytes(fingerprint[:8], "little"))
+    if metric.startswith("winobias"):
+        if "template_id" not in frame:
+            raise ValueError("WinoBias resampling requires complete template families")
+        units = [
+            np.asarray(v, dtype=int)
+            for v in frame.groupby("template_id", sort=True).indices.values()
+        ]
+        return [
+            np.concatenate([units[i] for i in rng.integers(0, len(units), len(units))])
+            for _ in range(repeats)
+        ]
     if metric.startswith("bbq") and "template_id" in frame:
         strata = {}
         for (category, _), positions in frame.groupby(

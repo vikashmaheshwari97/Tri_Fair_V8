@@ -48,7 +48,10 @@ def _check_package_boundaries():
     assert not any(
         "V7" in cls.__name__ or "V6" in cls.__name__ for cls in TriFairOptimizer.__mro__
     )
-    assert len(METHODS) == 13
+    from tri_fair.config.study import build_optimizer_registry
+
+    assert set(METHODS) == set(build_optimizer_registry())
+    assert {"Tri-Fair-v8.5", "Tri-Fair-v8.3", "NSGAII-PO-Fair"} <= set(METHODS)
 
 
 def test_installed_package_doctor():

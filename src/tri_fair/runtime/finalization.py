@@ -79,6 +79,7 @@ def finalize_search_front(optimizer, directory, *, count, total_budget):
                 "few_shots_json": json.dumps(
                     list(prompt.few_shots), ensure_ascii=False
                 ),
+                "downstream_template": prompt.downstream_template,
                 "quality": quality,
                 "cost": cost,
                 "fairness": unfairness,

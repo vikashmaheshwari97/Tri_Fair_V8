@@ -74,20 +74,56 @@ def build_optimizer_registry():
             name, name, dict(TRI_FAIR_PARAMETERS, **overrides), "sequential_block", 1
         )
     configs["Tri-Fair-v8.2-Experimental"] = OptimizerConfig(
-        "Tri-Fair-v8.2-Experimental", "Tri-Fair-v8.2-Experimental",
+        "Tri-Fair-v8.2-Experimental",
+        "Tri-Fair-v8.2-Experimental",
         dict(TRI_FAIR_PARAMETERS, smart_start_count=0, feedback_cases=6),
-        "sequential_block", 1,
+        "sequential_block",
+        1,
     )
     configs["Tri-Fair-v8.3"] = OptimizerConfig(
-        "Tri-Fair-v8.3", "Tri-Fair-v8.3",
-        dict(TRI_FAIR_PARAMETERS, smart_start_count=0, feedback_cases=5,
-             max_generation_calls=128, max_idle_rounds=3, prompt_word_limit=96,
-             generation_input_token_limit=2100),
-        "sequential_block", 1,
+        "Tri-Fair-v8.3",
+        "Tri-Fair-v8.3",
+        dict(
+            TRI_FAIR_PARAMETERS,
+            smart_start_count=0,
+            feedback_cases=5,
+            max_generation_calls=128,
+            max_idle_rounds=3,
+            prompt_word_limit=96,
+            generation_input_token_limit=2100,
+        ),
+        "sequential_block",
+        1,
     )
     configs["Tri-Fair-v8.4-Hybrid"] = OptimizerConfig(
-        "Tri-Fair-v8.4-Hybrid", "Tri-Fair-v8.4-Hybrid",
-        dict(shared, max_generation_calls=128, prompt_word_limit=96,
-             generation_input_token_limit=2100), "full", 1,
+        "Tri-Fair-v8.4-Hybrid",
+        "Tri-Fair-v8.4-Hybrid",
+        dict(
+            shared,
+            max_generation_calls=128,
+            prompt_word_limit=96,
+            generation_input_token_limit=2100,
+        ),
+        "full",
+        1,
+    )
+    # Hybrid is retained for historical checkpoint/evaluation compatibility.
+    configs["Tri-Fair-v8.5"] = OptimizerConfig(
+        "Tri-Fair-v8.5",
+        "Tri-Fair-v8.5",
+        dict(
+            TRI_FAIR_PARAMETERS,
+            smart_start_count=0,
+            feedback_cases=5,
+            min_initial_ready_blocks=3,
+            max_generation_calls=128,
+            max_idle_rounds=3,
+            prompt_word_limit=96,
+            generation_input_token_limit=2100,
+            stability_strength=1.0,
+            parent_quality_margin=0.04,
+        ),
+        "sequential_block",
+        1,
     )
     return configs

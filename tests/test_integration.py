@@ -11,6 +11,7 @@ from tri_fair.optimizers.trifair import TriFairOptimizer
 from tri_fair.optimizers.refined import RefinedTriFairOptimizer
 from tri_fair.optimizers.attributed import AttributedTriFairOptimizer
 from tri_fair.optimizers.hybrid import HybridTriFairOptimizer
+from tri_fair.optimizers.stable import StableTriFairOptimizer
 from tri_fair.optimizers.baselines import SPEA2POFair, NSGAIIIPOFair
 from tests.fakes import optimizer, task_and_pool, FakeLLM, FakePredictor
 
@@ -26,7 +27,18 @@ def signature(obj):
     )
 
 
-@pytest.mark.parametrize("cls", [TriFairOptimizer, RefinedTriFairOptimizer, AttributedTriFairOptimizer, HybridTriFairOptimizer, SPEA2POFair, NSGAIIIPOFair])
+@pytest.mark.parametrize(
+    "cls",
+    [
+        TriFairOptimizer,
+        RefinedTriFairOptimizer,
+        AttributedTriFairOptimizer,
+        StableTriFairOptimizer,
+        HybridTriFairOptimizer,
+        SPEA2POFair,
+        NSGAIIIPOFair,
+    ],
+)
 def test_interrupted_equals_uninterrupted(cls, tmp_path):
     kwargs = (
         {"smart_start_count": 0, "uncertainty_resamples": 8}
@@ -57,6 +69,7 @@ def test_interrupted_equals_uninterrupted(cls, tmp_path):
         "Tri-Fair-v8.2-Experimental",
         "Tri-Fair-v8.3",
         "Tri-Fair-v8.4-Hybrid",
+        "Tri-Fair-v8.5",
         "Tri-Fair-v8-NoFeedback",
         "Tri-Fair-v8-NoDemo",
         "Tri-Fair-v8-NoUncertainty",
@@ -68,7 +81,9 @@ def test_interrupted_equals_uninterrupted(cls, tmp_path):
         "NSGAII-PO-Fair-Enhanced",
     ],
 )
-def test_complete_public_runner_with_fake_models(method, tmp_path, monkeypatch, audit=False):
+def test_complete_public_runner_with_fake_models(
+    method, tmp_path, monkeypatch, audit=False
+):
     import tri_fair.cli.train as runner
     from tri_fair.cli.common import atomic_write_json
 
@@ -120,7 +135,9 @@ def test_complete_public_runner_with_fake_models(method, tmp_path, monkeypatch, 
         "--allow-under-budget-exit",
     ]
     if audit:
-        argv.extend(["--final-search-candidates", "2", "--final-search-reserve", "0.35"])
+        argv.extend(
+            ["--final-search-candidates", "2", "--final-search-reserve", "0.35"]
+        )
     monkeypatch.setattr(sys, "argv", argv)
     args = runner.parse_args()
     result = runner.run(args, logging_dir=tmp_path / method / "logs")
@@ -138,13 +155,27 @@ def test_complete_public_runner_with_fake_models(method, tmp_path, monkeypatch, 
         assert not audit_summary["feedback_to_optimizer"]
         assert (result / "final_search_results.parquet").exists()
         from tri_fair.cli.pilot import read_result
+
         report = read_result(result, method)
         assert report["comparable"] and report["quality_metric"] == "macro_f1"
 
 
-@pytest.mark.parametrize("method", ["Tri-Fair-v8.2-Experimental", "Tri-Fair-v8.3", "Tri-Fair-v8.4-Hybrid", "NSGAII-PO-Fair"])
-def test_complete_public_runner_with_reserved_search_audit(method, tmp_path, monkeypatch):
-    test_complete_public_runner_with_fake_models(method, tmp_path, monkeypatch, audit=True)
+@pytest.mark.parametrize(
+    "method",
+    [
+        "Tri-Fair-v8.2-Experimental",
+        "Tri-Fair-v8.3",
+        "Tri-Fair-v8.4-Hybrid",
+        "Tri-Fair-v8.5",
+        "NSGAII-PO-Fair",
+    ],
+)
+def test_complete_public_runner_with_reserved_search_audit(
+    method, tmp_path, monkeypatch
+):
+    test_complete_public_runner_with_fake_models(
+        method, tmp_path, monkeypatch, audit=True
+    )
 
 
 def test_v8_validation_evaluation_labels_and_cache(tmp_path, monkeypatch):
