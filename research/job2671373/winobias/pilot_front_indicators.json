@@ -1,0 +1,88 @@
+{
+  "dataset": "winobias",
+  "model": "qwen-3-30b",
+  "seed": 72,
+  "split": "search",
+  "benchmark_result": false,
+  "significance_established": false,
+  "rows": [
+    {
+      "method": "Tri-Fair-v8.4-Hybrid",
+      "accuracy": 0.853515625,
+      "macro_f1": null,
+      "cost": 17.45302734375,
+      "unfairness": 0.12165946486247997,
+      "status": "measured_search_only",
+      "search_hv_shortlist_3d": 0.9211807948142741,
+      "search_r2_shortlist_3d": 0.07951625679246954,
+      "noisy_r2_3d": null,
+      "noisy_r2_reason": "requires aligned held-out outcomes for every candidate",
+      "candidates": 2,
+      "nondominated_candidates": 2,
+      "scope": "audited shortlist; may omit other search-front candidates",
+      "reference_point": [
+        1.1,
+        1.1,
+        1.1
+      ],
+      "normalization": [
+        1.0,
+        100.0,
+        1.0
+      ],
+      "preference_rule": "4096 Dirichlet(1,1,1) preferences; seed 2026; lower R2 is better"
+    },
+    {
+      "method": "Tri-Fair-v8.3",
+      "accuracy": 0.8671875,
+      "macro_f1": null,
+      "cost": 14.483027343749999,
+      "unfairness": 0.21021287573552672,
+      "status": "measured_search_only",
+      "search_hv_shortlist_3d": 0.8303459829381673,
+      "search_r2_shortlist_3d": 0.09891318261597506,
+      "noisy_r2_3d": null,
+      "noisy_r2_reason": "requires aligned held-out outcomes for every candidate",
+      "candidates": 2,
+      "nondominated_candidates": 2,
+      "scope": "audited shortlist; may omit other search-front candidates",
+      "reference_point": [
+        1.1,
+        1.1,
+        1.1
+      ],
+      "normalization": [
+        1.0,
+        100.0,
+        1.0
+      ],
+      "preference_rule": "4096 Dirichlet(1,1,1) preferences; seed 2026; lower R2 is better"
+    },
+    {
+      "method": "NSGAII-PO-Fair",
+      "accuracy": 0.86328125,
+      "macro_f1": null,
+      "cost": 17.45302734375,
+      "unfairness": 0.1335000585205864,
+      "status": "measured_search_only",
+      "search_hv_shortlist_3d": 0.9219515268920269,
+      "search_r2_shortlist_3d": 0.07942026148811587,
+      "noisy_r2_3d": null,
+      "noisy_r2_reason": "requires aligned held-out outcomes for every candidate",
+      "candidates": 2,
+      "nondominated_candidates": 2,
+      "scope": "audited shortlist; may omit other search-front candidates",
+      "reference_point": [
+        1.1,
+        1.1,
+        1.1
+      ],
+      "normalization": [
+        1.0,
+        100.0,
+        1.0
+      ],
+      "preference_rule": "4096 Dirichlet(1,1,1) preferences; seed 2026; lower R2 is better"
+    }
+  ]
+}

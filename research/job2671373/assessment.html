@@ -1,0 +1,145 @@
+<!doctype html><meta charset="utf-8"><title>Tri-Fair job 2671373 assessment</title>
+<style>body{font:16px system-ui;line-height:1.65;color:#17324d;max-width:1250px;margin:40px auto}table{border-collapse:collapse;font-size:13px}th,td{padding:9px;border-bottom:1px solid #cbd5df;text-align:right}th{background:#eaf2f8}pre{background:#eef3f7;padding:16px;white-space:pre-wrap}</style>
+<h1>Job 2671373: research assessment</h1>
+<p>Both Slurm tasks completed on pegasus2: Bios in 8m14s and WinoBias in 8m44s, exit 0:0. The hybrid version is internally 8.4.1. The previous empty-proposal termination bug is resolved: rejected proposals are skipped, and terminal budget estimates are positive. No GPU crash or all-objective superiority is established.</p>
+<h2>What MO-CAPO actually demonstrated</h2>
+<p>Uploaded source: MO-CAPO: Multi-Objective Cost-Aware Prompt Optimization, arXiv:2605.18869v1, Sections 3.2, 5, 6 and Appendix A.7. Their claim concerns efficiently discovered accuracy-cost trade-off sets, with competitive maximum accuracy. Their study uses three models, four datasets, three seeds, and 7.5M downstream tokens per run.</p>
+<ul><li>Noisy R2: best mean in 8/12 settings; NSGA-II leads 3, initial instructions lead 1 (Table 2).</li><li>Optimistic HV: highest in 8/12 (Section 6.1).</li><li>Pessimistic HV: highest mean in 6/12, counted from Table 2. It is not best everywhere.</li><li>Maximum-accuracy representative: best among all methods in 2/12 settings, with the representative selected using development quality and then scored on test (Table 3).</li><li>MO-CAPO pessimistic HV exceeds NSGA-II optimistic HV in 5/12 settings; reverse occurs once. This is stronger than merely comparing optimistic HV.</li><li>The paper reports up to 5.7 times more evaluated candidates and up to 88% lower budget to complete the first iteration. These efficiency findings require comparable token trajectories; they are not claims that every deployed prompt is cheapest.</li></ul>
+<p>The original paper is two-objective and uses shared data-derived min-max bounds. Tri-Fair is three-objective with fixed study bounds; the protocol must state this difference. HV values from the two studies are not numerically comparable.</p>
+<h2>Latest measured outcomes</h2>
+<p>The balanced hybrid prompt dominates the balanced v8.3 representative on Bios, but v8.3 has the stronger search front and highest quality-first candidate. Against NSGA-II, the hybrid exchanges 0.23 percentage points of macro-F1 for lower cost and unfairness. On WinoBias the hybrid substantially improves its previous broken-run quality/fairness, but its selected prompt remains less accurate than NSGA-II at equal inference cost, with lower unfairness. The two search-front indicators are almost tied between hybrid and NSGA-II.</p>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>dataset</th>
+      <th>method</th>
+      <th>balanced_accuracy</th>
+      <th>balanced_quality</th>
+      <th>balanced_cost</th>
+      <th>balanced_unfairness</th>
+      <th>quality_first_accuracy</th>
+      <th>quality_first_quality</th>
+      <th>quality_first_cost</th>
+      <th>quality_first_unfairness</th>
+      <th>search_hv</th>
+      <th>search_r2</th>
+      <th>search_tokens</th>
+      <th>search_utilization</th>
+      <th>optimization_steps</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>bias_in_bios</td>
+      <td>NSGAII-PO-Fair</td>
+      <td>0.743304</td>
+      <td>0.745541</td>
+      <td>18.976719</td>
+      <td>0.198095</td>
+      <td>0.743304</td>
+      <td>0.745541</td>
+      <td>18.976719</td>
+      <td>0.198095</td>
+      <td>0.719013</td>
+      <td>0.126262</td>
+      <td>588251</td>
+      <td>0.905002</td>
+      <td>4</td>
+    </tr>
+    <tr>
+      <td>bias_in_bios</td>
+      <td>Tri-Fair-v8.3</td>
+      <td>0.725446</td>
+      <td>0.729742</td>
+      <td>18.842924</td>
+      <td>0.171876</td>
+      <td>0.787946</td>
+      <td>0.788320</td>
+      <td>39.195670</td>
+      <td>0.186635</td>
+      <td>0.767566</td>
+      <td>0.113761</td>
+      <td>643827</td>
+      <td>0.990503</td>
+      <td>3</td>
+    </tr>
+    <tr>
+      <td>bias_in_bios</td>
+      <td>Tri-Fair-v8.4-Hybrid</td>
+      <td>0.741071</td>
+      <td>0.743244</td>
+      <td>18.623839</td>
+      <td>0.154303</td>
+      <td>0.741071</td>
+      <td>0.743244</td>
+      <td>18.623839</td>
+      <td>0.154303</td>
+      <td>0.754139</td>
+      <td>0.118626</td>
+      <td>576414</td>
+      <td>0.886791</td>
+      <td>9</td>
+    </tr>
+    <tr>
+      <td>winobias</td>
+      <td>NSGAII-PO-Fair</td>
+      <td>0.863281</td>
+      <td>0.863281</td>
+      <td>17.453027</td>
+      <td>0.133500</td>
+      <td>0.863281</td>
+      <td>0.863281</td>
+      <td>17.453027</td>
+      <td>0.133500</td>
+      <td>0.921952</td>
+      <td>0.079420</td>
+      <td>635547</td>
+      <td>0.977765</td>
+      <td>9</td>
+    </tr>
+    <tr>
+      <td>winobias</td>
+      <td>Tri-Fair-v8.3</td>
+      <td>0.867188</td>
+      <td>0.867188</td>
+      <td>14.483027</td>
+      <td>0.210213</td>
+      <td>0.867188</td>
+      <td>0.867188</td>
+      <td>14.483027</td>
+      <td>0.210213</td>
+      <td>0.830346</td>
+      <td>0.098913</td>
+      <td>641171</td>
+      <td>0.986417</td>
+      <td>8</td>
+    </tr>
+    <tr>
+      <td>winobias</td>
+      <td>Tri-Fair-v8.4-Hybrid</td>
+      <td>0.853516</td>
+      <td>0.853516</td>
+      <td>17.453027</td>
+      <td>0.121659</td>
+      <td>0.853516</td>
+      <td>0.853516</td>
+      <td>17.453027</td>
+      <td>0.121659</td>
+      <td>0.921181</td>
+      <td>0.079516</td>
+      <td>637595</td>
+      <td>0.980915</td>
+      <td>11</td>
+    </tr>
+  </tbody>
+</table>
+<h2>Writing the experimental results</h2>
+<ol><li>Approximation-set quality: held-out noisy R2, optimistic HV, pessimistic HV and their gap; mean and sample standard deviation across independent seeds.</li><li>Convergence and evaluation efficiency: real token checkpoints, candidates measured, blocks per candidate, budget to first improved front, and time-to-target.</li><li>Three-objective trade-offs: show actual prompt vectors; state whether a representative is balanced, quality-first, cost-first or fairness-first.</li><li>Maximum-accuracy comparison: choose using development/validation quality and report untouched test performance, preserving that prompt's cost and unfairness.</li><li>Ablation and sensitivity: isolate progressive evaluation, failure feedback, demonstration search, and operator selection. v8.3 versus the hybrid changes several components and is not a clean single-component ablation.</li><li>Robustness: group support, fairness uncertainty, paired gender consistency, independent seeds and a prespecified analysis.</li></ol>
+<h2>Which variant to retain</h2>
+<p>Retain v8.3 as the main progressive-evaluation research candidate and retain corrected v8.4.1-Hybrid as a comparator until held-out validation is available. Do not erase either result. Select and freeze one primary Tri-Fair configuration before final test. Retire the buggy v8.4 implementation from active use; keep the corrected method under its existing registered name.</p>
+<h2>Held-out reporting integration</h2>
+<p>The supplied archive has no held-out result files. Noisy-R2 and approximation-gap mathematics already exist. The integration patch adds explicit/unambiguous discovery of timestamped pilot folders and a final-incumbents-only option. It rejects ambiguous repeated pilots rather than silently choosing a run. The new GPU job evaluates the six final prompts per dataset (deduplicating identical prompts), using the existing held-out validation partition, frozen manifests and identical decoding. It then writes HVopt/HVpes/gap/noisy-R2 CSVs. It never feeds validation results back into these optimizers. Evaluation token usage is logged separately from the optimization cap.</p>
+<pre>mkdir -p logs
+sbatch --export=ALL jobs/pilot_evaluate.sbatch</pre>
+<p>Array 0=Bios, 1=WinoBias. Defaults: Qwen, seed72, validation. Results: results/tri_fair_v841_pilot_1000000/heldout_validation/qwen-3-30b/DATASET/seed72/. The indicators subdirectory contains per-seed and summary CSV files. These jobs evaluate existing prompts and do not rerun optimization. Final-test evaluation remains separate after protocol freeze.</p>
+<p>No further optimizer change is justified by the present archive alone. Validate existing candidates, investigate generator repetition/long-context costs as ablations, and use seeds 72/73/74 for the frozen comparison. A single seed cannot establish optimizer-level significance.</p>

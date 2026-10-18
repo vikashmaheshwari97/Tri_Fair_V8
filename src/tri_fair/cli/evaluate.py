@@ -60,6 +60,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--max-output-tokens", type=int, default=16)
     parser.add_argument("--output-file", default=None)
     parser.add_argument("--force", action="store_true")
+    parser.add_argument(
+        "--final-only",
+        action="store_true",
+        help="Evaluate only each method's final logged incumbent set.",
+    )
     parser.add_argument("--log-level", default="INFO")
     return parser.parse_args()
 
@@ -74,15 +79,38 @@ def _parse_optimizers(raw: str) -> tuple[str, ...]:
 
 
 def _logging_dir(study_root: Path, dataset: str, optimizer: str, seed: int) -> Path:
+    """Resolve a standard study pointer or one explicit/unambiguous pilot."""
     pointer = study_root / dataset / optimizer / f"seed{seed}" / "logging_dir.txt"
-    if not pointer.is_file():
-        raise FileNotFoundError(pointer)
-    resolved = Path(pointer.read_text(encoding="utf-8").strip()).expanduser()
-    if not resolved.is_absolute():
-        resolved = (Path.cwd() / resolved).resolve()
+    if pointer.is_file():
+        resolved = Path(pointer.read_text(encoding="utf-8").strip()).expanduser()
+        if not resolved.is_absolute():
+            resolved = (Path.cwd() / resolved).resolve()
+        if not resolved.is_dir():
+            raise FileNotFoundError(resolved)
+        return resolved
+    direct = study_root / "pilot_report.json"
+    reports = (
+        [direct]
+        if direct.is_file()
+        else sorted((study_root / dataset / f"seed{seed}").glob("*/pilot_report.json"))
+    )
+    if len(reports) > 1:
+        raise ValueError(
+            f"Multiple pilot reports for {dataset}/seed{seed}; pass --study-root "
+            "as the exact timestamped directory containing the intended pilot_report.json"
+        )
+    if not reports:
+        raise FileNotFoundError(f"No standard pointer or pilot report: {pointer}")
+    report = json.loads(reports[0].read_text(encoding="utf-8"))
+    if report.get("dataset") != dataset or int(report.get("seed", -1)) != int(seed):
+        raise ValueError("Pilot report dataset/seed differs from requested evaluation")
+    records = [r for r in report.get("runs", []) if r.get("method") == optimizer]
+    if len(records) != 1 or records[0].get("status") != "measured":
+        raise ValueError(f"Pilot lacks one measured run for {optimizer}")
+    resolved = reports[0].parent / optimizer / "run"
     if not resolved.is_dir():
         raise FileNotFoundError(resolved)
-    return resolved
+    return resolved.resolve()
 
 
 def _run_args(log_path: Path) -> dict[str, object]:
@@ -103,6 +131,7 @@ def _membership_for_run(
     seed: int,
     minimum_tokens: int,
     maximum_tokens: int,
+    final_only: bool = False,
 ) -> pd.DataFrame:
     step_path = log_path / "step_results.parquet"
     if not step_path.is_file():
@@ -152,6 +181,8 @@ def _membership_for_run(
         parts.append(selected)
     if not parts:
         raise RuntimeError(f"No incumbent memberships found for {optimizer}")
+    if final_only:
+        parts = parts[-1:]
     return pd.concat(parts, ignore_index=True, sort=False)
 
 
@@ -190,6 +221,7 @@ def run(args: argparse.Namespace) -> Path:
                 seed=args.random_seed,
                 minimum_tokens=args.minimum_actual_tokens,
                 maximum_tokens=args.maximum_actual_tokens,
+                final_only=bool(getattr(args, "final_only", False)),
             )
         )
     membership = pd.concat(memberships, ignore_index=True, sort=False)
@@ -265,6 +297,9 @@ def run(args: argparse.Namespace) -> Path:
         "split": args.evaluation_split,
         "max_output_tokens": args.max_output_tokens,
         "structured_labels": args.structured_labels,
+        "candidate_policy": "final_incumbents"
+        if getattr(args, "final_only", False)
+        else "all_logged_incumbents",
         "manifest_sha256": sha256_file(
             Path(args.manifest_dir) / f"{args.dataset}_seed{args.random_seed}.json"
         ),
@@ -293,6 +328,7 @@ def run(args: argparse.Namespace) -> Path:
         ~unique_candidates["prompt_id"].astype(str).isin(cached_ids)
     ].reset_index(drop=True)
     evaluated = pd.DataFrame()
+    evaluation_usage = {"input_tokens": 0, "output_tokens": 0, "total_tokens": 0}
     if not pending.empty:
         seed_everything(args.random_seed)
         if args.study_profile == "v8":
@@ -335,6 +371,7 @@ def run(args: argparse.Namespace) -> Path:
             predictor=MarkerBasedPredictor(llm, test_task.classes),
             eval_strategy="full",
         )
+        evaluation_usage = dict(llm.get_token_count())
         evaluated = pending[["prompt_id"]].copy()
         quality = np.asarray(result.agg_scores, dtype=float)
         input_tokens = np.asarray(result.agg_input_tokens, dtype=float)
@@ -406,6 +443,21 @@ def run(args: argparse.Namespace) -> Path:
     from tri_fair.cli.common import atomic_write_json
 
     atomic_write_json(metadata_path, identity)
+    with output_path.with_suffix(".usage.jsonl").open("a", encoding="utf-8") as handle:
+        handle.write(
+            json.dumps(
+                {
+                    "timestamp": utc_now_iso(),
+                    "evaluation_split": args.evaluation_split,
+                    "new_unique_prompts": len(pending),
+                    "cached_unique_prompts": len(unique_candidates) - len(pending),
+                    "downstream_tokens": evaluation_usage,
+                    "budget_scope": "held-out evaluation, outside the optimization token cap",
+                },
+                sort_keys=True,
+            )
+            + "\n"
+        )
     LOGGER.info(
         "Wrote %d memberships for %d unique prompts to %s",
         len(output),

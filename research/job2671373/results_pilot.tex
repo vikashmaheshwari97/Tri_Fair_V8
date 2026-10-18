@@ -1,0 +1,82 @@
+% Exploratory results only. Requires booktabs and graphicx for the tables.
+% Replace this section with the frozen multi-seed held-out study when available.
+\subsection{Exploratory Benchmark Results}
+We evaluated Tri-Fair-v8.3, the corrected Tri-Fair hybrid (implementation
+version 8.4.1), and NSGA-II-PO-Fair on Bias-in-Bios and WinoBias using
+Qwen3-30B and seed 72. Each method received a downstream-token ceiling of
+one million tokens, comprising a 650,000-token search allowance and a
+350,000-token reserve for completing a frozen final shortlist. All six
+processes completed successfully. This screening experiment uses search-set
+outcomes and does not constitute the final held-out comparison.
+
+\paragraph{Comparison of approximation sets.}
+Following the distinction between approximation-set quality and representative
+prompt performance in MO-CAPO~\cite{bussing2026mocapo}, we report both search
+hypervolume and in-sample R2 alongside the objectives of a single balanced
+representative. The three loss coordinates are $(1-q,c/C_{\max},f)$, where
+$q$ denotes macro-F1 on Bias-in-Bios and accuracy on WinoBias, $c$ denotes
+configured inference cost, and $f$ denotes unfairness. Cost bounds are fixed
+at 120 and 100, respectively, and the hypervolume reference point is
+$(1.1,1.1,1.1)$. R2 uses 4,096 common Dirichlet preference vectors with seed
+2026. These settings extend the original two-objective presentation to three
+objectives and should not be interpreted as numerical replication of its
+normalization protocol.
+
+\begin{table*}[t]
+\centering
+\caption{Exploratory search results for seed 72. Each objective row refers to
+the same balanced prompt. The indicators describe the two audited final
+incumbents per method. No across-seed uncertainty is estimated.}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{llrrrrrr}
+\toprule
+Dataset & Method & Accuracy (\%) $\uparrow$ & Macro-F1 (\%) $\uparrow$ & Cost $\downarrow$ & Unfairness $\downarrow$ & Search HV $\uparrow$ & Search R2 $\downarrow$\\
+\midrule
+Bias-in-Bios & Tri-Fair-v8.3 & 72.54 & 72.97 & 18.8429 & 0.1719 & 0.767566 & 0.113761\\
+ & Hybrid-v8.4.1 & 74.11 & 74.32 & 18.6238 & 0.1543 & 0.754139 & 0.118626\\
+ & NSGA-II-PO-Fair & 74.33 & 74.55 & 18.9767 & 0.1981 & 0.719013 & 0.126262\\
+\midrule
+WinoBias & Tri-Fair-v8.3 & 86.72 & -- & 14.4830 & 0.2102 & 0.830346 & 0.098913\\
+ & Hybrid-v8.4.1 & 85.35 & -- & 17.4530 & 0.1217 & 0.921181 & 0.079516\\
+ & NSGA-II-PO-Fair & 86.33 & -- & 17.4530 & 0.1335 & 0.921952 & 0.079420\\
+\bottomrule
+\end{tabular}}
+\end{table*}
+
+On Bias-in-Bios, v8.3 obtained the strongest audited approximation set by
+both search indicators. The hybrid's balanced representative nevertheless
+improved all three objective values relative to the balanced v8.3 prompt.
+Against NSGA-II-PO-Fair, its macro-F1 was 0.23 percentage points lower,
+while its cost and unfairness were lower. This illustrates why conclusions
+about one representative cannot be substituted for conclusions about an
+entire approximation set.
+
+On WinoBias, the hybrid and NSGA-II-PO-Fair yielded closely matched search
+indicators, with NSGA-II-PO-Fair having slightly higher HV and lower R2.
+Their balanced representatives had equal configured inference cost; the
+hybrid had lower unfairness but accuracy lower by 0.98 percentage points.
+The v8.3 representative offered lower cost and higher accuracy, accompanied
+by higher unfairness. No method dominated across all objectives.
+
+\paragraph{Quality-first representatives.}
+MO-CAPO separately evaluates a maximum-quality prompt selected using
+development performance. Applying that policy to the present search
+candidates, v8.3 achieved 78.79\% accuracy and 78.83\% macro-F1 on
+Bias-in-Bios, at cost 39.1957 and unfairness 0.1866. The corresponding
+hybrid and NSGA-II macro-F1 values were 74.32\% and 74.55\%.
+The quality-first v8.3 prompt is more expensive than its balanced
+representative. Each policy therefore must be stated explicitly; objective
+extrema from different prompts must not be combined into one row.
+
+\paragraph{Search progress and limitations.}
+The corrected hybrid completed nine logged steps on Bias-in-Bios and eleven
+on WinoBias, using 576,414 and 637,595 downstream tokens. It now continues
+past rejected proposals and terminates when a nonempty full candidate cannot
+fit within the remaining search allowance. The remaining allowance and
+unused audit reserve are reported rather than treated as consumed tokens.
+The supplied archive contains no held-out predictions. Consequently, held-out
+noisy R2, optimistic and pessimistic HV, and their approximation gap cannot
+yet be reported. No significance claim is supported by this single-seed
+screening experiment. The next stage evaluates the frozen final candidates
+on validation data, followed by a prespecified multi-seed study and final
+test evaluation after configuration freeze.

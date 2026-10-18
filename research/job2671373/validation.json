@@ -1,0 +1,14 @@
+{
+  "requires": "Tri_Fair_V841_Termination_Hotfix.zip already applied",
+  "change": "Pilot-layout held-out evaluation integration; no optimizer change",
+  "tests_passed": 164,
+  "test_seconds": 73.49,
+  "ruff": "passed",
+  "bash_syntax": "passed",
+  "uploaded_pilot_final_memberships_verified": 6,
+  "validation_gpu_inference_executed": false,
+  "heldout_metrics_in_uploaded_archive": false,
+  "no_optimizer_or_fairness_metric_changes": true,
+  "source_paper": "MO-CAPO arXiv:2605.18869v1, Tables 2-4, Sections 3.2/5/6.1/6.2/7.2 and Appendix A.7",
+  "job": 2671373
+}
