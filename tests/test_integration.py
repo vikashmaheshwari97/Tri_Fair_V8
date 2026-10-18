@@ -64,7 +64,7 @@ def test_interrupted_equals_uninterrupted(cls, tmp_path):
         "NSGAII-PO-Fair-Enhanced",
     ],
 )
-def test_complete_public_runner_with_fake_models(method, tmp_path, monkeypatch):
+def test_complete_public_runner_with_fake_models(method, tmp_path, monkeypatch, audit=False):
     import tri_fair.cli.train as runner
     from tri_fair.cli.common import atomic_write_json
 
@@ -115,6 +115,8 @@ def test_complete_public_runner_with_fake_models(method, tmp_path, monkeypatch):
         "1000000",
         "--allow-under-budget-exit",
     ]
+    if audit:
+        argv.extend(["--final-search-candidates", "2", "--final-search-reserve", "0.35"])
     monkeypatch.setattr(sys, "argv", argv)
     args = runner.parse_args()
     result = runner.run(args, logging_dir=tmp_path / method / "logs")
@@ -124,6 +126,21 @@ def test_complete_public_runner_with_fake_models(method, tmp_path, monkeypatch):
     assert set(partition["search_ids"]).isdisjoint(partition["validation_ids"])
     assert (result / "checkpoints/latest.pkl").exists()
     assert (result / "step_results.parquet").exists()
+    if audit:
+        audit_summary = summary["final_search_audit"]
+        assert audit_summary["status"] == "complete"
+        assert audit_summary["search_budget_tokens"] == 650000
+        assert audit_summary["total_budget_tokens"] == 1000000
+        assert not audit_summary["feedback_to_optimizer"]
+        assert (result / "final_search_results.parquet").exists()
+        from tri_fair.cli.pilot import read_result
+        report = read_result(result, method)
+        assert report["comparable"] and report["quality_metric"] == "macro_f1"
+
+
+@pytest.mark.parametrize("method", ["Tri-Fair-v8.2-Experimental", "NSGAII-PO-Fair"])
+def test_complete_public_runner_with_reserved_search_audit(method, tmp_path, monkeypatch):
+    test_complete_public_runner_with_fake_models(method, tmp_path, monkeypatch, audit=True)
 
 
 def test_v8_validation_evaluation_labels_and_cache(tmp_path, monkeypatch):

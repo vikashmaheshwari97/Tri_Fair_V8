@@ -8,10 +8,10 @@
 #SBATCH --exclude=falcon[1-6],pegasus,shepard3
 #SBATCH --hint=nomultithread
 #SBATCH --mem=160G
-#SBATCH --time=02:00:00
+#SBATCH --time=04:00:00
 #SBATCH --array=0-2%3
-#SBATCH --output=logs/pilot100k_%A_%a.out
-#SBATCH --error=logs/pilot100k_%A_%a.err
+#SBATCH --output=logs/pilot_%A_%a.out
+#SBATCH --error=logs/pilot_%A_%a.err
 set -Eeuo pipefail
 module purge
 module --ignore_cache load python/3.11.14
@@ -31,6 +31,21 @@ if [[ "$index" -lt 0 || "$index" -gt 2 ]]; then
     echo "Invalid dataset index: $index" >&2
     exit 2
 fi
-python -m tri_fair.cli.pilot --execute --model "$model" \
-    --dataset "${datasets[$index]}" --seed "${SEED:-72}" --budget 100000 \
-    --manifest-dir "${MANIFEST_DIR:-data/splits_v8_clean}"
+budget="${PILOT_BUDGET:-1000000}"
+if [[ ! "$budget" =~ ^[1-9][0-9]*$ ]]; then
+    echo "PILOT_BUDGET must be a positive integer" >&2
+    exit 2
+fi
+pilot_args=(--execute --model "$model" --dataset "${datasets[$index]}"
+    --seed "${SEED:-72}" --budget "$budget"
+    --n-init-prompts "${PILOT_INIT_PROMPTS:-2}"
+    --max-few-shot-examples "${PILOT_MAX_SHOTS:-1}"
+    --crossovers-per-iteration "${PILOT_CHALLENGERS:-1}"
+    --final-search-candidates "${PILOT_AUDIT_CANDIDATES:-2}"
+    --final-search-reserve "${PILOT_AUDIT_RESERVE:-0.35}"
+    --manifest-dir "${MANIFEST_DIR:-data/splits_v8_clean}")
+if [[ -n "${PILOT_METHODS:-}" ]]; then
+    pilot_args+=(--methods "$PILOT_METHODS")
+fi
+tf_log "Pilot: model=$model dataset=${datasets[$index]} cap=$budget (search and final audit combined)"
+python -m tri_fair.cli.pilot "${pilot_args[@]}"

@@ -127,10 +127,28 @@ def parse_args() -> argparse.Namespace:
         help="Permit a run to exit below the requested token budget (debug only).",
     )
     parser.add_argument("--log-level", default="INFO")
+    parser.add_argument(
+        "--final-search-candidates",
+        type=int,
+        default=0,
+        help="Optional pilot-only frozen-shortlist audit; zero preserves normal training.",
+    )
+    parser.add_argument("--final-search-reserve", type=float, default=0.35)
     return parser.parse_args()
 
 
 def _validate_args(args: argparse.Namespace) -> None:
+    if args.final_search_candidates < 0 or not 0 < args.final_search_reserve < 1:
+        raise ValueError("Invalid final search audit candidate count or reserve")
+    if args.final_search_candidates and (
+        not args.strict_token_budget
+        or args.study_profile != "v8"
+        or args.resume_from
+        or not args.allow_under_budget_exit
+    ):
+        raise ValueError(
+            "Final search audit requires a fresh strict-budget v8 pilot with --allow-under-budget-exit"
+        )
     if args.study_profile == "v8" and args.n_init_prompts < 2:
         raise ValueError("v8 search requires at least two initial prompts")
     if args.study_profile != "v8" and args.optimizer_overrides:
@@ -190,6 +208,10 @@ def _validate_resume_metadata(logging_dir: Path, args: argparse.Namespace) -> No
     with prior_path.open("r", encoding="utf-8") as handle:
         previous = json.load(handle)
     current = vars(args)
+    if previous.get("final_search_candidates", 0):
+        raise ValueError(
+            "Pilot audit checkpoints are search-only; start a fresh pilot instead of resuming"
+        )
     compare_immutable_args(
         previous,
         current,
@@ -384,7 +406,11 @@ def run(args: argparse.Namespace, *, logging_dir: Path | None = None) -> Path:
     if args.strict_token_budget:
         budget_controller = TokenBudgetController(
             llm=downstream_llm,
-            max_tokens=args.budget_per_run,
+            max_tokens=(
+                int(args.budget_per_run * (1 - args.final_search_reserve))
+                if args.final_search_candidates
+                else args.budget_per_run
+            ),
             max_output_tokens=args.max_output_tokens,
             near_budget_fraction=args.near_budget_fraction,
             output_token_reserve=args.output_token_reserve,
@@ -439,6 +465,16 @@ def run(args: argparse.Namespace, *, logging_dir: Path | None = None) -> Path:
             "Checkpoint already contains %d downstream tokens, which meets target %d; no additional optimization steps were executed.",
             starting_downstream["total_tokens"],
             args.budget_per_run,
+        )
+    final_search_audit = None
+    if args.final_search_candidates:
+        from tri_fair.runtime.finalization import finalize_search_front
+
+        final_search_audit = finalize_search_front(
+            optimizer,
+            logging_dir,
+            count=args.final_search_candidates,
+            total_budget=args.budget_per_run,
         )
     final_downstream = token_counts(downstream_llm)
     final_meta = token_counts(meta_llm)
@@ -513,6 +549,7 @@ def run(args: argparse.Namespace, *, logging_dir: Path | None = None) -> Path:
         "fairness_kwargs": getattr(dev_task, "fairness_kwargs", None),
         "population_size": len(initial_prompts),
         "optimizer_parameters": _optimizer_parameters(args, optimizer_config),
+        "final_search_audit": final_search_audit,
     }
     if args.study_profile == "v8":
         from tri_fair.config.registry import effective_run_metadata

@@ -64,13 +64,17 @@ def train_command(args, method, root):
         "--random-seed",
         str(args.seed),
         "--n-init-prompts",
-        "2",
+        str(getattr(args, "n_init_prompts", 2)),
         "--max-steps",
         "4000",
         "--crossovers-per-iteration",
-        "1",
+        str(getattr(args, "crossovers_per_iteration", 1)),
         "--max-few-shot-examples",
-        "0",
+        str(getattr(args, "max_few_shot_examples", 1)),
+        "--final-search-candidates",
+        str(getattr(args, "final_search_candidates", 2)),
+        "--final-search-reserve",
+        str(getattr(args, "final_search_reserve", 0.35)),
         "--budget-per-run",
         str(args.budget),
         "--budget-checkpoints",
@@ -141,9 +145,24 @@ def read_result(run_dir, method):
     result["search_blocks_required"] = n_blocks
     result["search_original_blocks"] = partition["search_original_blocks"]
     result["dataset_configuration"] = resolved["dataset"]
-    path = run_dir / "step_results.parquet"
+    audit = summary.get("final_search_audit")
+    if audit:
+        result["final_search_audit"] = audit
+        if audit.get("status") != "complete":
+            return dict(
+                result, status="inconclusive", reason="incomplete_final_search_audit"
+            )
+        path = run_dir / "final_search_results.parquet"
+        result["metric_source"] = "frozen_shortlist_full_search_audit"
+    else:
+        path = run_dir / "step_results.parquet"
+        result["metric_source"] = "final_logged_search_incumbents"
     if not path.is_file():
-        return dict(result, status="inconclusive", reason="missing_step_results")
+        return dict(
+            result,
+            status="inconclusive",
+            reason="missing_final_search_results" if audit else "missing_step_results",
+        )
     frame = pd.read_parquet(path)
     if frame.empty:
         return dict(result, status="inconclusive", reason="empty_step_results")
@@ -219,6 +238,7 @@ def compare_results(records):
                 "dataset_configuration",
                 "requested_budget",
                 "source_sha256",
+                "metric_source",
             ):
                 if variant.get(field) != control.get(field):
                     comparable, reason = False, f"mismatched_{field}"
@@ -252,10 +272,15 @@ def main(argv=None):
         choices=["qwen-3-30b", "mistral-3-24b", "gpt-oss-120b"],
     )
     parser.add_argument("--seed", type=int, default=72)
-    parser.add_argument("--budget", type=int, default=100000)
+    parser.add_argument("--budget", type=int, default=1000000)
+    parser.add_argument("--n-init-prompts", type=int, default=2)
+    parser.add_argument("--max-few-shot-examples", type=int, default=1)
+    parser.add_argument("--crossovers-per-iteration", type=int, default=1)
+    parser.add_argument("--final-search-candidates", type=int, default=2)
+    parser.add_argument("--final-search-reserve", type=float, default=0.35)
     parser.add_argument("--methods", default=",".join(DEFAULT_METHODS))
     parser.add_argument("--manifest-dir", default="data/splits_v8_clean")
-    parser.add_argument("--output-root", default="results/tri_fair_v82_pilot_100k")
+    parser.add_argument("--output-root", default=None)
     parser.add_argument(
         "--execute", action="store_true", help="Without this flag, print the plan only."
     )
@@ -263,18 +288,25 @@ def main(argv=None):
     methods = list(dict.fromkeys(args.methods.split(",")))
     if (
         args.budget <= 0
+        or args.n_init_prompts < 2
+        or args.max_few_shot_examples < 0
+        or args.crossovers_per_iteration < 1
+        or args.final_search_candidates < 1
+        or not 0 < args.final_search_reserve < 1
         or VARIANT not in methods
         or len(methods) < 2
         or set(methods) - set(METHODS)
     ):
         parser.error(
-            "Use a positive budget and at least two registered methods, including the experimental variant."
+            "Use positive budget/challenger/audit counts, at least two initial prompts, a reserve in (0,1), and at least two registered methods including the experimental variant."
         )
     stamp = (
         datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ") + "_" + uuid4().hex[:8]
     )
     root = (
-        Path(args.output_root).expanduser().resolve()
+        Path(args.output_root or f"results/tri_fair_v82_pilot_{args.budget}")
+        .expanduser()
+        .resolve()
         / args.model
         / args.dataset
         / f"seed{args.seed}"
@@ -295,16 +327,25 @@ def main(argv=None):
         "model": args.model,
         "budget_per_method": args.budget,
         "methods": methods,
+        "pilot_configuration": {
+            "n_init_prompts": args.n_init_prompts,
+            "max_few_shot_examples": args.max_few_shot_examples,
+            "crossovers_per_iteration": args.crossovers_per_iteration,
+            "final_search_candidates": args.final_search_candidates,
+            "final_search_reserve": args.final_search_reserve,
+            "search_budget_tokens": int(args.budget * (1 - args.final_search_reserve)),
+            "audit_is_included_in_total_cap": True,
+        },
         "units": {
             "quality": "fraction",
             "accuracy": "fraction",
             "unfairness": "loss, smaller is better",
             "cost": "configured input/output token cost score, not HPC charges",
         },
-        "selection": "fully evaluated final incumbent minimizing squared normalized distance to (quality=1,cost=0,unfairness=0)",
+        "selection": "freeze the same-sized shortlist by search distance; complete full search coverage; select by squared normalized distance to (quality=1,cost=0,unfairness=0)",
         "limitations": [
             "Single-seed screening, not a significance test.",
-            "Two initial prompts, no demonstrations, one challenger per iteration for every method.",
+            "The same explicit pilot settings and reserve policy apply to every method; this differs from the final 5M study.",
             "Original fairness thresholds; insufficient evidence remains inconclusive.",
             "Under-budget exits permitted for this pilot only; utilization is reported.",
             "Downstream tokens capped per method; meta-generation tokens reported separately.",
@@ -336,7 +377,11 @@ def main(argv=None):
         comparisons = compare_results(records)
         failed = any(row["status"] == "failed" for row in records)
         complete = len(records) == len(methods)
-        comparable = complete and all(row["comparable"] for row in records)
+        comparable = (
+            complete
+            and all(row["comparable"] for row in records)
+            and all(row["comparable"] for row in comparisons)
+        )
         report = dict(
             policy,
             status="running"
@@ -357,6 +402,10 @@ def main(argv=None):
         )
         atomic_write_json(root / "pilot_report.json", report)
         print(f"{method}: {record['status']}", flush=True)
+        print(
+            f"  downstream={record.get('observed_downstream_tokens', 'unknown')}; reason={record.get('reason', 'fully evaluated')}",
+            flush=True,
+        )
     print(f"Report: {root / 'pilot_report.json'}", flush=True)
     return 1 if failed else 0
 
