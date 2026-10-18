@@ -9,7 +9,7 @@
   "upstream_base_commit": "5f748223b8c6c2f62023ded41ec898b95557df9c",
   "prior_v8_release_commit": "f7e853e",
   "checkpoint_schema": 5,
-  "file_count": 133,
+  "file_count": 139,
   "files": [
     ".gitattributes",
     ".github/workflows/cpu-tests.yml",
@@ -49,6 +49,8 @@
     "pyproject.toml",
     "requirements-cpu.txt",
     "requirements-hpc.txt",
+    "research/tri_fair_v83_review.html",
+    "research/tri_fair_v83_review.json",
     "scripts/verify_release.py",
     "setup_windows.ps1",
     "src/tri_fair/__init__.py",
@@ -86,6 +88,7 @@
     "src/tri_fair/fairness/statistical_metrics.py",
     "src/tri_fair/fairness/statistics.py",
     "src/tri_fair/optimizers/__init__.py",
+    "src/tri_fair/optimizers/attributed.py",
     "src/tri_fair/optimizers/baselines.py",
     "src/tri_fair/optimizers/nsga2.py",
     "src/tri_fair/optimizers/nsga2_core.py",
@@ -105,9 +108,11 @@
     "src/tri_fair/runtime/decoding.py",
     "src/tri_fair/runtime/finalization.py",
     "src/tri_fair/runtime/models.py",
+    "src/tri_fair/runtime/progress.py",
     "src/tri_fair/runtime/utils.py",
     "src/tri_fair/search/__init__.py",
     "src/tri_fair/search/archive.py",
+    "src/tri_fair/search/attribution.py",
     "src/tri_fair/search/balanced.py",
     "src/tri_fair/search/contrastive.py",
     "src/tri_fair/search/feedback.py",
@@ -124,6 +129,7 @@
     "tests/fakes.py",
     "tests/test_analysis_metrics.py",
     "tests/test_architecture.py",
+    "tests/test_attributed_search.py",
     "tests/test_backend_compatibility.py",
     "tests/test_bbq_loader.py",
     "tests/test_block_sampler.py",
@@ -211,8 +217,8 @@
       "additional_flat_directory_regression_passed": 1
     }
   },
-  "experimental_method": "Tri-Fair-v8.2-Experimental",
-  "experimental_patch_created_utc": "2026-10-18T18:30:04.632964+00:00",
+  "experimental_method": "Tri-Fair-v8.3",
+  "experimental_patch_created_utc": "2026-10-18T19:14:14.691500+00:00",
   "experimental_pilot": {
     "budget_per_method": 1000000,
     "methods": 7,
@@ -224,6 +230,13 @@
     "maximum_few_shot_examples": 1,
     "existing_results_deleted": false,
     "baseline_implementations_changed": false,
-    "gpu_performance_validated": false
+    "gpu_performance_validated": false,
+    "version": "8.3",
+    "structured_labels_all_methods": true,
+    "max_idle_steps_all_methods": 3,
+    "max_steps_all_methods": 200,
+    "meta_max_output_tokens_all_methods": 512,
+    "results_namespace": "tri_fair_v83_pilot_1000000",
+    "cpu_tests_passed": 143
   }
 }

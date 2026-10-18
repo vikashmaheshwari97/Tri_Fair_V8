@@ -14,7 +14,7 @@ from uuid import uuid4
 from tri_fair.cli.common import atomic_write_json
 from tri_fair.config.registry import METHODS
 
-VARIANT = "Tri-Fair-v8.2-Experimental"
+VARIANT = "Tri-Fair-v8.3"
 DEFAULT_METHODS = (
     VARIANT,
     "Tri-Fair-v8",
@@ -49,12 +49,12 @@ def measured_accuracy(row, quality_metric):
 
 def train_command(args, method, root):
     """All methods receive the same pilot settings and unmodified metric gates."""
-    return [
+    command = [
         sys.executable,
         "-m",
         "tri_fair.cli.train",
         "--experiment-name",
-        "v82_exploratory_pilot",
+        "v83_attributed_search_pilot",
         "--model",
         args.model,
         "--dataset",
@@ -66,7 +66,11 @@ def train_command(args, method, root):
         "--n-init-prompts",
         str(getattr(args, "n_init_prompts", 2)),
         "--max-steps",
-        "4000",
+        "200",
+        "--max-idle-steps",
+        "3",
+        "--meta-max-output-tokens",
+        "512",
         "--crossovers-per-iteration",
         str(getattr(args, "crossovers_per_iteration", 1)),
         "--max-few-shot-examples",
@@ -87,6 +91,9 @@ def train_command(args, method, root):
         "run",
         "--allow-under-budget-exit",
     ]
+    if not getattr(args, "unconstrained_labels", False):
+        command.append("--structured-labels")
+    return command
 
 
 def read_result(run_dir, method):
@@ -132,6 +139,8 @@ def read_result(run_dir, method):
         "source_sha256",
         "fairness_metric",
         "method_version",
+        "search_diagnostics",
+        "runtime_stop_reason",
     ):
         result[name] = summary.get(name)
     actual = summary["final_downstream_tokens"]["total_tokens"]
@@ -145,6 +154,7 @@ def read_result(run_dir, method):
     result["search_blocks_required"] = n_blocks
     result["search_original_blocks"] = partition["search_original_blocks"]
     result["dataset_configuration"] = resolved["dataset"]
+    result["downstream_decoding"] = resolved.get("downstream_decoding", {})
     audit = summary.get("final_search_audit")
     if audit:
         result["final_search_audit"] = audit
@@ -239,6 +249,7 @@ def compare_results(records):
                 "requested_budget",
                 "source_sha256",
                 "metric_source",
+                "downstream_decoding",
             ):
                 if variant.get(field) != control.get(field):
                     comparable, reason = False, f"mismatched_{field}"
@@ -278,6 +289,8 @@ def main(argv=None):
     parser.add_argument("--crossovers-per-iteration", type=int, default=1)
     parser.add_argument("--final-search-candidates", type=int, default=2)
     parser.add_argument("--final-search-reserve", type=float, default=0.35)
+    parser.add_argument("--unconstrained-labels", action="store_true",
+                        help="Disable the shared choice grammar for every method, never selectively.")
     parser.add_argument("--methods", default=",".join(DEFAULT_METHODS))
     parser.add_argument("--manifest-dir", default="data/splits_v8_clean")
     parser.add_argument("--output-root", default=None)
@@ -304,7 +317,7 @@ def main(argv=None):
         datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ") + "_" + uuid4().hex[:8]
     )
     root = (
-        Path(args.output_root or f"results/tri_fair_v82_pilot_{args.budget}")
+        Path(args.output_root or f"results/tri_fair_v83_pilot_{args.budget}")
         .expanduser()
         .resolve()
         / args.model
@@ -328,6 +341,10 @@ def main(argv=None):
         "budget_per_method": args.budget,
         "methods": methods,
         "pilot_configuration": {
+            "structured_labels": not args.unconstrained_labels,
+            "max_idle_steps": 3,
+            "max_search_steps": 200,
+            "meta_max_output_tokens": 512,
             "n_init_prompts": args.n_init_prompts,
             "max_few_shot_examples": args.max_few_shot_examples,
             "crossovers_per_iteration": args.crossovers_per_iteration,

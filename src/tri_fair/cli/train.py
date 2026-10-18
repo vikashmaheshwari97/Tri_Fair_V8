@@ -134,10 +134,14 @@ def parse_args() -> argparse.Namespace:
         help="Optional pilot-only frozen-shortlist audit; zero preserves normal training.",
     )
     parser.add_argument("--final-search-reserve", type=float, default=0.35)
+    parser.add_argument("--max-idle-steps", type=int, default=0,
+                        help="Optional shared watchdog; zero preserves ordinary training.")
     return parser.parse_args()
 
 
 def _validate_args(args: argparse.Namespace) -> None:
+    if args.max_idle_steps < 0:
+        raise ValueError("max-idle-steps cannot be negative")
     if args.final_search_candidates < 0 or not 0 < args.final_search_reserve < 1:
         raise ValueError("Invalid final search audit candidate count or reserve")
     if args.final_search_candidates and (
@@ -208,6 +212,7 @@ def _validate_resume_metadata(logging_dir: Path, args: argparse.Namespace) -> No
     with prior_path.open("r", encoding="utf-8") as handle:
         previous = json.load(handle)
     current = vars(args)
+    previous.setdefault("max_idle_steps", 0)
     if previous.get("final_search_candidates", 0):
         raise ValueError(
             "Pilot audit checkpoints are search-only; start a fresh pilot instead of resuming"
@@ -239,6 +244,7 @@ def _validate_resume_metadata(logging_dir: Path, args: argparse.Namespace) -> No
             "near_budget_fraction",
             "minimum_budget_utilization",
             "output_token_reserve",
+            "max_idle_steps",
         ),
     )
 
@@ -424,6 +430,10 @@ def run(args: argparse.Namespace, *, logging_dir: Path | None = None) -> Path:
         ExperimentCallback(dir=str(logging_dir)),
         OptimizerCheckpointCallback(logging_dir, checkpoints),
     ]
+    if args.max_idle_steps:
+        from tri_fair.runtime.progress import EvaluationProgressCallback
+
+        callbacks.append(EvaluationProgressCallback(args.max_idle_steps))
     if budget_controller is not None:
         callbacks.append(BudgetStopCallback(budget_controller))
     else:
@@ -550,6 +560,8 @@ def run(args: argparse.Namespace, *, logging_dir: Path | None = None) -> Path:
         "population_size": len(initial_prompts),
         "optimizer_parameters": _optimizer_parameters(args, optimizer_config),
         "final_search_audit": final_search_audit,
+        "runtime_stop_reason": getattr(optimizer, "runtime_stop_reason", None),
+        "search_diagnostics": optimizer.search_diagnostics() if hasattr(optimizer, "search_diagnostics") else None,
     }
     if args.study_profile == "v8":
         from tri_fair.config.registry import effective_run_metadata

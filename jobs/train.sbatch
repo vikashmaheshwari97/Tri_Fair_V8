@@ -72,7 +72,7 @@ optimizer="${optimizers[$optimizer_idx]}"
 seed="${seeds[$seed_idx]}"
 
 tf_configure_model_cache "$model"
-tf_contains "$optimizer" Tri-Fair-v8 Tri-Fair-v8.2-Experimental NSGAII-PO-Fair SPEA2-PO-Fair NSGAIII-PO-Fair RandomSearch-PO-Fair NSGAII-PO-Fair-Enhanced Tri-Fair-v8-NoFeedback Tri-Fair-v8-NoDemo Tri-Fair-v8-NoUncertainty Tri-Fair-v8-FullEval \
+tf_contains "$optimizer" Tri-Fair-v8 Tri-Fair-v8.3 Tri-Fair-v8.2-Experimental NSGAII-PO-Fair SPEA2-PO-Fair NSGAIII-PO-Fair RandomSearch-PO-Fair NSGAII-PO-Fair-Enhanced Tri-Fair-v8-NoFeedback Tri-Fair-v8-NoDemo Tri-Fair-v8-NoUncertainty Tri-Fair-v8-FullEval \
   || tf_die "Unsupported v8 optimizer '$optimizer'"
 
 checkpoints="$(tf_stage_checkpoints "$BUDGET")"
@@ -115,6 +115,10 @@ fi
 
 declare -a PYTHON_CMD
 tf_python_command PYTHON_CMD
+decoding_args=()
+if tf_is_true "${STRUCTURED_LABELS:-0}"; then
+  decoding_args+=(--structured-labels)
+fi
 "${PYTHON_CMD[@]}" -m tri_fair.cli.train \
   --experiment-name "tri_fair_v8_${optimizer}_${model}_${dataset}_${seed}_${BUDGET}" \
   --random-seed "$seed" \
@@ -132,5 +136,7 @@ tf_python_command PYTHON_CMD
   --near-budget-fraction "$NEAR_BUDGET_FRACTION" \
   --minimum-budget-utilization "$MIN_BUDGET_UTILIZATION" \
   --output-token-reserve "$OUTPUT_TOKEN_RESERVE" \
+  --max-idle-steps "${MAX_IDLE_STEPS:-0}" \
+  "${decoding_args[@]}" \
   "${strict_budget_args[@]}" \
   "${resume_args[@]}"

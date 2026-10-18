@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-#SBATCH --job-name=tfv82-pilot
+#SBATCH --job-name=tfv83-pilot
 #SBATCH --partition=gpu
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
@@ -48,4 +48,7 @@ if [[ -n "${PILOT_METHODS:-}" ]]; then
     pilot_args+=(--methods "$PILOT_METHODS")
 fi
 tf_log "Pilot: model=$model dataset=${datasets[$index]} cap=$budget (search and final audit combined)"
+if [[ "${PILOT_STRUCTURED_LABELS:-1}" == "0" ]]; then
+    pilot_args+=(--unconstrained-labels)
+fi
 python -m tri_fair.cli.pilot "${pilot_args[@]}"

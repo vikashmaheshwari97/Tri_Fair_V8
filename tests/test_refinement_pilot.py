@@ -27,7 +27,7 @@ def test_existing_method_configuration_is_preserved():
     configs = build_optimizer_registry()
     assert configs["Tri-Fair-v8"].optimizer_params == TRI_FAIR_PARAMETERS
     assert METHODS["Tri-Fair-v8"] is TriFairOptimizer
-    assert METHODS[VARIANT] is RefinedTriFairOptimizer
+    assert METHODS["Tri-Fair-v8.2-Experimental"] is RefinedTriFairOptimizer
     for method in (
         "NSGAII-PO-Fair",
         "SPEA2-PO-Fair",

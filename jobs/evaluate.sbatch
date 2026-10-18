@@ -38,6 +38,10 @@ seed="${seeds[$((idx % ${#seeds[@]}))]}"; idx=$((idx / ${#seeds[@]}))
 dataset="${datasets[$((idx % ${#datasets[@]}))]}"; idx=$((idx / ${#datasets[@]}))
 model="${models[$idx]}"
 tf_configure_model_cache "$model"
+decoding_args=()
+if tf_is_true "${STRUCTURED_LABELS:-0}"; then
+  decoding_args+=(--structured-labels)
+fi
 python -m tri_fair.cli.evaluate \
   --study-root "${V8_RESULTS_ROOT:-results/tri_fair_v8_clean_5m}/$model" \
   --model "$model" --dataset "$dataset" --random-seed "$seed" \
@@ -45,4 +49,5 @@ python -m tri_fair.cli.evaluate \
   --optimizers "${TF_OPTIMIZERS:-Tri-Fair-v8,NSGAII-PO-Fair,SPEA2-PO-Fair,NSGAIII-PO-Fair,RandomSearch-PO-Fair,NSGAII-PO-Fair-Enhanced}" \
   --maximum-actual-tokens "${BUDGET:-5000000}" \
   --max-output-tokens "${MAX_OUTPUT_TOKENS:-16}" \
-  --evaluation-split "${EVALUATION_SPLIT:-validation}"
+  --evaluation-split "${EVALUATION_SPLIT:-validation}" \
+  "${decoding_args[@]}"

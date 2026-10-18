@@ -1,0 +1,268 @@
+{
+  "method": "Tri-Fair-v8.3",
+  "created_utc": "2026-10-18T19:12:40.184773+00:00",
+  "status": "143 CPU tests passed; GPU performance and label-choice backend validation pending",
+  "research_gap": "Jointly optimize task quality, deployment input/output-token cost and group unfairness, with bounded and auditable prompt search. This is a proposed direction, not a claim of established novelty or guaranteed dominance.",
+  "observed_log": {
+    "last_step": 746,
+    "distinct_score_vectors": 4,
+    "distinct_vectors_in_last_100_score_records": 2,
+    "sha256": "6c3cac1de18b0265a98e98227a20e6bf8a89e54df9978ffc9f56b9c562c21742"
+  },
+  "diagnosis": [
+    "The tail repeatedly shows the same two prompt-score vectors and generation calls. This does not establish lack of progress during every earlier step.",
+    "v8.2 increments an operator attempt only after accepting a candidate. Invalid or duplicate outputs can leave a mode perpetually untried and repeatedly selected.",
+    "v8.2 repeatedly conditions on similar feedback and uses a fixed meta sampling seed. v8.3 varies requests through attempt memory, rotated evidence and reproducible per-batch seeds.",
+    "A literal final-answer class appeared in an instruction. v8.3 rejects such proposals before evaluation.",
+    "The upstream MarkerBasedPredictor silently substitutes the first class when extraction fails. The new pilot applies choice-constrained label decoding to every method; scoring code and raw metrics remain unchanged."
+  ],
+  "repositories": [
+    {
+      "repository": "mo374z/mo-capo",
+      "url": "https://github.com/mo374z/mo-capo",
+      "scope": "Multi-objective black-box prompt search",
+      "inspected": [
+        "README.md",
+        "src/mo_capo.py",
+        "src/nsgaii_po.py",
+        "src/gepa.py"
+      ],
+      "finding": "Deployment cost is the weighted mean of input and output tokens. Intensification compares candidates on shared blocks and advances incumbents. This is the existing foundation of Tri-Fair, rather than a new component introduced by v8.3.",
+      "decision": "Retain three-objective Pareto search, common-block comparisons, cached predictions and existing uncertainty/readiness checks."
+    },
+    {
+      "repository": "cisco-foundation-ai/fully-automated-prompt-optimization",
+      "url": "https://github.com/cisco-foundation-ai/fully-automated-prompt-optimization",
+      "scope": "Autonomous multi-step pipeline optimization; current README calls it FAFO",
+      "inspected": [
+        "README.md",
+        ".codex/agents/optimization.md",
+        ".codex/agents/step-attribution.md",
+        ".codex/agents/variant-reviewer.md",
+        "src/hephaestus/analysis/step_attribution.py",
+        "src/hephaestus/engine/prompt_renderer.py"
+      ],
+      "finding": "The relevant pattern is evaluate, attribute failures, propose a scoped revision, review, and evaluate again, with immutable history and split controls. The original FAPO paper and current repository differ in scope. The paper discusses optimization and generation budgets, so it is inaccurate to claim cost is entirely absent.",
+      "decision": "Adapt attribution, proposal review and attempt memory to prompt strings only. Do not add autonomous code edits, retrieval changes, cloud-agent dependencies, or chain-level inference calls to a prompt-only comparison."
+    },
+    {
+      "repository": "MiuLab/FairLMRec",
+      "url": "https://github.com/MiuLab/FairLMRec",
+      "scope": "Survey and bibliography of fairness in LLM-based recommendation",
+      "inspected": [
+        "README.md",
+        "root tree"
+      ],
+      "finding": "The root has a README and images, not a runnable prompt optimizer. Recommendation stakeholder and exposure fairness differ from these classification metrics.",
+      "decision": "Use its taxonomy as related work and evaluation guidance; do not present it as an implemented competing optimizer."
+    },
+    {
+      "repository": "gabrielelamalfakcl/fairness-aware-ppo",
+      "url": "https://github.com/gabrielelamalfakcl/fairness-aware-ppo",
+      "scope": "Fair-PPO in multi-agent simulation environments",
+      "inspected": [
+        "README.md",
+        "fair-PPO-HS/DP/PPOAgentMDDP.py",
+        "fair-PPO-HS/DP tree"
+      ],
+      "finding": "The implementation combines PPO losses with normalized fairness penalties on rewards and value estimates. It trains actor/critic parameters and requires environment rollouts.",
+      "decision": "Retain the lesson that utility and fairness must be evaluated together; do not import PPO weight training into a frozen-LLM prompt-only method."
+    },
+    {
+      "repository": "xuchen0427/fairdiverse",
+      "url": "https://github.com/XuChen0427/FairDiverse",
+      "scope": "Fairness/diversity-aware retrieval and recommendation toolkit; default branch master",
+      "inspected": [
+        "README.md",
+        "fairdiverse/recommendation tree",
+        "fairdiverse/recommendation/evaluator.py",
+        "fairdiverse/recommendation/metric.py"
+      ],
+      "finding": "It implements ranking utility, group utility and distributional fairness metrics, such as NDCG, Gini, entropy and max-min fairness. These are not interchangeable with BBQ bias, Civil Comments equalized odds or Bios conditional TPR gaps.",
+      "decision": "Adapt explicit group-support diagnostics and modular evaluation; leave the classification metric definitions unchanged."
+    },
+    {
+      "repository": "junxu-ai/LLM_fairness",
+      "url": "https://github.com/junxu-ai/LLM_fairness",
+      "scope": "Curated fairness references and resources",
+      "inspected": [
+        "README.md",
+        "root tree"
+      ],
+      "finding": "The root contains a reference README, rather than a trainable optimizer implementation.",
+      "decision": "Use for literature discovery; no executable module was imported."
+    },
+    {
+      "repository": "gepa-ai/gepa",
+      "url": "https://github.com/gepa-ai/gepa",
+      "scope": "Reflective evolution with Pareto-aware candidate selection",
+      "inspected": [
+        "src/gepa/strategies/candidate_selector.py",
+        "src/gepa/proposer tree"
+      ],
+      "finding": "Candidate selectors operate on measured score histories and Pareto mappings; reflective mutation and merge are separate proposal components.",
+      "decision": "Use measured revision memory and complementary-parent context. Keep Tri-Fair's explicit cost/fairness objectives and its existing paired evaluation, rather than claiming a full GEPA reproduction."
+    }
+  ],
+  "papers": [
+    {
+      "title": "FAPO: Fully Automated Prompt Optimization of Multi-Step LLM Pipelines",
+      "source": "User-provided PDF",
+      "filename": "2606.19605v2.pdf",
+      "sha256": "6b9330aa4365d8e7d06f41141cfb04297c8ffe79adfc5a1785fb53d1ae8522d1",
+      "decision": "Adopt failure attribution, scoped revisions and iteration memory; preserve the fixed inference pipeline."
+    },
+    {
+      "title": "Fairness Aware Reward Optimization",
+      "source": "User-provided PDF",
+      "filename": "FARO.pdf",
+      "sha256": "a41b5750421f65a430b2c682e409e808fbde72736e3a40f98bf05b011b7362dc",
+      "decision": "Reward-model training with fairness constraints. Theoretical guarantees do not transfer to this discrete prompt optimizer; do not claim FARO guarantees."
+    },
+    {
+      "title": "MO-CAPO: Multi-Objective Cost-Aware Prompt Optimization",
+      "source": "User-provided PDF",
+      "filename": "MO-CAPO Multi-Objective Cost-Aware Prompt Optimization(1).pdf",
+      "sha256": "99d6779199b279e9afe8d235e9587312c643eb230ad0e22599f5aafb86ebc672",
+      "decision": "Retain token-weighted deployment cost and progressive common-block intensification."
+    }
+  ],
+  "source_fingerprints": [
+    {
+      "repository": "mo374z/mo-capo",
+      "path": "README.md",
+      "sha256": "5df70e92806a4c9a29e393a8528d20ad646c1dc5499e6655eef479f57f0548b7"
+    },
+    {
+      "repository": "mo374z/mo-capo",
+      "path": "src/mo_capo.py",
+      "sha256": "704ff1c0455c884eb05cdc611c567e07defe12a665656520ad13bd1ee10dce2a"
+    },
+    {
+      "repository": "mo374z/mo-capo",
+      "path": "src/nsgaii_po.py",
+      "sha256": "a988fb9d1363fdf876b32c8cac81e72edaf43b6bacb769de054277f263c23ada"
+    },
+    {
+      "repository": "mo374z/mo-capo",
+      "path": "src/gepa.py",
+      "sha256": "93831ff0e6f99bc8e84a35fa7f3bb491f01734955439286e3927ecce49c79d51"
+    },
+    {
+      "repository": "cisco-foundation-ai/fully-automated-prompt-optimization",
+      "path": "README.md",
+      "sha256": "aa2a416043d415b72d321758d5b61f39f6c74f59f94533534fe07db25311c3b9"
+    },
+    {
+      "repository": "cisco-foundation-ai/fully-automated-prompt-optimization",
+      "path": ".codex/agents/optimization.md",
+      "sha256": "fd4f70d766e3260b96c5d99f13984c095afe244e35288e4e4fc361933b04c716"
+    },
+    {
+      "repository": "cisco-foundation-ai/fully-automated-prompt-optimization",
+      "path": ".codex/agents/step-attribution.md",
+      "sha256": "001b4e48b6a561eb982f30a669c719f89a7fbd10bcac4f71059a8e83301f8e49"
+    },
+    {
+      "repository": "cisco-foundation-ai/fully-automated-prompt-optimization",
+      "path": ".codex/agents/variant-reviewer.md",
+      "sha256": "dcbdb950360d358d0915d5043d8dfa1599711df84fbde5b05c3a05bcccfc0c36"
+    },
+    {
+      "repository": "cisco-foundation-ai/fully-automated-prompt-optimization",
+      "path": "src/hephaestus/analysis/step_attribution.py",
+      "sha256": "57f2f5636af303f1b7fc35f9f3ce496838cc1df39f109f826de293baf12ee9f0"
+    },
+    {
+      "repository": "cisco-foundation-ai/fully-automated-prompt-optimization",
+      "path": "src/hephaestus/engine/prompt_renderer.py",
+      "sha256": "cd16a1aa614f85da773e215da28b0b5415119f2841df1596187f0ca8db95dad8"
+    },
+    {
+      "repository": "MiuLab/FairLMRec",
+      "path": "README.md",
+      "sha256": "630764b5a2e6fbf3e412fc127b4f2772c46e0b6df233b41245caa97ca16fc1fd"
+    },
+    {
+      "repository": "gabrielelamalfakcl/fairness-aware-ppo",
+      "path": "README.md",
+      "sha256": "7710118716163c9a88dbd1c7afd26ccdd097129ecfd6f21792616f3238164b49"
+    },
+    {
+      "repository": "gabrielelamalfakcl/fairness-aware-ppo",
+      "path": "fair-PPO-HS/DP/PPOAgentMDDP.py",
+      "sha256": "57b6384dbf5b9c758597b69bbd88bf8104654cd71c88881f49cada3b1a5c9cb5"
+    },
+    {
+      "repository": "xuchen0427/fairdiverse",
+      "path": "README.md",
+      "sha256": "eacc95f4e69a086379eafddd66e1e09ec3f8c32ba1cdefdc133c92fd096e62c9"
+    },
+    {
+      "repository": "junxu-ai/LLM_fairness",
+      "path": "README.md",
+      "sha256": "2b66a4778f81c3a29beb785315e821cd5cf996626ec641df581c47362c9b1efe"
+    },
+    {
+      "repository": "gepa-ai/gepa",
+      "path": "src/gepa/strategies/candidate_selector.py",
+      "sha256": "c2565e251d0cdc00d7548dde7fd0316190c97a64bc130ea86ea6e2fc8a232cfd"
+    },
+    {
+      "repository": "XuChen0427/FairDiverse",
+      "path": "fairdiverse/recommendation/evaluator.py",
+      "sha256": "bb69f3acbcb0247e91707680a094b884357b5c0761a60efa8b65fd10c65f5ef2"
+    },
+    {
+      "repository": "XuChen0427/FairDiverse",
+      "path": "fairdiverse/recommendation/metric.py",
+      "sha256": "67f0a518404a819ae336c0433521815e3ea2f35bef0fbcba0ea93e82bc66a5e6"
+    }
+  ],
+  "additional_primary_sources": [
+    {
+      "url": "https://arxiv.org/abs/2507.19457",
+      "topic": "GEPA reflective evolution and complementary Pareto candidates"
+    },
+    {
+      "url": "https://arxiv.org/abs/2610.05671",
+      "topic": "BudgetAPO: fixed paired slices and noise-aware evaluation, relevant to retaining the existing paired group-complete racing"
+    },
+    {
+      "url": "https://arxiv.org/abs/2406.11370",
+      "topic": "ZEPO: fairness of pairwise LLM evaluators; a different fairness target from demographic classification"
+    }
+  ],
+  "video": {
+    "url": "https://www.youtube.com/watch?v=QG5mFbypNaI",
+    "status": "Direct fetch throttled; video contents not reviewed. Author README confirms this is the linked demo; assessment uses code and supplied paper."
+  },
+  "implementation": [
+    "New versioned AttributedTriFairOptimizer; old v8/v8.2 and baseline implementations preserved.",
+    "Cached search-only confusion, raw-format and conditional-error attribution, with explicit support counts.",
+    "JSON proposal plus brief failure diagnosis; concrete class-answer and embedded-example rejection.",
+    "Every proposal counts toward operator attempts; retain bounded histories of rejected and measured proposals.",
+    "A measured revision may have zero shots or one complete short gold-labeled example from the frozen few-shot split.",
+    "Quality revisions may include an explicit allowed-label catalog; additional deployment tokens are charged normally.",
+    "Common-block uncertainty-aware racing and archive scoring inherited unchanged.",
+    "Method-level generation/idle bounds, plus a common three-idle-step watchdog and 200-step pilot ceiling for all methods.",
+    "New pilot enables label-choice grammar for all methods, meta output cap 512, identical 1M downstream ceiling including 35% final-audit reserve.",
+    "New v83 results namespace, decoding metadata comparison, progress logging and resumable optimizer memory."
+  ],
+  "limits": [
+    "Local deterministic fake-model tests validate code behavior, not research performance.",
+    "The vLLM label-choice backend requires GPU smoke validation; an explicit all-method opt-out exists.",
+    "Conditional-error attribution is heuristic diagnostic evidence, not proof of a causal fairness mechanism.",
+    "The label-choice decoding protocol differs from archived unconstrained results; comparisons require fresh runs of every method.",
+    "The pilot is a one-seed search-split screen with a token ceiling, not a held-out or significance claim.",
+    "No identity-swap dataset augmentation, learned reward-model training, Bayesian surrogate, or unconstrained pipeline/code rewriting is claimed as implemented.",
+    "All three objectives may conflict; improvement and dominance remain empirical questions."
+  ],
+  "validation": {
+    "cpu_tests_passed": 143,
+    "ruff": "passed",
+    "bash_syntax": "passed",
+    "gpu_tested_here": false,
+    "performance_target_achieved": null
+  }
+}
