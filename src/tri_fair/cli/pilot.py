@@ -54,7 +54,7 @@ def train_command(args, method, root):
         "-m",
         "tri_fair.cli.train",
         "--experiment-name",
-        "v84_hybrid_search_pilot",
+        "v841_hybrid_termination_pilot",
         "--model",
         args.model,
         "--dataset",
@@ -319,7 +319,7 @@ def main(argv=None):
         datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ") + "_" + uuid4().hex[:8]
     )
     root = (
-        Path(args.output_root or f"results/tri_fair_v84_pilot_{args.budget}")
+        Path(args.output_root or f"results/tri_fair_v841_pilot_{args.budget}")
         .expanduser()
         .resolve()
         / args.model

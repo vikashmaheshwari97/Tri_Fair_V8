@@ -1,0 +1,14 @@
+{
+  "requires": "Tri_Fair_V84_Hybrid_WinoBias_Upgrade.zip already applied",
+  "fix": "Do not treat an empty hybrid proposal as budget exhaustion",
+  "tests_passed": 160,
+  "test_duration_seconds": 66.08,
+  "ruff": "passed",
+  "bash_syntax": "passed",
+  "original_baselines_unchanged": true,
+  "original_metrics_and_dataset_splits_unchanged": true,
+  "gpu_validation_of_correction": false,
+  "performance_improvement_of_correction": null,
+  "fresh_result_namespace": "tri_fair_v841_pilot_1000000",
+  "old_checkpoint_compatibility": false
+}

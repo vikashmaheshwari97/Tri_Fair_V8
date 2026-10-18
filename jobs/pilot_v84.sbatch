@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-#SBATCH --job-name=tfv84-pilot
+#SBATCH --job-name=tfv841-pilot
 #SBATCH --partition=gpu
 #SBATCH --nodes=1
 #SBATCH --ntasks=1

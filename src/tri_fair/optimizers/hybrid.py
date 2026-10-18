@@ -32,8 +32,12 @@ def compact_contract(text):
     return text
 
 
+class _NoNovelCandidate(RuntimeError):
+    """An operator had no acceptable proposal; this is not budget exhaustion."""
+
+
 class HybridTriFairOptimizer(NSGA2Fair):
-    method_version = "8.4-nsgaii-full-evaluation-reflection-compression"
+    method_version = "8.4.1-nsgaii-full-evaluation-empty-proposal-safe"
     _adaptive_fields = NSGA2Fair._adaptive_fields + (
         "portfolio_round",
         "generation_calls",
@@ -41,6 +45,7 @@ class HybridTriFairOptimizer(NSGA2Fair):
         "proposal_rejections",
         "search_stop_reason",
         "portfolio_usage",
+        "empty_generation_streak",
     )
 
     def __init__(
@@ -66,6 +71,7 @@ class HybridTriFairOptimizer(NSGA2Fair):
         self.proposal_rejections, self.portfolio_usage = Counter(), Counter()
         self.seen_candidates = set()
         self.search_stop_reason = None
+        self.empty_generation_streak = 0
 
     def _pre_optimization_loop(self):
         # Exactly the same raw seed prompts and randomized gold demonstrations
@@ -74,6 +80,15 @@ class HybridTriFairOptimizer(NSGA2Fair):
         self.seen_candidates.update(p.construct_prompt() for p in self.prompts)
 
     def _generate_challengers(self):
+        challengers = self._propose_challengers()
+        if not challengers:
+            # Never pass [] to the inherited budget-fitting path: it treats
+            # an empty fitted batch as an oversized full candidate. An empty
+            # proposal has no token estimate and requires the next operator.
+            raise _NoNovelCandidate()
+        return challengers
+
+    def _propose_challengers(self):
         if not self.objective_aware_variation:
             return super()._generate_challengers()
         if self.generation_calls >= self.max_generation_calls:
@@ -196,7 +211,22 @@ class HybridTriFairOptimizer(NSGA2Fair):
 
     def _step(self):
         before = len(self.task.pred_cache)
-        result = super()._step()
+        try:
+            result = super()._step()
+        except _NoNovelCandidate:
+            self.empty_generation_streak += 1
+            if self.empty_generation_streak >= 3 and not self.search_stop_reason:
+                self.search_stop_reason = "no_novel_candidates_after_three_rounds"
+            result = self.prompts
+            LOGGER.info(
+                "No acceptable hybrid proposal in portfolio round %d; "
+                "budget unchanged, empty_generation_streak=%d, stop=%s",
+                self.portfolio_round,
+                self.empty_generation_streak,
+                self.search_stop_reason,
+            )
+        else:
+            self.empty_generation_streak = 0
         for item in self.proposal_memory:
             for p in self.prompts:
                 if item["instruction"] == p.instruction:
@@ -219,6 +249,7 @@ class HybridTriFairOptimizer(NSGA2Fair):
     def search_diagnostics(self):
         return dict(
             generation_calls=self.generation_calls,
+            empty_generation_streak=self.empty_generation_streak,
             full_search_evaluation=True,
             portfolio=dict(self.portfolio_usage),
             rejected_proposals=dict(self.proposal_rejections),

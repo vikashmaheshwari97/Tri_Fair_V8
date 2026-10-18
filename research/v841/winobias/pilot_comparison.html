@@ -1,0 +1,42 @@
+<!doctype html><meta charset="utf-8"><title>Tri-Fair pilot comparison</title><style>body{font:16px system-ui;max-width:1100px;margin:40px auto;color:#17324d}table{border-collapse:collapse;width:100%}td,th{padding:12px;border-bottom:1px solid #ccd7df;text-align:right}th{background:#e9f1f8}p{line-height:1.6}</style><h1>qwen-3-30b / winobias</h1><p>Single-seed search-split pilot. The table reports the selected balanced prompt and indicators of the audited shortlist. HV uses loss coordinates (1-quality, cost/C, unfairness) with fixed reference (1.1,1.1,1.1). R2 uses the same search values for selection and scoring and is NOT held-out noisy R2. Differences are descriptive; no statistical significance is established. A higher HV alone does not imply better values in every objective.</p><table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>method</th>
+      <th>accuracy</th>
+      <th>macro_f1</th>
+      <th>cost</th>
+      <th>unfairness</th>
+      <th>search_hv_shortlist_3d</th>
+      <th>search_r2_shortlist_3d</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Tri-Fair-v8.4-Hybrid</td>
+      <td>0.8164</td>
+      <td>None</td>
+      <td>10.9630</td>
+      <td>0.2376</td>
+      <td>0.7851</td>
+      <td>0.1114</td>
+    </tr>
+    <tr>
+      <td>Tri-Fair-v8.3</td>
+      <td>0.8789</td>
+      <td>None</td>
+      <td>20.9730</td>
+      <td>0.0966</td>
+      <td>0.9309</td>
+      <td>0.0786</td>
+    </tr>
+    <tr>
+      <td>NSGAII-PO-Fair</td>
+      <td>0.8809</td>
+      <td>None</td>
+      <td>19.1030</td>
+      <td>0.1313</td>
+      <td>0.8761</td>
+      <td>0.0883</td>
+    </tr>
+  </tbody>
+</table>
