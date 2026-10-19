@@ -1,13 +1,13 @@
 {
-  "method": "Tri-Fair-v8.7",
+  "method": "Tri-Fair-v8.8",
   "paper_label": "Tri-Fair",
-  "implementation": "GuardedTriFairOptimizer",
+  "implementation": "RepairedTriFairOptimizer",
   "proposal_strategies": [
-    "measured_parent_selection",
-    "bounded_quality_edit",
-    "conditional_fairness_repair",
-    "paired_gold_demo_edit",
-    "exact_token_compression"
+    "rendered_gold_demonstrations",
+    "measured_failure_edits",
+    "shorter_instruction_or_demo_removal",
+    "search_preference_archive",
+    "measured_edit_outcome_memory"
   ],
   "shared_population_cache_and_budget": true,
   "historical_versions": "retained for reproduction; excluded from active defaults",
@@ -27,7 +27,7 @@
   "validation": "one shared union of unique audited-final and real historical prompts",
   "validation_tokens": "additional, measured separately; never fed to optimization",
   "gpu_performance": "not yet measured",
-  "internal_revision": "8.7",
+  "internal_revision": "8.8",
   "pilot_controls": [
     "NSGAII-PO-Fair",
     "NSGAIII-PO-Fair",
@@ -37,5 +37,11 @@
   "reserve_reclamation": "Complete protected search shortlist, reuse spare cap for search, freeze fully cached final shortlist",
   "final_selection": "Same Pareto balanced/quality/cost/unfairness anchors for every method",
   "candidate_evaluation": "full search coverage before environmental selection",
-  "repeatability_probe": "search-only, 8 examples in batched/reversed/single calls, actual tokens counted inside Tri-Fair cap"
+  "repeatability_probe": "search-only, 8 examples in batched/reversed/single calls, actual tokens counted inside Tri-Fair cap",
+  "seeds": [
+    72,
+    73,
+    74
+  ],
+  "parent_archive_cap": 24
 }

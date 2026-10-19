@@ -1,0 +1,46 @@
+{
+  "source_code_copied": false,
+  "review_date": "2026-10-19",
+  "repositories": [
+    {
+      "repository": "cisco-foundation-ai/fully-automated-prompt-optimization",
+      "commit": "269db66eded77946497c8f8e10526c334726fe3c",
+      "files": [
+        "README.md (intro/workflow)",
+        "src/hephaestus/analysis/step_attribution.py",
+        ".codex/agents/optimization.md"
+      ],
+      "finding": "Current repository calls the system FAFO. It is a pipeline-aware evaluation/attribution/variant workflow orchestrated by an external coding agent, not a drop-in Pareto optimizer. Its action space can include prompts, skills, parameters and graph structure.",
+      "adaptation": "Use measured edit outcomes and complete-task scoped revisions. Do not widen this benchmark to model changes, retrieval or agentic pipelines."
+    },
+    {
+      "repository": "jxzhangjhu/Awesome-LLM-Prompt-Optimization",
+      "commit": "e0e2acde838108077a6ca1d836043b4d61d3146e",
+      "files": [
+        "README.md"
+      ],
+      "finding": "A literature catalogue, not an optimizer implementation or a performance guarantee.",
+      "adaptation": "Use as an index; do not claim its listed algorithms are implemented by importing the list."
+    },
+    {
+      "repository": "finitearth/prompt-optimization-framework-comparison",
+      "commit": "6cd48d2431bb5cf796273f4ea10d3119791ec483",
+      "files": [
+        "README.md",
+        "src/run_capo.py"
+      ],
+      "finding": "Benchmark wrappers around existing optimizers, with explicit task/predictor setup and token-limit callbacks; benchmark tasks include SST-5/GSM8K.",
+      "adaptation": "Preserve reproducible common settings, token budgets and actual rendered prompt semantics. It does not supply a fairness-aware method."
+    },
+    {
+      "repository": "mo374z/mo-capo",
+      "commit": "265848bb6e0482ab7ef11028d0b8483f6560e724",
+      "files": [
+        "src/mo_capo.py",
+        "src/config/optimizer_configs.py"
+      ],
+      "finding": "MO-CAPO creates Prompt objects with their attached demonstrations and races challengers over common blocks. Baseline NSGA-II uses full evaluation; original study focuses on quality/cost.",
+      "adaptation": "Repair effective demonstrations and retain diverse Pareto parent candidates. Do not transplant arithmetic block averaging to nonlinear group fairness or silently alter baseline evaluation."
+    }
+  ]
+}

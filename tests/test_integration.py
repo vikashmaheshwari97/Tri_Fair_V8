@@ -74,6 +74,7 @@ def test_interrupted_equals_uninterrupted(cls, tmp_path):
         "Tri-Fair-v8.5",
         "Tri-Fair-v8.6",
         "Tri-Fair-v8.7",
+        "Tri-Fair-v8.8",
         "Tri-Fair-v8-NoFeedback",
         "Tri-Fair-v8-NoDemo",
         "Tri-Fair-v8-NoUncertainty",
@@ -173,6 +174,7 @@ def test_complete_public_runner_with_fake_models(
         "Tri-Fair-v8.5",
         "Tri-Fair-v8.6",
         "Tri-Fair-v8.7",
+        "Tri-Fair-v8.8",
         "NSGAII-PO-Fair",
     ],
 )
@@ -307,3 +309,4 @@ def test_v8_racing_calls_paired_guard_before_dominance_rejection(monkeypatch):
     challenger = Prompt("New synthetic candidate for paired rejection regression.")
     obj._do_intensification(challenger)
     assert calls and calls[0][0] is challenger
+

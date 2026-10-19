@@ -28,6 +28,7 @@ DATASETS = {
     "winobias": "WinoBias",
 }
 STYLE = {
+    "Tri-Fair-v8.8": ("Tri-Fair", "#006D77", "o"),
     "Tri-Fair-v8.7": ("Tri-Fair", "#006D77", "o"),
     "Tri-Fair-v8.6": ("Tri-Fair", "#006D77", "o"),
     "NSGAIII-PO-Fair": ("NSGA-III-PO-Fair", "#C4622D", "s"),
@@ -432,3 +433,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

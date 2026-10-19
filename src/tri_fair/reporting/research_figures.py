@@ -23,6 +23,7 @@ from tri_fair.reporting.metrics import analyse_evaluated_run
 from tri_fair.reporting.objectives import Bounds
 
 COLORS = {
+    "Tri-Fair-v8.8": "#006D77",
     "Tri-Fair-v8.7": "#006D77",
     "Tri-Fair-v8.6": "#007F73",
     "NSGAII-PO-Fair": "#D55E00",
@@ -164,7 +165,7 @@ def plot_research(frame, output, *, split, budget, title=None, formats=("png", "
     marker = {m: MARKERS[i % len(MARKERS)] for i, m in enumerate(methods)}
 
     def label(m):
-        return "Tri-Fair" if m in {"Tri-Fair-v8.6", "Tri-Fair-v8.7"} else m
+        return "Tri-Fair" if m in {"Tri-Fair-v8.6", "Tri-Fair-v8.7", "Tri-Fair-v8.8"} else m
 
     plt.rcParams.update(
         {
@@ -362,7 +363,7 @@ def plot_research(frame, output, *, split, budget, title=None, formats=("png", "
     finish(fig, "fairness_conditioned_attainment", handles, labels)
 
     primary = next(
-        (m for m in ("Tri-Fair-v8.7", "Tri-Fair-v8.6") if m in methods), None
+        (m for m in ("Tri-Fair-v8.8", "Tri-Fair-v8.7", "Tri-Fair-v8.6") if m in methods), None
     )
     if primary is not None:
         fig, axes = plt.subplots(
@@ -535,3 +536,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

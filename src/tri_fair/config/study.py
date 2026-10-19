@@ -163,4 +163,16 @@ def build_optimizer_registry():
         "full",
         1,
     )
+    configs["Tri-Fair-v8.8"] = OptimizerConfig(
+        "Tri-Fair-v8.8",
+        "Tri-Fair-v8.8",
+        dict(
+            configs["Tri-Fair-v8.7"].optimizer_params,
+            parent_pool_cap=24,
+            enable_outcome_feedback=True,
+            enable_parent_archive=True,
+        ),
+        "full",
+        1,
+    )
     return configs
