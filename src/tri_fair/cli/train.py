@@ -133,9 +133,14 @@ def parse_args() -> argparse.Namespace:
         default=0,
         help="Optional pilot-only frozen-shortlist audit; zero preserves normal training.",
     )
+    parser.add_argument("--reclaim-audit-reserve", action="store_true")
     parser.add_argument("--final-search-reserve", type=float, default=0.35)
-    parser.add_argument("--max-idle-steps", type=int, default=0,
-                        help="Optional shared watchdog; zero preserves ordinary training.")
+    parser.add_argument(
+        "--max-idle-steps",
+        type=int,
+        default=0,
+        help="Optional shared watchdog; zero preserves ordinary training.",
+    )
     return parser.parse_args()
 
 
@@ -480,11 +485,19 @@ def run(args: argparse.Namespace, *, logging_dir: Path | None = None) -> Path:
     if args.final_search_candidates:
         from tri_fair.runtime.finalization import finalize_search_front
 
-        final_search_audit = finalize_search_front(
+        finalizer = finalize_search_front
+        options = {}
+        if getattr(args, "reclaim_audit_reserve", False):
+            from tri_fair.runtime.finalization import reclaim_and_finalize
+
+            finalizer = reclaim_and_finalize
+            options["max_steps"] = args.max_steps
+        final_search_audit = finalizer(
             optimizer,
             logging_dir,
             count=args.final_search_candidates,
             total_budget=args.budget_per_run,
+            **options,
         )
     final_downstream = token_counts(downstream_llm)
     final_meta = token_counts(meta_llm)
@@ -561,7 +574,9 @@ def run(args: argparse.Namespace, *, logging_dir: Path | None = None) -> Path:
         "optimizer_parameters": _optimizer_parameters(args, optimizer_config),
         "final_search_audit": final_search_audit,
         "runtime_stop_reason": getattr(optimizer, "runtime_stop_reason", None),
-        "search_diagnostics": optimizer.search_diagnostics() if hasattr(optimizer, "search_diagnostics") else None,
+        "search_diagnostics": optimizer.search_diagnostics()
+        if hasattr(optimizer, "search_diagnostics")
+        else None,
     }
     if args.study_profile == "v8":
         from tri_fair.config.registry import effective_run_metadata

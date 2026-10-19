@@ -92,7 +92,12 @@ class StableTriFairOptimizer(AttributedTriFairOptimizer):
             anchor, stability = choose_stable_parent(self, mode, attempt)
             blocks = self.task.get_evaluated_blocks([anchor])[anchor]
             evidence = attribute_search(
-                self.task, anchor, blocks, offset=attempt, limit=self.feedback_cases
+                self.task,
+                anchor,
+                blocks,
+                offset=attempt,
+                limit=self.feedback_cases,
+                targeted=getattr(self, "targeted_feedback", False),
             )
             if not self.enable_feedback:
                 evidence = {

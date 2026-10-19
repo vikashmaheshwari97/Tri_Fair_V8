@@ -83,6 +83,7 @@ class AttributedTriFairOptimizer(TriFairOptimizer):
                 blocks,
                 offset=self.generation_calls * count + index,
                 limit=self.feedback_cases,
+                targeted=getattr(self, "targeted_feedback", False),
             )
             if not self.enable_feedback:
                 attribution = {

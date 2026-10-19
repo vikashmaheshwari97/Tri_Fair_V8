@@ -112,6 +112,7 @@ class ConsolidatedTriFairOptimizer(StableTriFairOptimizer):
             blocks,
             offset=sum(self.portfolio_trials.values()),
             limit=self.feedback_cases,
+            targeted=getattr(self, "targeted_feedback", False),
         )
         if self.enable_feedback:
             attribution["complementarity"] = evidence

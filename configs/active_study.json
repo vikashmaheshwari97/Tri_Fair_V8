@@ -1,19 +1,37 @@
 {
   "method": "Tri-Fair-v8.6",
   "paper_label": "Tri-Fair",
-  "implementation": "ConsolidatedTriFairOptimizer",
-  "proposal_strategies": ["attributed_reflection", "stable_components", "complementary_merge"],
+  "implementation": "EfficientTriFairOptimizer",
+  "proposal_strategies": [
+    "attributed_reflection",
+    "stable_components",
+    "compact_edit",
+    "complementary_merge"
+  ],
   "shared_population_cache_and_budget": true,
   "historical_versions": "retained for reproduction; excluded from active defaults",
-  "pilot_control": "NSGAII-PO-Fair",
-  "datasets": ["bbq", "civil_comments", "bias_in_bios", "winobias"],
+  "pilot_control": "NSGAII-PO-Fair remains available for matched confirmation",
+  "datasets": [
+    "bbq",
+    "civil_comments",
+    "bias_in_bios",
+    "winobias"
+  ],
   "budget_ceiling_per_method": 2000000,
-  "search_fraction": 0.70,
-  "audit_fraction": 0.30,
+  "search_fraction": 0.7,
+  "audit_fraction": 0.3,
   "population_size": 4,
   "maximum_demonstrations": 2,
   "audit_candidates": 4,
   "validation": "one shared union of unique audited-final and real historical prompts",
   "validation_tokens": "additional, measured separately; never fed to optimization",
-  "gpu_performance": "not yet measured"
+  "gpu_performance": "not yet measured",
+  "internal_revision": "8.6.1",
+  "pilot_controls": [
+    "NSGAIII-PO-Fair",
+    "SPEA2-PO-Fair",
+    "RandomSearch-PO-Fair"
+  ],
+  "reserve_reclamation": "Complete protected search shortlist, reuse spare cap for search, freeze fully cached final shortlist",
+  "final_selection": "Same Pareto balanced/quality/cost/unfairness anchors for every method"
 }

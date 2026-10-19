@@ -1,5 +1,5 @@
 {
-  "release": "Tri-Fair v8.6 multi-seed submission and aggregate reporting patch",
+  "release": "Tri-Fair v8.6 efficiency revision 8.6.1",
   "package_version": "8.1.0",
   "created_utc": "2026-10-16T10:54:36.663422+00:00",
   "source_commit": "f9c26cc80ad018b3ebdc3e5fee4b1cd09d1fac84",
@@ -9,7 +9,7 @@
   "upstream_base_commit": "5f748223b8c6c2f62023ded41ec898b95557df9c",
   "prior_v8_release_commit": "f7e853e",
   "checkpoint_schema": 5,
-  "file_count": 233,
+  "file_count": 238,
   "files": [
     ".gitattributes",
     ".github/workflows/cpu-tests.yml",
@@ -20,6 +20,7 @@
     "README.md",
     "RELEASE_MANIFEST.json",
     "RELEASE_SHA256SUMS.json",
+    "UPGRADE_V86_EFFICIENCY.json",
     "configs/active_study.json",
     "configs/active_study_v85.json",
     "configs/sensitivity/archive_cap_15.json",
@@ -62,6 +63,7 @@
     "jobs/submit_evaluate.sh",
     "jobs/submit_pilot_v85.sh",
     "jobs/submit_pilot_v86.sh",
+    "jobs/submit_pilot_v86_efficiency.sh",
     "jobs/submit_train.sh",
     "jobs/train.sbatch",
     "pyproject.toml",
@@ -124,6 +126,7 @@
     "research/v86/references.json",
     "research/v86/upgrade_guide.html",
     "research/v86/validation.json",
+    "research/v86_efficiency_upgrade.html",
     "scripts/verify_release.py",
     "setup_windows.ps1",
     "src/tri_fair/__init__.py",
@@ -169,6 +172,7 @@
     "src/tri_fair/optimizers/attributed.py",
     "src/tri_fair/optimizers/baselines.py",
     "src/tri_fair/optimizers/consolidated.py",
+    "src/tri_fair/optimizers/efficient.py",
     "src/tri_fair/optimizers/hybrid.py",
     "src/tri_fair/optimizers/nsga2.py",
     "src/tri_fair/optimizers/nsga2_core.py",
@@ -223,6 +227,7 @@
     "tests/test_budget_control.py",
     "tests/test_consolidated_search.py",
     "tests/test_cpp_runtime.py",
+    "tests/test_efficient_search.py",
     "tests/test_fairness_metrics.py",
     "tests/test_finalization.py",
     "tests/test_gptoss_runtime.py",
@@ -444,5 +449,12 @@
       "optimizer_changed": false,
       "baselines_changed": false
     }
+  },
+  "efficiency_revision": {
+    "date_utc": "2026-10-19T15:07:29.947753+00:00",
+    "gpu_validated": false,
+    "method_label": "Tri-Fair-v8.6",
+    "implementation_revision": "8.6.1",
+    "cpu_tests": 210
   }
 }

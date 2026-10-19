@@ -1,6 +1,7 @@
 {
   "enabled_strategies": [
     "attributed_reflection",
-    "stable_components"
+    "stable_components",
+    "compact_edit"
   ]
 }

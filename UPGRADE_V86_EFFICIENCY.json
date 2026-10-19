@@ -1,0 +1,53 @@
+{
+  "upgrade": "Tri-Fair v8.6 efficiency revision 8.6.1",
+  "requires": "Existing v8.6 consolidated and three-seed reporting upgrade",
+  "files": [
+    "RELEASE_MANIFEST.json",
+    "RELEASE_SHA256SUMS.json",
+    "UPGRADE_V86_EFFICIENCY.json",
+    "configs/active_study.json",
+    "configs/sensitivity/v86_no_merge.json",
+    "jobs/pilot_v86.sbatch",
+    "jobs/submit_pilot_v86_efficiency.sh",
+    "research/v86_efficiency_upgrade.html",
+    "src/tri_fair/cli/pilot.py",
+    "src/tri_fair/cli/train.py",
+    "src/tri_fair/config/registry.py",
+    "src/tri_fair/config/study.py",
+    "src/tri_fair/optimizers/attributed.py",
+    "src/tri_fair/optimizers/consolidated.py",
+    "src/tri_fair/optimizers/efficient.py",
+    "src/tri_fair/optimizers/stable.py",
+    "src/tri_fair/reporting/research_figures.py",
+    "src/tri_fair/runtime/finalization.py",
+    "src/tri_fair/search/attribution.py",
+    "src/tri_fair/search/stability.py",
+    "tests/test_efficient_search.py"
+  ],
+  "preserved_baseline_metric_and_split_sha256": {
+    "src/tri_fair/optimizers/nsga2.py": "5c5bb568127c9d3d85d39b4a0c05a43c04e317ebd8b3d86ea85a6bd292baea0b",
+    "src/tri_fair/optimizers/nsga2_core.py": "895ad3919dad600e3d749e0a90f798b6a366b9d2c8d4478e03703d9b888c8e14",
+    "src/tri_fair/optimizers/baselines.py": "fce2ea289341916bba59bed9a3d4e173bca729bbb9d5932f687b85b4b7337235",
+    "src/tri_fair/reporting/metrics.py": "23bd60534490ebee80cae06b4b8ddf4f4cd1060e7cfeded861ce2688954a62fa",
+    "src/tri_fair/reporting/objectives.py": "b6ef20b4ee1b9423ab808e151554cfc32db2680d355f6d26dd2e59c068cd6541",
+    "src/tri_fair/data/partitions.py": "9af90f5549f18c49574b8973f7f07c5d383dc5a124b8a6349234d09c301cfcad"
+  },
+  "cpu_tests": "210 passed; targeted efficiency tests 11 passed after final edits",
+  "gpu_validation": "Not performed; run fresh one-seed matched pilot",
+  "methods": [
+    "Tri-Fair-v8.6",
+    "NSGAIII-PO-Fair",
+    "SPEA2-PO-Fair",
+    "RandomSearch-PO-Fair"
+  ],
+  "seed": 72,
+  "datasets": [
+    "bbq",
+    "civil_comments",
+    "bias_in_bios",
+    "winobias"
+  ],
+  "downstream_cap_per_method": 2000000,
+  "results_root_prefix": "results/tri_fair_v86_efficiency_2000000",
+  "backwards_checkpoint_compatibility": "Old v8.6 optimizer class cannot resume into revision 8.6.1; prior results retained"
+}

@@ -47,4 +47,7 @@ tf_log "Pilot: model=$model dataset=$dataset cap=$budget (search and final audit
 if [[ "${PILOT_STRUCTURED_LABELS:-1}" == "0" ]]; then
     pilot_args+=(--unconstrained-labels)
 fi
+if [[ "${PILOT_RECLAIM_RESERVE:-0}" == "1" ]]; then
+    pilot_args+=(--reclaim-audit-reserve)
+fi
 python -m tri_fair.cli.pilot_v86 "${pilot_args[@]}"

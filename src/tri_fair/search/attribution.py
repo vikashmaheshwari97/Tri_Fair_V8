@@ -65,7 +65,7 @@ def contract_instruction(instruction, classes, *, catalog=False):
     return text
 
 
-def attribute_search(task, prompt, blocks, *, offset=0, limit=5):
+def attribute_search(task, prompt, blocks, *, offset=0, limit=5, targeted=False):
     frame = task.cached_prediction_frame(prompt, blocks)
     confusion, groups, errors, successes = Counter(), {}, [], []
     invalid = 0
@@ -123,6 +123,27 @@ def attribute_search(task, prompt, blocks, *, offset=0, limit=5):
             evidence.extend((pool[start:] + pool[:start])[:count])
     while len(json.dumps(evidence, ensure_ascii=False)) > 2600:
         evidence.pop()
+    replacement = False
+    if targeted and evidence:
+        # Bounded adaptation: replace at most one error example, keep the
+        # successful control and the rest of the rotating feedback context.
+        slots = [i for i, e in enumerate(evidence) if e["gold"] != e["prediction"]]
+        existing = {(e["input"], e["gold"], e["prediction"]) for e in evidence}
+        for cluster in clusters:
+            options = [
+                e
+                for e in errors
+                if e["gold"] == cluster["label"]
+                and e["protected_context"].get(cluster["attribute"]) == cluster["group"]
+                and (e["input"], e["gold"], e["prediction"]) not in existing
+            ]
+            if slots and options:
+                proposed = list(evidence)
+                proposed[slots[-1]] = options[offset % len(options)]
+                if len(json.dumps(proposed, ensure_ascii=False)) <= 2600:
+                    evidence = proposed
+                    replacement = True
+                    break
     return {
         "examples_evaluated": len(frame),
         "invalid_output_count": int(invalid),
@@ -133,6 +154,7 @@ def attribute_search(task, prompt, blocks, *, offset=0, limit=5):
         ],
         "conditional_error_clusters": clusters,
         "evidence": evidence,
+        **({"targeted_feedback_replacements": int(replacement)} if targeted else {}),
     }
 
 

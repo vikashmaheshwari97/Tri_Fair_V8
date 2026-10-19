@@ -54,6 +54,21 @@ def search_stability(optimizer, prompt, blocks):
         ),
         interpretation="search-block sensitivity, not a confidence interval",
     )
+    if getattr(optimizer, "require_supported_stability", False):
+        result["sensitivity_supported"] = len(folds) >= 3
+        if not result["sensitivity_supported"]:
+            # Missing evidence is not evidence of robustness. Preserve the
+            # pooled observations, but do not manufacture a zero uncertainty.
+            for field in (
+                "quality_sensitivity",
+                "fairness_sensitivity",
+                "conservative_quality",
+                "conservative_unfairness",
+            ):
+                result[field] = None
+            result["interpretation"] = (
+                "unknown sensitivity: fewer than three valid cached folds"
+            )
     if len(cache) >= 256:
         cache.clear()
     cache[key] = result
@@ -69,16 +84,49 @@ def choose_stable_parent(optimizer, mode, attempt):
     if not common:
         return pool[attempt % len(pool)], {"usable_folds": 0, "blocks": []}
     rows = [(p, search_stability(optimizer, p, common)) for p in pool]
+    if getattr(optimizer, "require_supported_stability", False):
+        supported = all(r.get("sensitivity_supported", False) for _, r in rows)
+        # Compare like with like. If any candidate lacks valid folds, use the
+        # pooled scores for EVERY candidate, rather than favouring an unknown.
+        rows = [
+            (
+                p,
+                dict(
+                    r,
+                    selection_quality=(
+                        r["conservative_quality"] if supported else r["quality"]
+                    ),
+                    selection_unfairness=(
+                        r["conservative_unfairness"] if supported else r["unfairness"]
+                    ),
+                    selection_basis="supported_sensitivity"
+                    if supported
+                    else "pooled_fallback_unknown_sensitivity",
+                ),
+            )
+            for p, r in rows
+        ]
+    else:
+        rows = [
+            (
+                p,
+                dict(
+                    r,
+                    selection_quality=r["conservative_quality"],
+                    selection_unfairness=r["conservative_unfairness"],
+                ),
+            )
+            for p, r in rows
+        ]
     floor = (
-        max(r["conservative_quality"] for _, r in rows)
-        - optimizer.parent_quality_margin
+        max(r["selection_quality"] for _, r in rows) - optimizer.parent_quality_margin
     )
-    eligible = [(p, r) for p, r in rows if r["conservative_quality"] >= floor]
+    eligible = [(p, r) for p, r in rows if r["selection_quality"] >= floor]
     bound = float(optimizer.task.fairness_kwargs["normalization_cost_upper_bound"])
 
     def key(item):
         p, r = item
-        q, f, c = r["conservative_quality"], r["conservative_unfairness"], r["cost"]
+        q, f, c = r["selection_quality"], r["selection_unfairness"], r["cost"]
         value = (
             (-q, f, c)
             if mode == "quality"

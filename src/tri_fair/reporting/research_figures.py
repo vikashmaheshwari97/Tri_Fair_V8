@@ -295,6 +295,7 @@ def plot_research(frame, output, *, split, budget, title=None, formats=("png", "
         for col, threshold in enumerate(thresholds):
             ax = axes[row, col]
             any_curve = False
+            any_feasible = False
             for m in methods:
                 method = group[group.optimizer == m]
                 curves = [
@@ -304,6 +305,7 @@ def plot_research(frame, output, *, split, budget, title=None, formats=("png", "
                 if not curves:
                     continue
                 curves = np.asarray(curves)
+                any_feasible = any_feasible or bool(np.isfinite(curves).any())
                 supported = np.isfinite(curves).all(axis=0)
                 if not supported.any():
                     continue
@@ -333,7 +335,9 @@ def plot_research(frame, output, *, split, budget, title=None, formats=("png", "
                 ax.text(
                     0.5,
                     0.5,
-                    "No eligible measured prompts",
+                    "No common feasible support across seeds"
+                    if any_feasible
+                    else "No eligible measured prompts",
                     ha="center",
                     va="center",
                     transform=ax.transAxes,

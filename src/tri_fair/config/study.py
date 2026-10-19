@@ -134,9 +134,13 @@ def build_optimizer_registry():
             portfolio_exploration=0.20,
             portfolio_interval=5,
             portfolio_reward_scale=1000000.0,
+            merge_interval=5,
+            merge_min_repairs=2,
+            compression_target_ratio=0.80,
             enabled_strategies=(
                 "attributed_reflection",
                 "stable_components",
+                "compact_edit",
                 "complementary_merge",
             ),
         ),

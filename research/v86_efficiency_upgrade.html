@@ -1,0 +1,42 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><title>Tri-Fair v8.6 efficiency revision</title>
+<style>body{font:16px/1.55 system-ui,sans-serif;max-width:1000px;margin:45px auto;color:#193147;padding:0 24px}h1,h2{color:#145e70}code,pre{background:#eef3f7}pre{padding:16px;white-space:pre-wrap}td,th{padding:10px;border:1px solid #d2dce3;text-align:left}table{border-collapse:collapse;width:100%}a{color:#006b83}</style>
+<h1>Tri-Fair v8.6: efficiency revision 8.6.1</h1>
+<p>This patch targets weaknesses observed in the previous matched pilot. It is an experimental implementation, not evidence of improved accuracy, fairness or hypervolume. Run fresh jobs in the new namespace. Keep previous results for comparison.</p>
+<h2>What changes</h2><table><tr><th>Issue</th><th>Implementation</th></tr>
+<tr><td>Unused audit reserve</td><td>Every method completes a protected search shortlist, then may reuse remaining tokens for continued search. Finalists are selected from completely evaluated, fairness-ready cached search candidates. The final audit uses no additional inference. The original total token cap remains enforced.</td></tr>
+<tr><td>Unsupported stability estimates</td><td>Fewer than three valid leave-one-block-out folds means unknown sensitivity, represented by null. If any compared parent lacks supported sensitivity, all parents are compared using pooled scores. Sensitivity is a search heuristic, not a confidence interval.</td></tr>
+<tr><td>Expensive merges with little credit</td><td>A merge requires shared observed blocks, supported parent fairness and bidirectional error repairs. A five-attempt cooldown and additional backoff after two unproductive merges limit waste.</td></tr>
+<tr><td>Costly prompt variants</td><td>A compact-edit proposal arm removes a demonstration, removes exact redundant output-contract text or requests a shorter instruction. WinoBias demonstrations are removed as a paired bundle. Every proposal still requires real downstream evaluation.</td></tr>
+<tr><td>Untargeted feedback</td><td>At most one cached error example is replaced with an example from a supported high-error conditional group. Other examples and the successful control are retained where the existing context cap permits. No validation/test examples are used.</td></tr>
+<tr><td>Operator exploration overwhelms tiny rewards</td><td>Empirical mean rewards are rescaled for operator selection; raw measured credit remains in diagnostics. This is a heuristic to test, not a theoretical guarantee.</td></tr>
+<tr><td>Final shortlist misses objective extremes</td><td>All methods use identical Pareto filtering and balanced/quality/cost/unfairness anchors. Duplicate anchors are filled by normalized search distance. Four is a maximum, not a requirement to invent distinct finalists.</td></tr>
+<tr><td>Misleading empty attainment panels</td><td>Plots distinguish no eligible measurements from some feasible measurements without common support across seeds. Thresholds and metric definitions are preserved.</td></tr></table>
+<h2>Research grounding and limits</h2>
+<p><a href="https://proceedings.mlr.press/v293/zehle25a.html">CAPO (AutoML 2025)</a> motivates cost-aware joint instruction/few-shot optimization and racing. <a href="https://arxiv.org/abs/2605.18869">MO-CAPO (2026)</a> motivates measured Pareto-front reporting. <a href="https://gepa-ai.github.io/gepa/api/core/optimize/">GEPA's official API</a> exposes bounded merge configuration; this patch adds its own observed-repair gate. <a href="https://arxiv.org/html/2609.39927v1">AdaGEPA (2026 preprint)</a> motivates bounded, targeted feedback adaptation. These are original adaptations to Tri-Fair's cached search observations, not reproductions of those methods or their reported gains. C-APO in the cpark88 repository is Conflict-Aware DPO for recommendation, a different approach from cost-aware CAPO.</p>
+<p>No baseline optimizer, objective formula, split definition or historical result is modified to favour Tri-Fair. NSGA-II remains available and should be included in later confirmation because it was competitive. Screening against NSGA-III, SPEA2 and Random Search cannot establish superiority to NSGA-II.</p>
+<h2>Accounting and evaluation protocol</h2>
+<p>At 2M tokens the first search allocation is 1.4M. Intermediate coverage is search data and may influence continuation. Remaining tokens become available to all methods after successful coverage, provided the first phase stopped for budget rather than convergence/watchdog or the total step limit. A final frozen shortlist is selected from fully covered cached candidates. Insufficient coverage is reported as incomplete. Partial coverage cannot become a final finalist.</p>
+<p>Search, coverage and continued-search token counts are recorded in <code>finalization_summary.json</code> under <code>reserve_reclamation</code>. Their sum must equal total downstream tokens, and the final cached audit must use zero. Normal atomic admission may leave a residual below the cap. Reclamation can increase actual GPU work per run compared with the previous pilot; it does not make additional tokens free. Meta-generation and held-out validation are additional measured costs.</p>
+<p>Seed 72 × four datasets × four methods gives 16 optimizer runs, with a combined downstream ceiling of 32M tokens. Each of four GPU tasks runs its four methods sequentially. Concurrency 2 permits two GPU tasks; concurrency 4 permits all four. A one-seed run supports screening, not significance or cross-seed stability. Do not compare HV/nR2 across different normalization or reference configurations. The six requested metrics are reported from measured held-out validation; Bios quality is Macro-F1, while the other three use accuracy.</p>
+<h2>Apply in PowerShell</h2><pre>cd C:\Users\maheshwari\PycharmProjects\Tri_Fair_V8_Clean
+Expand-Archive -LiteralPath "$HOME\Downloads\Tri_Fair_V86_Efficiency_Upgrade.zip" -DestinationPath . -Force
+.\.venv312\Scripts\python.exe -m pytest -q
+.\.venv312\Scripts\python.exe scripts/verify_release.py
+</pre><p>Run the tests successfully before committing. The ZIP contains <code>UPGRADE_V86_EFFICIENCY.json</code> listing exactly which files to stage:</p><pre>$upgrade = Get-Content UPGRADE_V86_EFFICIENCY.json -Raw | ConvertFrom-Json
+git add -- $upgrade.files
+git diff --cached --stat
+git commit -m "Improve Tri-Fair search efficiency and reclaim shared pilot reserve"
+git push origin main</pre>
+<h2>Pull and submit on Rocket</h2><pre>cd ~/Tri_Fair_V8
+git pull --ff-only
+source "$HOME/venvs/tri-fair-v8/bin/activate"
+python scripts/verify_release.py
+unset PILOT_RESULTS_ROOT PILOT_STAMP NODELIST GPU_TYPE
+export EVALUATION_SPLIT=validation
+export PILOT_METHODS="Tri-Fair-v8.6,NSGAIII-PO-Fair,SPEA2-PO-Fair,RandomSearch-PO-Fair"
+MODEL=qwen-3-30b PILOT_SEEDS=72 PILOT_BUDGET=2000000 MAX_CONCURRENT=2 DRY_RUN=1 bash jobs/submit_pilot_v86_efficiency.sh
+MODEL=qwen-3-30b PILOT_SEEDS=72 PILOT_BUDGET=2000000 MAX_CONCURRENT=2 DRY_RUN=0 bash jobs/submit_pilot_v86_efficiency.sh</pre>
+<p>Expect array 0–3%2, the four methods listed above, and a fresh <code>results/tri_fair_v86_efficiency_2000000/batch_...</code> directory. Training schedules validation after success; validation schedules the aggregate CPU report. Existing GPU eligibility covers Pegasus2, Firefly1–3 and Shepard2; allocation depends on scheduling and resources. No jobs have been submitted by the patch author.</p>
+<h2>Inspect before expanding</h2><p>Require completed training, validation and reporting jobs; complete per-method final audits; no budget overshoot; positive continued-search tokens when applicable; supported fairness; correct dataset/seed/model membership. Then compare held-out quality, inference cost, unfairness, HVopt, HVpes and nR2. Retain all wins and losses. If promising, freeze settings and confirm seeds 73 and 74, including NSGA-II. Keep test data untouched until the protocol is frozen.</p>
+<p>The public label remains Tri-Fair-v8.6 / Tri-Fair. Run metadata records revision 8.6.1. Old v8.6 checkpoints belong to a different optimizer class and cannot resume into this revision; start a fresh pilot. Earlier source commits preserve reproduction. Package version 8.1.0 can still appear in doctor output; use method_version and source hashes for this research revision.</p>
+</html>

@@ -90,6 +90,8 @@ def train_command(args, method, root):
         "run",
         "--allow-under-budget-exit",
     ]
+    if getattr(args, "reclaim_audit_reserve", False):
+        command.append("--reclaim-audit-reserve")
     if not getattr(args, "unconstrained_labels", False):
         command.append("--structured-labels")
     return command
@@ -299,6 +301,7 @@ def main(
     parser.add_argument("--max-few-shot-examples", type=int, default=2)
     parser.add_argument("--crossovers-per-iteration", type=int, default=1)
     parser.add_argument("--final-search-candidates", type=int, default=4)
+    parser.add_argument("--reclaim-audit-reserve", action="store_true")
     parser.add_argument("--final-search-reserve", type=float, default=0.30)
     parser.add_argument(
         "--unconstrained-labels",
@@ -367,6 +370,7 @@ def main(
             "final_search_reserve": args.final_search_reserve,
             "search_budget_tokens": int(args.budget * (1 - args.final_search_reserve)),
             "audit_is_included_in_total_cap": True,
+            "reclaim_audit_reserve": args.reclaim_audit_reserve,
         },
         "units": {
             "quality": "fraction",
@@ -374,7 +378,11 @@ def main(
             "unfairness": "loss, smaller is better",
             "cost": "configured input/output token cost score, not HPC charges",
         },
-        "selection": "freeze the same-sized shortlist by search distance; complete full search coverage; select by squared normalized distance to (quality=1,cost=0,unfairness=0)",
+        "selection": (
+            "protected search coverage, reserve reclamation, fully cached Pareto anchors; balanced point by search distance"
+            if args.reclaim_audit_reserve
+            else "frozen shortlist by search distance, complete full search coverage"
+        ),
         "limitations": [
             "Single-seed screening, not a significance test.",
             "The same explicit pilot settings and reserve policy apply to every method; this differs from the final 5M study.",
