@@ -19,16 +19,14 @@ module --ignore_cache load python-venv/1.0
 source "${TF_VENV:-$HOME/venvs/tri-fair-v8}/bin/activate"
 cd "${SLURM_SUBMIT_DIR:?Submit from the repository root}"
 source jobs/lib/common.sh
+source jobs/lib/pilot_v86_matrix.sh
+tf_v86_matrix
+tf_v86_task "${SLURM_ARRAY_TASK_ID:?Submit as an array}"
 tf_require_research_gpu_node
 tf_configure_cpp_runtime
 source jobs/lib/model_cache.sh
 model="${MODEL:-qwen-3-30b}"
 tf_configure_model_cache "$model"
-datasets=(bbq civil_comments bias_in_bios winobias)
-index="${SLURM_ARRAY_TASK_ID:?Submit as an array}"
-(( index >= 0 && index < ${#datasets[@]} )) || tf_die "Invalid pilot evaluation index"
-dataset="${datasets[$index]}"
-seed="${SEED:-72}"
 split="${EVALUATION_SPLIT:-validation}"
 [[ "$split" == "validation" || "$split" == "test" ]] || tf_die "Invalid evaluation split"
 budget="${PILOT_BUDGET:-2000000}"

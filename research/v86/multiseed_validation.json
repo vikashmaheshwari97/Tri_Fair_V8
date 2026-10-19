@@ -1,0 +1,12 @@
+{
+  "cpu_tests_passed": 199,
+  "affected_tests_passed": 13,
+  "shell_syntax": "passed",
+  "ruff": "passed",
+  "mock_submission_dependencies": "passed; no real Slurm submission",
+  "dry_run_array": "0-11%5",
+  "end_to_end_reporting": "passed on explicitly synthetic fixtures; five PNG+SVG figure types and summary CSVs generated; fixtures excluded from ZIP",
+  "gpu_execution": false,
+  "optimizer_changed": false,
+  "baselines_changed": false
+}
