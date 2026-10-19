@@ -31,8 +31,8 @@ nvidia-smi --query-gpu=name,memory.total,driver_version --format=csv
 python -m tri_fair.cli.doctor --gpu
 
 TF_MODELS="${TF_MODELS:-qwen-3-30b,mistral-3-24b,gpt-oss-120b}"
-TF_DATASETS="${TF_DATASETS:-bbq,civil_comments,bias_in_bios}"
-TF_OPTIMIZERS="${TF_OPTIMIZERS:-Tri-Fair-v8,NSGAII-PO-Fair,SPEA2-PO-Fair,NSGAIII-PO-Fair,RandomSearch-PO-Fair,NSGAII-PO-Fair-Enhanced}"
+TF_DATASETS="${TF_DATASETS:-bbq,civil_comments,bias_in_bios,winobias}"
+TF_OPTIMIZERS="${TF_OPTIMIZERS:-Tri-Fair-v8.6,NSGAII-PO-Fair,SPEA2-PO-Fair,NSGAIII-PO-Fair,RandomSearch-PO-Fair,NSGAII-PO-Fair-Enhanced}"
 TF_SEEDS="${TF_SEEDS:-72,73,74}"
 BUDGET="${BUDGET:-5000000}"
 RUN_MODE="${RUN_MODE:-fresh}"
@@ -40,7 +40,7 @@ MANIFEST_DIR="${MANIFEST_DIR:-data/splits_v8_clean}"
 MAX_OUTPUT_TOKENS="${MAX_OUTPUT_TOKENS:-16}"
 META_MAX_OUTPUT_TOKENS="${META_MAX_OUTPUT_TOKENS:-256}"
 N_INIT_PROMPTS="${N_INIT_PROMPTS:-12}"
-TF_RESULTS_NAMESPACE="${TF_RESULTS_NAMESPACE:-tri_fair_v8_clean_5m}"
+TF_RESULTS_NAMESPACE="${TF_RESULTS_NAMESPACE:-tri_fair_v86_clean_5m}"
 MAX_STEPS="${MAX_STEPS:-4000}"
 FORCE_FRESH="${FORCE_FRESH:-0}"
 STRICT_TOKEN_BUDGET="${STRICT_TOKEN_BUDGET:-1}"
@@ -72,7 +72,7 @@ optimizer="${optimizers[$optimizer_idx]}"
 seed="${seeds[$seed_idx]}"
 
 tf_configure_model_cache "$model"
-tf_contains "$optimizer" Tri-Fair-v8.4-Hybrid Tri-Fair-v8 Tri-Fair-v8.3 Tri-Fair-v8.2-Experimental NSGAII-PO-Fair SPEA2-PO-Fair NSGAIII-PO-Fair RandomSearch-PO-Fair NSGAII-PO-Fair-Enhanced Tri-Fair-v8-NoFeedback Tri-Fair-v8-NoDemo Tri-Fair-v8-NoUncertainty Tri-Fair-v8-FullEval \
+tf_contains "$optimizer" Tri-Fair-v8.6 Tri-Fair-v8.5 Tri-Fair-v8.4-Hybrid Tri-Fair-v8 Tri-Fair-v8.3 Tri-Fair-v8.2-Experimental NSGAII-PO-Fair SPEA2-PO-Fair NSGAIII-PO-Fair RandomSearch-PO-Fair NSGAII-PO-Fair-Enhanced Tri-Fair-v8-NoFeedback Tri-Fair-v8-NoDemo Tri-Fair-v8-NoUncertainty Tri-Fair-v8-FullEval \
   || tf_die "Unsupported v8 optimizer '$optimizer'"
 
 checkpoints="$(tf_stage_checkpoints "$BUDGET")"

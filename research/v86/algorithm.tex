@@ -1,0 +1,23 @@
+% Requires algorithm and algpseudocode. This describes the implemented method.
+\begin{algorithm}[t]
+\caption{Tri-Fair: shared-budget adaptive prompt optimization (v8.6)}
+\label{alg:trifair}
+\begin{algorithmic}[1]
+\Require Search blocks $D_s$, frozen demonstration pool $D_f$, initial prompts $P$, token cap $B$
+\State Initialize one measured Pareto archive $A$, prediction cache $C$, and strict token controller
+\State Initialize proposal strategies $\mathcal O=\{\text{attributed reflection},\text{stable edits},\text{complementary merge}\}$
+\While{budget admits a new evaluation and progress limits permit}
+  \State Choose a strategy using cold-start coverage, UCB reward, and periodic exploration
+  \State Select observed parents; construct bounded feedback from cached search errors and measured history
+  \State Propose an instruction edit, gold-demonstration edit, or complementary-parent merge
+  \State Deduplicate exact prompts and reject malformed or oversized proposals
+  \State Race novel proposals on common search blocks with paired uncertainty and fairness-readiness checks
+  \State Update $A$ using measured quality, inference cost, and unfairness
+  \State Re-score the pre- and post-step archives on their shared cached blocks
+  \State Credit the strategy by positive hypervolume gain per actual downstream token; record diagnostics
+\EndWhile
+\State Freeze a common-sized search shortlist and complete coverage within the reserved portion of $B$
+\State Evaluate unique final and historical prompts on validation; never return these outcomes to search
+\State Report held-out noisy $R_2$, optimistic/pessimistic HV, approximation gap, and same-prompt trade-offs
+\end{algorithmic}
+\end{algorithm}

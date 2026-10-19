@@ -5,7 +5,7 @@ cd "$ROOT"
 source jobs/lib/common.sh
 declare -a models datasets seeds
 tf_split_csv "${TF_MODELS:-qwen-3-30b,mistral-3-24b,gpt-oss-120b}" models
-tf_split_csv "${TF_DATASETS:-bbq,civil_comments,bias_in_bios}" datasets
+tf_split_csv "${TF_DATASETS:-bbq,civil_comments,bias_in_bios,winobias}" datasets
 tf_split_csv "${TF_SEEDS:-72,73,74}" seeds
 total=$((${#models[@]} * ${#datasets[@]} * ${#seeds[@]}))
 mkdir -p logs

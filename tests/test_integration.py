@@ -12,6 +12,7 @@ from tri_fair.optimizers.refined import RefinedTriFairOptimizer
 from tri_fair.optimizers.attributed import AttributedTriFairOptimizer
 from tri_fair.optimizers.hybrid import HybridTriFairOptimizer
 from tri_fair.optimizers.stable import StableTriFairOptimizer
+from tri_fair.optimizers.consolidated import ConsolidatedTriFairOptimizer
 from tri_fair.optimizers.baselines import SPEA2POFair, NSGAIIIPOFair
 from tests.fakes import optimizer, task_and_pool, FakeLLM, FakePredictor
 
@@ -34,6 +35,7 @@ def signature(obj):
         RefinedTriFairOptimizer,
         AttributedTriFairOptimizer,
         StableTriFairOptimizer,
+        ConsolidatedTriFairOptimizer,
         HybridTriFairOptimizer,
         SPEA2POFair,
         NSGAIIIPOFair,
@@ -70,6 +72,7 @@ def test_interrupted_equals_uninterrupted(cls, tmp_path):
         "Tri-Fair-v8.3",
         "Tri-Fair-v8.4-Hybrid",
         "Tri-Fair-v8.5",
+        "Tri-Fair-v8.6",
         "Tri-Fair-v8-NoFeedback",
         "Tri-Fair-v8-NoDemo",
         "Tri-Fair-v8-NoUncertainty",
@@ -167,6 +170,7 @@ def test_complete_public_runner_with_fake_models(
         "Tri-Fair-v8.3",
         "Tri-Fair-v8.4-Hybrid",
         "Tri-Fair-v8.5",
+        "Tri-Fair-v8.6",
         "NSGAII-PO-Fair",
     ],
 )

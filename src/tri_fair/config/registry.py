@@ -9,6 +9,7 @@ from tri_fair.optimizers.trifair import TriFairOptimizer
 from tri_fair.optimizers.refined import RefinedTriFairOptimizer
 from tri_fair.optimizers.attributed import AttributedTriFairOptimizer
 from tri_fair.optimizers.stable import StableTriFairOptimizer
+from tri_fair.optimizers.consolidated import ConsolidatedTriFairOptimizer
 from tri_fair.optimizers.nsga2 import NSGA2Fair
 from tri_fair.optimizers.hybrid import HybridTriFairOptimizer
 from tri_fair.optimizers.baselines import (
@@ -19,6 +20,7 @@ from tri_fair.optimizers.baselines import (
 )
 
 METHODS = {
+    "Tri-Fair-v8.6": ConsolidatedTriFairOptimizer,
     "Tri-Fair-v8.5": StableTriFairOptimizer,
     "Tri-Fair-v8.4-Hybrid": HybridTriFairOptimizer,
     "Tri-Fair-v8.3": AttributedTriFairOptimizer,
@@ -34,6 +36,17 @@ METHODS = {
     "RandomSearch-PO-Fair": RandomSearchPOFair,
     "NSGAII-PO-Fair-Enhanced": ReflectiveNSGAIIPOFair,
 }
+
+# One active proposed method. Earlier versions remain addressable only for
+# reproducing existing checkpoints/results; no historical scores are relabeled.
+ACTIVE_METHODS = (
+    "Tri-Fair-v8.6",
+    "NSGAII-PO-Fair",
+    "SPEA2-PO-Fair",
+    "NSGAIII-PO-Fair",
+    "RandomSearch-PO-Fair",
+    "NSGAII-PO-Fair-Enhanced",
+)
 
 
 def build_optimizer(

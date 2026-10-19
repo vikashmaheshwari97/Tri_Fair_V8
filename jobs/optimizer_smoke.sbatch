@@ -29,11 +29,11 @@ dataset="${DATASET:-bbq}"
 seed="${SEED:-72}"
 tf_configure_model_cache "$model"
 python -m tri_fair.cli.train --experiment-name optimizer_smoke \
-  --model "$model" --dataset "$dataset" --optimizer Tri-Fair-v8 \
+  --model "$model" --dataset "$dataset" --optimizer Tri-Fair-v8.6 \
   --random-seed "$seed" --n-init-prompts 2 --max-steps 1 \
   --crossovers-per-iteration 1 --max-few-shot-examples 1 \
   --optimizer-overrides configs/smoke.json \
   --budget-per-run 1000000 --budget-checkpoints 1000000 \
   --manifest-dir "${MANIFEST_DIR:-data/splits_v8_clean}" \
-  --output-dir "results/optimizer_smoke/$model/$dataset/Tri-Fair-v8/seed$seed" \
+  --output-dir "results/optimizer_smoke/$model/$dataset/Tri-Fair-v8.6/seed$seed" \
   --allow-under-budget-exit

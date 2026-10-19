@@ -1,0 +1,27 @@
+{
+  "full_cpu_suite": {
+    "passed": 189,
+    "failed": 0,
+    "elapsed_seconds": 112.3
+  },
+  "affected_tests_rechecked": {
+    "passed": 26,
+    "failed": 0,
+    "elapsed_seconds": 16.61
+  },
+  "ruff": "all changed modules checked clean",
+  "bash": "syntax checked",
+  "dry_run": "v8.6 Qwen training and dependent validation plans checked; no jobs submitted",
+  "gpu": "not run; improvement unmeasured",
+  "historical_results": "unaltered; examples labeled with original v8.3/v8.5 identities",
+  "preserved_comparison_and_component_files": [
+    "src/tri_fair/optimizers/nsga2.py",
+    "src/tri_fair/optimizers/baselines.py",
+    "src/tri_fair/optimizers/attributed.py",
+    "src/tri_fair/optimizers/stable.py",
+    "src/tri_fair/optimizers/trifair.py",
+    "src/tri_fair/reporting/metrics.py"
+  ],
+  "figure_review": "reference paper pages 13-15 inspected; objective/indicator/attainment previews rendered and inspected",
+  "archive_policy": "no .md or .txt files"
+}

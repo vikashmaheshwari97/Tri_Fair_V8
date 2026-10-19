@@ -126,4 +126,21 @@ def build_optimizer_registry():
         "sequential_block",
         1,
     )
+    configs["Tri-Fair-v8.6"] = OptimizerConfig(
+        "Tri-Fair-v8.6",
+        "Tri-Fair-v8.6",
+        dict(
+            configs["Tri-Fair-v8.5"].optimizer_params,
+            portfolio_exploration=0.20,
+            portfolio_interval=5,
+            portfolio_reward_scale=1000000.0,
+            enabled_strategies=(
+                "attributed_reflection",
+                "stable_components",
+                "complementary_merge",
+            ),
+        ),
+        "sequential_block",
+        1,
+    )
     return configs

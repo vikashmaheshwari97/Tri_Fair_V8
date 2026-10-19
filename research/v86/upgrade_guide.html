@@ -1,0 +1,60 @@
+<!doctype html><meta charset="utf-8"><title>Tri-Fair v8.6 implementation and figure guide</title>
+<style>body{font:16px/1.6 system-ui,sans-serif;color:#183047;max-width:1100px;margin:36px auto;padding:0 24px}h1,h2{color:#006f65}table{border-collapse:collapse;width:100%;margin:20px 0}th,td{border:1px solid #ccd6df;padding:10px;text-align:left;vertical-align:top}th{background:#edf5f4}pre{padding:18px;background:#eef3f7;white-space:pre-wrap}img{max-width:100%}.note{padding:16px;border-left:4px solid #d58b24;background:#fff8e9}a{color:#007f73}</style>
+<h1>Tri-Fair v8.6: one shared-budget method</h1>
+<p>Experimental code consolidation, 19 October 2026. The paper-facing label is <b>Tri-Fair</b>. The implementation identity remains <b>Tri-Fair-v8.6</b> in every result and checkpoint.</p>
+<p class="note">No v8.6 GPU results exist yet. Existing v8.3/v8.5 observations have not been renamed, pooled as a new method, or altered. Historical modules remain importable as reusable implementation components and for reproduction, but the active configuration and new pilot contain only one proposed Tri-Fair method.</p>
+<h2>What is combined</h2>
+<table><tr><th>Component</th><th>Implemented behavior</th></tr>
+<tr><td>Attributed reflection from v8.3</td><td>Objective-mode scheduling, measured error attribution, bounded JSON proposals, quality label catalogs, short gold demonstrations, duplicate memory and progress guards.</td></tr>
+<tr><td>Stable editing from v8.5</td><td>Search-block sensitivity for mutation parents; instruction edits preserve demos, demo edits preserve instructions; paired WinoBias evidence and gold demonstrations; genuine instruction/demo compression.</td></tr>
+<tr><td>Shared foundation</td><td>One pooled three-objective archive, paired uncertainty racing, reference-direction/HV truncation, strict downstream token controller, atomic checkpoints and frozen search-audit reserve.</td></tr>
+<tr><td>New adaptive portfolio</td><td>Cold-start coverage of three proposal strategies followed by UCB selection. Every fifth strategy decision explicitly explores the least-used strategy. Strategy state is checkpointed.</td></tr>
+<tr><td>New complementary merge</td><td>Choose parents using their measured success/error complementarity on shared cached search examples. A bounded request merges useful decision rules; the resulting prompt is evaluated through the same racing and budget path.</td></tr>
+<tr><td>New measured strategy credit</td><td>Re-score pre/post-step fronts on exactly the same already observed search blocks. Positive HV gain per actual downstream token is clipped to [0,1] for scheduling. No free model calls, held-out feedback, or changed reported objectives.</td></tr></table>
+<h2>Why these changes</h2>
+<p>The latest seed-72 pilot showed complementary strengths: v8.3 led overall indicators on Bios and Civil Comments; v8.5 produced a stronger BBQ quality-first candidate but did not lead all front indicators. Selecting a fixed winner from those four validation datasets would not establish general superiority. V8.6 instead adapts proposal effort using its own search evidence inside a single budget. It does not run both optimizers to completion and choose whichever validation result is favorable.</p>
+<p>GEPA motivates combining complementary lessons from measured attempts. HRPO explicitly contrasts positive and negative prompt histories to reduce forgetting. These are design inspirations, not claims that their complete algorithms or guarantees have been reproduced. MO-CAPO's racing and frontier reporting remain relevant foundations. A source/access ledger is in references.json; the earlier detailed review remains in research/v85.</p>
+<h2>Credit rule and scientific limits</h2>
+<pre>For one proposal strategy o and one executed search step:
+  B_common = search blocks cached for all before/after archive candidates
+  If coverage or fairness support is insufficient: no gain credit
+  gain = HV(A_after; B_common) - HV(A_before; B_common)
+  reward = clip(max(0, gain) * 1,000,000 / max(1, actual tokens spent), 0, 1)
+  UCB(o) = mean_reward(o) + 0.20 * sqrt(log(total_trials + 1) / trials(o))
+</pre>
+<p>This is a cost-sensitive search heuristic. It is not an unbiased bandit estimator, a convergence proof, or a held-out indicator. Search-block sensitivity is not a confidence interval. Late partial steps and zero/negative gains are recorded rather than replaced with optimistic measurements. Initial population construction uses compact and schema-complete alternatives within the existing four-candidate limit.</p>
+<h2>2M pilot</h2>
+<table><tr><th>Setting</th><th>Value shared across proposed method and control</th></tr>
+<tr><td>Model / seed / datasets</td><td>Qwen / 72 / BBQ, Civil Comments, Bios, WinoBias</td></tr>
+<tr><td>Default methods</td><td>Tri-Fair-v8.6 and unchanged NSGAII-PO-Fair</td></tr>
+<tr><td>Cap per method</td><td>2,000,000 downstream tokens: 1,400,000 search plus 600,000 reserved search audit</td></tr>
+<tr><td>Population / demonstrations / audit shortlist</td><td>4 / at most 2 / at most 4</td></tr>
+<tr><td>Downstream decoding</td><td>Shared structured labels, greedy, 16 output-token maximum</td></tr>
+<tr><td>Validation</td><td>Unique union of audited-final and real historical prompts evaluated once. Additional tokens logged separately; no feedback to search.</td></tr>
+<tr><td>Concurrency</td><td>Two dataset tasks by default; one GPU per task; two methods sequentially inside a task</td></tr></table>
+<p>Eight optimization runs have a total ceiling of 16M downstream tokens, plus separately measured meta generation and held-out evaluation. Fairness support and budget admission gates are unchanged. The reserve is not forcibly spent when audits are fully cached. A fair comparison is between methods re-run under these settings; old v8.3/v8.5 values remain historical references.</p>
+<h2>Run commands</h2>
+<pre>MODEL=qwen-3-30b SEED=72 PILOT_BUDGET=2000000 MAX_CONCURRENT=2 \
+DRY_RUN=1 bash jobs/submit_pilot_v86.sh
+
+MODEL=qwen-3-30b SEED=72 PILOT_BUDGET=2000000 MAX_CONCURRENT=2 \
+DRY_RUN=0 bash jobs/submit_pilot_v86.sh</pre>
+<p>The helper submits training and a dependent validation array, printing job IDs and a unique batch directory. Both arrays use dataset indices 0=BBQ, 1=Civil Comments, 2=Bios, 3=WinoBias. Logs use pilot86 and pilot86_eval prefixes. No jobs were submitted from this workspace.</p>
+<p>Mistral and GPT-OSS remain supported model aliases. Each requires a successful backend smoke on suitable hardware before its pilot. The GPT-OSS helper restricts scheduling to the existing H200/B200 pool. Source consolidation does not itself validate a new backend.</p>
+<h2>MO-CAPO-style figures</h2>
+<p>The supplied paper's Figure 2 uses actual-budget nR2 trajectories, Figure 3 uses empirical attainment, and Figure 4 describes prompt composition. For three objectives, the new plotting module generates:</p>
+<ol><li><b>Objective projections:</b> all audited cost-quality, unfairness-quality and cost-unfairness points. These are explicit 2D projections, not a claimed 3D frontier envelope.</li><li><b>Front indicators:</b> HVopt, HVpes and held-out noisy R2 by dataset, with sample-SD error bars only for multiple seeds.</li><li><b>Fairness-conditioned attainment:</b> best measured quality affordable under a cost ceiling, at fixed unfairness ceilings 0.10, 0.20 and 0.30. These illustrative display thresholds are not optimizer constraints. Empty slices remain empty. Multiple seeds use median and min-max bands only where all seeds have support.</li><li><b>Prompt composition:</b> Tri-Fair cost-quality points colored by unfairness and annotated with number of demonstrations.</li><li><b>Optimization trajectories:</b> noisy R2 and HVpes at actual logged checkpoints; previous-value steps, no invented initial states, no extrapolation beyond common seed coverage.</li></ol>
+<p>Palette: Tri-Fair teal #007F73, NSGA-II vermilion #D55E00, SPEA2 magenta #CC79A7, NSGA-III sky blue #56B4E9, Random Search slate #7B8794, Enhanced NSGA-II ochre #B38F00. Shapes also distinguish methods for grayscale printing. Past v8.3/v8.5 examples retain separate blue/purple labels.</p>
+<p>Outputs are vector SVG, high-resolution PNG, CSV values and figure_protocol.json. One-seed plots have no fabricated variability band. Final-only archives do not produce a fake trajectory. The validation job generates its figures automatically; these can be regenerated on CPU without model loading:</p>
+<pre>python -m tri_fair.reporting.research_figures \
+  --evaluations PATH_TO_EVAL_PARQUET \
+  --split validation --budget 2000000 --output-dir figures/v86</pre>
+<h2>Measured historical style examples</h2>
+<p>The examples below use only the uploaded completed v8.3/v8.5 seed-72 pilot, with the original method labels. There are no v8.6 points or uncertainty bands.</p>
+<img src="figure_examples/front_indicators.png" alt="Measured historical pilot indicators">
+<img src="figure_examples/objective_projections.png" alt="Measured historical three-objective projections">
+<h2>Ablation and sensitivity configurations</h2>
+<p>JSON configurations in configs/sensitivity isolate attributed-only, stable-only, no-merge, zero stability penalty, and alternate UCB exploration strengths within the same v8.6 implementation. These are planned comparisons, not measured improvements. Use the existing train --optimizer-overrides option with each file; do not apply a Tri-Fair-specific override to a baseline.</p>
+<h2>What must happen before a paper claim</h2>
+<p>Inspect new search and validation outcomes first, including strategy trial counts, shared-block credit, actual tokens and fairness support. Then repeat matched seeds and compare remaining unchanged baselines. Freeze the chosen method/settings before test. Repeated design changes based on the same validation examples consume validation independence; final untouched test evaluation is essential. No strict dominance or significance is guaranteed by consolidation.</p>
+<p>See algorithm.tex for the implemented algorithm and validation.json for the actual CPU checks. Historical results and comparison implementations are preserved.</p>

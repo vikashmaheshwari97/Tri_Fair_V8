@@ -1,0 +1,43 @@
+{
+  "split": "validation",
+  "model": "qwen-3-30b",
+  "methods": [
+    "NSGAII-PO-Fair",
+    "Tri-Fair-v8.3",
+    "Tri-Fair-v8.5"
+  ],
+  "figures": [
+    "objective_projections",
+    "front_indicators",
+    "fairness_conditioned_attainment"
+  ],
+  "seeds": [
+    72
+  ],
+  "budget_ceiling": 2000000,
+  "uncertainty": "sample SD across seeds only; absent for one seed",
+  "trajectories": "real logged fronts only; no extrapolation outside common seed support",
+  "projections": "all audited points; not three-dimensional attainment surfaces",
+  "nR2": "4096 shared Dirichlet preferences, seed 2026; search selection and held-out scoring",
+  "cost": "configured weighted token score, not GPU charges",
+  "attainment": "fixed unfairness ceilings 0.10/0.20/0.30; median and min-max over seeds with common support; not significance intervals",
+  "v86_measured": false,
+  "sources": [
+    {
+      "path": "review_v85_2679186/results/tri_fair_v85_pilot_2000000/batch_20261018T231729_2951/heldout_validation/qwen-3-30b/bbq/seed72/eval_checkpoints_union.parquet",
+      "sha256": "5b3b5995d18774867d0273e39f50e1d860de5a5606d6a1e7466c6e101c18fd63"
+    },
+    {
+      "path": "review_v85_2679186/results/tri_fair_v85_pilot_2000000/batch_20261018T231729_2951/heldout_validation/qwen-3-30b/bias_in_bios/seed72/eval_checkpoints_union.parquet",
+      "sha256": "00884934057fd7484040d742d176cad3e8b91f1182de45edb4c876e3baa6e103"
+    },
+    {
+      "path": "review_v85_2679186/results/tri_fair_v85_pilot_2000000/batch_20261018T231729_2951/heldout_validation/qwen-3-30b/civil_comments/seed72/eval_checkpoints_union.parquet",
+      "sha256": "4ba15b8e2bd84bc153aef5bd9fa3c1c851353548c7b2ec3ce1b52dc27b78f806"
+    },
+    {
+      "path": "review_v85_2679186/results/tri_fair_v85_pilot_2000000/batch_20261018T231729_2951/heldout_validation/qwen-3-30b/winobias/seed72/eval_checkpoints_union.parquet",
+      "sha256": "44211708291d8f1af919f58048efeefacb6ee2bbc0c8e2ae007aead6221b8609"
+    }
+  ]
+}

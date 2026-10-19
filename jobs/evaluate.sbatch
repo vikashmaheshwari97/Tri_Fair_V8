@@ -29,7 +29,7 @@ python -m tri_fair.cli.doctor --gpu
 
 declare -a models datasets seeds
 tf_split_csv "${TF_MODELS:-qwen-3-30b,mistral-3-24b,gpt-oss-120b}" models
-tf_split_csv "${TF_DATASETS:-bbq,civil_comments,bias_in_bios}" datasets
+tf_split_csv "${TF_DATASETS:-bbq,civil_comments,bias_in_bios,winobias}" datasets
 tf_split_csv "${TF_SEEDS:-72,73,74}" seeds
 idx="${SLURM_ARRAY_TASK_ID:-0}"
 total=$((${#models[@]} * ${#datasets[@]} * ${#seeds[@]}))
@@ -43,10 +43,10 @@ if tf_is_true "${STRUCTURED_LABELS:-0}"; then
   decoding_args+=(--structured-labels)
 fi
 python -m tri_fair.cli.evaluate \
-  --study-root "${V8_RESULTS_ROOT:-results/tri_fair_v8_clean_5m}/$model" \
+  --study-root "${V8_RESULTS_ROOT:-results/tri_fair_v86_clean_5m}/$model" \
   --model "$model" --dataset "$dataset" --random-seed "$seed" \
   --manifest-dir "${MANIFEST_DIR:-data/splits_v8_clean}" \
-  --optimizers "${TF_OPTIMIZERS:-Tri-Fair-v8,NSGAII-PO-Fair,SPEA2-PO-Fair,NSGAIII-PO-Fair,RandomSearch-PO-Fair,NSGAII-PO-Fair-Enhanced}" \
+  --optimizers "${TF_OPTIMIZERS:-Tri-Fair-v8.6,NSGAII-PO-Fair,SPEA2-PO-Fair,NSGAIII-PO-Fair,RandomSearch-PO-Fair,NSGAII-PO-Fair-Enhanced}" \
   --maximum-actual-tokens "${BUDGET:-5000000}" \
   --max-output-tokens "${MAX_OUTPUT_TOKENS:-16}" \
   --evaluation-split "${EVALUATION_SPLIT:-validation}" \

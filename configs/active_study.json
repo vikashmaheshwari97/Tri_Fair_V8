@@ -1,0 +1,19 @@
+{
+  "method": "Tri-Fair-v8.6",
+  "paper_label": "Tri-Fair",
+  "implementation": "ConsolidatedTriFairOptimizer",
+  "proposal_strategies": ["attributed_reflection", "stable_components", "complementary_merge"],
+  "shared_population_cache_and_budget": true,
+  "historical_versions": "retained for reproduction; excluded from active defaults",
+  "pilot_control": "NSGAII-PO-Fair",
+  "datasets": ["bbq", "civil_comments", "bias_in_bios", "winobias"],
+  "budget_ceiling_per_method": 2000000,
+  "search_fraction": 0.70,
+  "audit_fraction": 0.30,
+  "population_size": 4,
+  "maximum_demonstrations": 2,
+  "audit_candidates": 4,
+  "validation": "one shared union of unique audited-final and real historical prompts",
+  "validation_tokens": "additional, measured separately; never fed to optimization",
+  "gpu_performance": "not yet measured"
+}

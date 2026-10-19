@@ -1,0 +1,32 @@
+{
+  "GEPA": {
+    "paper": "https://arxiv.org/abs/2507.19457",
+    "code": "https://github.com/gepa-ai/gepa/blob/main/src/gepa/proposer/merge.py",
+    "reviewed_blob": "aba08dfc05ec662d35776547196b85532db181c8",
+    "transfer": "Combine complementary measured rules; no external code vendored."
+  },
+  "HRPO": {
+    "paper": "https://aclanthology.org/2026.findings-acl.1459/",
+    "code": "https://github.com/liyingji1996/HRPO/blob/6de8ed5325abeaf3af8e05441b7abf7187d5454f/HRPO_code/optimizers.py",
+    "transfer": "Positive/negative measured optimization history; adaptation to discrete classification prompts, not a reproduced multimodal method."
+  },
+  "MO-CAPO": {
+    "file": "MO-CAPO Multi-Objective Cost-Aware Prompt Optimization(3).pdf",
+    "paper": "https://arxiv.org/abs/2605.18869",
+    "figures": {
+      "2": "held-out nR2 vs actual token budget",
+      "3": "empirical attainment across seeds",
+      "4": "prompt composition"
+    },
+    "transfer": "Racing already present; add real checkpoint validation and fairness-conditioned attainment figures.",
+    "sha256": "99d6779199b279e9afe8d235e9587312c643eb230ad0e22599f5aafb86ebc672"
+  },
+  "Prior_review": {
+    "path": "research/v85/research_sources.json",
+    "scope": "Supplied 2025/2026 PDFs and five GitHub repositories reviewed in v8.5; training-only and FAIR-data-principles work is not presented as prompt-fairness optimization."
+  },
+  "Additional_screening": {
+    "APD": "https://www.sciencedirect.com/science/article/pii/S0004370226001517",
+    "status": "Publisher full text returned 403; not used as verified implementation evidence."
+  }
+}

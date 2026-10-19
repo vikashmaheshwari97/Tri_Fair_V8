@@ -1,0 +1,15 @@
+parameter,default,purpose,scope
+population_size,4,retained candidate diversity,all pilot methods
+max_few_shots,2,demonstration search ceiling,all pilot methods
+downstream_cap,2000000,search plus final search audit,all pilot methods
+audit_reserve_fraction,0.3,strict reserved audit capacity,all pilot methods
+portfolio_exploration,0.2,UCB exploration,Tri-Fair
+portfolio_interval,5,periodic least-used strategy exploration,Tri-Fair
+portfolio_reward_scale,1000000,positive HV gain scaled per downstream tokens,Tri-Fair
+stability_strength,1.0,parent search-block sensitivity penalty,stable proposal strategy
+parent_quality_margin,0.04,fairness/cost parent quality guard,stable proposal strategy
+prompt_word_limit,96,generated instruction length bound,Tri-Fair proposal generator
+generation_input_token_limit,2100,complete generator request bound,Tri-Fair proposal generator
+max_generation_calls,128,bounded meta-generation batches,Tri-Fair
+nR2_preferences,4096,shared preference vectors for reporting,all pilot methods
+nR2_preference_seed,2026,reproducible reporting preferences,all pilot methods

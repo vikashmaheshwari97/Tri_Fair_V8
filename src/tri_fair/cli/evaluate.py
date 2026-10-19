@@ -53,13 +53,18 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--dataset", choices=sorted(ALL_DATASETS), required=True)
     parser.add_argument("--model", choices=sorted(ALL_MODELS), required=True)
     parser.add_argument("--random-seed", type=int, required=True)
-    parser.add_argument("--optimizers", default="Tri-Fair-v8,NSGAII-PO-Fair")
+    parser.add_argument("--optimizers", default="Tri-Fair-v8.6,NSGAII-PO-Fair")
     parser.add_argument("--minimum-actual-tokens", type=int, default=0)
     parser.add_argument("--maximum-actual-tokens", type=int, default=5000000)
     parser.add_argument("--manifest-dir", default="data/splits_v8_clean")
     parser.add_argument("--max-output-tokens", type=int, default=16)
     parser.add_argument("--output-file", default=None)
     parser.add_argument("--force", action="store_true")
+    parser.add_argument(
+        "--include-history",
+        action="store_true",
+        help="With --audited-final, also evaluate real logged checkpoint fronts for trajectories.",
+    )
     parser.add_argument(
         "--audited-final",
         action="store_true",
@@ -138,9 +143,10 @@ def _membership_for_run(
     maximum_tokens: int,
     final_only: bool = False,
     audited_final: bool = False,
+    include_history: bool = False,
 ) -> pd.DataFrame:
     if audited_final:
-        return _audited_membership(
+        final = _audited_membership(
             log_path,
             optimizer=optimizer,
             dataset=dataset,
@@ -149,6 +155,18 @@ def _membership_for_run(
             minimum_tokens=minimum_tokens,
             maximum_tokens=maximum_tokens,
         )
+        if not include_history:
+            return final
+        history = _membership_for_run(
+            log_path,
+            optimizer=optimizer,
+            dataset=dataset,
+            model=model,
+            seed=seed,
+            minimum_tokens=minimum_tokens,
+            maximum_tokens=maximum_tokens,
+        )
+        return pd.concat([history, final], ignore_index=True, sort=False)
     step_path = log_path / "step_results.parquet"
     if not step_path.is_file():
         raise FileNotFoundError(step_path)
@@ -269,6 +287,10 @@ def _test_columns(frame: pd.DataFrame) -> list[str]:
 
 
 def run(args: argparse.Namespace) -> Path:
+    if getattr(args, "include_history", False) and not getattr(
+        args, "audited_final", False
+    ):
+        raise ValueError("--include-history requires --audited-final")
     if args.study_profile == "base" and args.evaluation_split == "validation":
         raise ValueError("validation partition requires study-profile v8")
     if args.maximum_actual_tokens <= args.minimum_actual_tokens:
@@ -289,6 +311,7 @@ def run(args: argparse.Namespace) -> Path:
                 maximum_tokens=args.maximum_actual_tokens,
                 final_only=bool(getattr(args, "final_only", False)),
                 audited_final=bool(getattr(args, "audited_final", False)),
+                include_history=bool(getattr(args, "include_history", False)),
             )
         )
     membership = pd.concat(memberships, ignore_index=True, sort=False)
@@ -364,7 +387,9 @@ def run(args: argparse.Namespace) -> Path:
         "split": args.evaluation_split,
         "max_output_tokens": args.max_output_tokens,
         "structured_labels": args.structured_labels,
-        "candidate_policy": "audited_final_shortlist"
+        "candidate_policy": "audited_final_plus_history"
+        if getattr(args, "include_history", False)
+        else "audited_final_shortlist"
         if getattr(args, "audited_final", False)
         else "final_incumbents"
         if getattr(args, "final_only", False)
@@ -494,6 +519,8 @@ def run(args: argparse.Namespace) -> Path:
     if output["test_quality"].isna().any():
         raise RuntimeError("Some membership rows lack shared held-out results")
     dedup = ["optimizer", "prompt_id", "chosen_step", "budget_checkpoint"]
+    if "selection_policy" in output:
+        dedup.append("selection_policy")
     output = (
         output.sort_values(dedup, kind="stable")
         .drop_duplicates(dedup, keep="last")

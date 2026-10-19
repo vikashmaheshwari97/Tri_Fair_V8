@@ -1,0 +1,6 @@
+{
+  "enabled_strategies": [
+    "attributed_reflection",
+    "stable_components"
+  ]
+}

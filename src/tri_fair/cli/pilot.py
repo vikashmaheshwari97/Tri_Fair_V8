@@ -14,10 +14,9 @@ from uuid import uuid4
 from tri_fair.cli.common import atomic_write_json
 from tri_fair.config.registry import METHODS
 
-VARIANT = "Tri-Fair-v8.4-Hybrid"
+VARIANT = "Tri-Fair-v8.6"
 DEFAULT_METHODS = (
     VARIANT,
-    "Tri-Fair-v8",
     "NSGAII-PO-Fair",
     "SPEA2-PO-Fair",
     "NSGAIII-PO-Fair",
@@ -54,7 +53,7 @@ def train_command(args, method, root):
         "-m",
         "tri_fair.cli.train",
         "--experiment-name",
-        str(getattr(args, "experiment_name", "v841_hybrid_termination_pilot")),
+        str(getattr(args, "experiment_name", "tri_fair_v86_portfolio_pilot")),
         "--model",
         args.model,
         "--dataset",
@@ -279,7 +278,7 @@ def main(
     argv=None,
     *,
     variant_name=VARIANT,
-    namespace_prefix="tri_fair_v841_pilot",
+    namespace_prefix="tri_fair_v86_pilot",
     default_methods=DEFAULT_METHODS,
     defaults=None,
 ):
@@ -295,12 +294,12 @@ def main(
         choices=["qwen-3-30b", "mistral-3-24b", "gpt-oss-120b"],
     )
     parser.add_argument("--seed", type=int, default=72)
-    parser.add_argument("--budget", type=int, default=1000000)
-    parser.add_argument("--n-init-prompts", type=int, default=2)
-    parser.add_argument("--max-few-shot-examples", type=int, default=1)
+    parser.add_argument("--budget", type=int, default=2000000)
+    parser.add_argument("--n-init-prompts", type=int, default=4)
+    parser.add_argument("--max-few-shot-examples", type=int, default=2)
     parser.add_argument("--crossovers-per-iteration", type=int, default=1)
-    parser.add_argument("--final-search-candidates", type=int, default=2)
-    parser.add_argument("--final-search-reserve", type=float, default=0.35)
+    parser.add_argument("--final-search-candidates", type=int, default=4)
+    parser.add_argument("--final-search-reserve", type=float, default=0.30)
     parser.add_argument(
         "--unconstrained-labels",
         action="store_true",

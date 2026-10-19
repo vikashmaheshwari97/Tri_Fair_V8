@@ -131,6 +131,31 @@ def test_audited_membership_uses_full_search_scores_and_includes_audit_tokens(tm
     assert frame.actual_budget_tokens.iloc[0] == 900
     assert frame.dev_quality.iloc[0] == 0.8
     assert frame.selection_policy.iloc[0] == "audited_final_shortlist"
+    historical = pd.DataFrame(
+        [
+            dict(
+                step=3,
+                prompt=p.construct_prompt(),
+                prompt_id=prompt_id(p.construct_prompt()),
+                instruction=p.instruction,
+                few_shots_json=json.dumps(p.few_shots),
+                is_incumbent=True,
+                quality=0.7,
+                cost=20,
+                fairness=0.2,
+                fairness_ready=True,
+                total_tokens_downstream=850,
+            )
+        ]
+    )
+    historical.to_parquet(tmp_path / "step_results.parquet")
+    combined = _membership_for_run(tmp_path, **dict(args, include_history=True))
+    assert len(combined) == 2
+    assert set(combined.selection_policy) == {
+        "current_incumbents",
+        "audited_final_shortlist",
+    }
+    assert sorted(combined.dev_quality) == [0.7, 0.8]
     with pytest.raises(ValueError, match="actual-token range"):
         _membership_for_run(tmp_path, **dict(args, maximum_tokens=800))
     summary["status"] = "incomplete"

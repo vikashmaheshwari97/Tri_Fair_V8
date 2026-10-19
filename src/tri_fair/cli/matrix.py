@@ -8,7 +8,7 @@ import shlex
 import subprocess
 import sys
 from pathlib import Path
-from tri_fair.config.registry import METHODS
+from tri_fair.config.registry import METHODS, ACTIVE_METHODS
 
 
 def commands(args):
@@ -56,16 +56,16 @@ def commands(args):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--models", default="qwen-3-30b,mistral-3-24b,gpt-oss-120b")
-    parser.add_argument("--datasets", default="bbq,civil_comments,bias_in_bios")
+    parser.add_argument("--datasets", default="bbq,civil_comments,bias_in_bios,winobias")
     parser.add_argument(
         "--methods",
-        default="Tri-Fair-v8,NSGAII-PO-Fair,SPEA2-PO-Fair,NSGAIII-PO-Fair,RandomSearch-PO-Fair,NSGAII-PO-Fair-Enhanced",
+        default=",".join(ACTIVE_METHODS),
     )
     parser.add_argument("--seeds", default="72,73,74")
     parser.add_argument("--budget", type=int, default=5000000)
     parser.add_argument("--n-init-prompts", type=int, default=12)
     parser.add_argument("--manifest-dir", default="data/splits_v8_clean")
-    parser.add_argument("--output-dir", default="results/tri_fair_v8_clean")
+    parser.add_argument("--output-dir", default="results/tri_fair_v86_clean")
     parser.add_argument("--execute", action="store_true")
     parser.add_argument("--task-index", type=int)
     parser.add_argument("--write-plan")

@@ -47,6 +47,11 @@ def analyse(frame, *, split, budget):
     for identity, group in frame.groupby(
         ["dataset", "model", "optimizer", "seed"], sort=True
     ):
+        if (
+            "selection_policy" in group
+            and group.selection_policy.eq("audited_final_shortlist").any()
+        ):
+            group = group[group.selection_policy.eq("audited_final_shortlist")]
         group = group[pd.to_numeric(group.actual_budget_tokens) <= budget]
         if group.empty:
             continue
