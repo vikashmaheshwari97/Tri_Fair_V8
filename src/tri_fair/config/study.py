@@ -147,4 +147,20 @@ def build_optimizer_registry():
         "sequential_block",
         1,
     )
+    configs["Tri-Fair-v8.7"] = OptimizerConfig(
+        "Tri-Fair-v8.7",
+        "Tri-Fair-v8.7",
+        dict(
+            shared,
+            feedback_cases=4,
+            prompt_word_limit=80,
+            generation_input_token_limit=2000,
+            parent_quality_margin=0.04,
+            repeat_check_examples=8,
+            enable_fold_guard=True,
+            enable_targeted_feedback=True,
+        ),
+        "full",
+        1,
+    )
     return configs

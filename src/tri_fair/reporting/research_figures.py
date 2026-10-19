@@ -23,6 +23,7 @@ from tri_fair.reporting.metrics import analyse_evaluated_run
 from tri_fair.reporting.objectives import Bounds
 
 COLORS = {
+    "Tri-Fair-v8.7": "#006D77",
     "Tri-Fair-v8.6": "#007F73",
     "NSGAII-PO-Fair": "#D55E00",
     "Tri-Fair-v8.3": "#0072B2",
@@ -154,14 +155,16 @@ def plot_research(frame, output, *, split, budget, title=None, formats=("png", "
     if not trajectories.empty:
         trajectories.to_csv(output / "figure_trajectories.csv", index=False)
     datasets = [d for d in DATASETS if d in set(frame.dataset)]
-    methods = sorted(frame.optimizer.unique(), key=lambda m: (m != "Tri-Fair-v8.6", m))
+    methods = sorted(
+        frame.optimizer.unique(), key=lambda m: (not m.startswith("Tri-Fair"), m)
+    )
     color = {
         m: COLORS.get(m, plt.get_cmap("tab10")(i % 10)) for i, m in enumerate(methods)
     }
     marker = {m: MARKERS[i % len(MARKERS)] for i, m in enumerate(methods)}
 
     def label(m):
-        return "Tri-Fair" if m == "Tri-Fair-v8.6" else m
+        return "Tri-Fair" if m in {"Tri-Fair-v8.6", "Tri-Fair-v8.7"} else m
 
     plt.rcParams.update(
         {
@@ -358,7 +361,9 @@ def plot_research(frame, output, *, split, budget, title=None, formats=("png", "
                 labels.append(lab)
     finish(fig, "fairness_conditioned_attainment", handles, labels)
 
-    primary = "Tri-Fair-v8.6" if "Tri-Fair-v8.6" in methods else None
+    primary = next(
+        (m for m in ("Tri-Fair-v8.7", "Tri-Fair-v8.6") if m in methods), None
+    )
     if primary is not None:
         fig, axes = plt.subplots(
             1, len(datasets), figsize=(3.2 * len(datasets), 3.8), squeeze=False

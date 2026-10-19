@@ -454,6 +454,8 @@ def run(args: argparse.Namespace, *, logging_dir: Path | None = None) -> Path:
         df_fewshots=df_fewshots,
         callbacks=callbacks,
     )
+    if hasattr(optimizer, "set_artifact_directory"):
+        optimizer.set_artifact_directory(logging_dir)
     if budget_controller is not None:
         optimizer.budget_controller = budget_controller
     if args.resume_from:

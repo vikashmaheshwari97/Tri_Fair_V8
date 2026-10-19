@@ -1,0 +1,101 @@
+[
+  {
+    "file": "2608.25707v1.pdf",
+    "title": "Fairness-Aware Test-Time Prompt Tuning",
+    "authors": "Launay et al., 2026",
+    "pages": 22,
+    "method": "Vision-language soft-prompt gradients; target/spurious entropy objectives and controlled adaptation.",
+    "decision": "Keep the task/sensitive-cue distinction in editing guidance. Do not import gradients, image augmentation or its guarantees into black-box textual optimization.",
+    "url": "https://arxiv.org/abs/2608.25707"
+  },
+  {
+    "file": "2507.11344v1.pdf",
+    "title": "Guiding LLM Decision-Making with Fairness Reward Models",
+    "authors": "Hall et al., 2025",
+    "pages": 32,
+    "method": "Train a fairness reward model on weakly annotated reasoning; aggregate multiple reasoning chains.",
+    "decision": "Use error evidence and task-grounded fairness requirements. Do not add a trained judge or dozens of inference chains under an unreported budget.",
+    "url": "https://arxiv.org/abs/2507.11344"
+  },
+  {
+    "file": "2026.findings-acl.490.pdf",
+    "title": "LLM Prompt Duel Optimizer: Efficient Label-Free Prompt Optimization",
+    "authors": "Wu et al., ACL Findings 2026",
+    "pages": 24,
+    "method": "Pairwise LLM-judge feedback, Double Thompson Sampling and top-performer mutation/pruning.",
+    "decision": "Adapt measured top-parent refinement and bounded candidate generation. We already have gold labels, so use cached measured objectives; no LLM judge, dueling bandit posterior or copied PDO algorithm is claimed.",
+    "url": "https://aclanthology.org/2026.findings-acl.490/"
+  },
+  {
+    "file": "1-s2.0-S1877050926001110-main.pdf",
+    "title": "A Multi-Objective Reinforcement Learning Approach to Prompt Optimization in NLP",
+    "authors": "Iqbal et al., 2026",
+    "pages": 9,
+    "method": "DQN/PPO chooses predefined edits with a weighted reward over cultural sentence pairs.",
+    "decision": "Use explicit edit categories as an engineering analogy. Do not import its scalar reward, trained RL policy, or missing-bias-to-zero preprocessing; those are incompatible with measured three-objective Pareto evaluation.",
+    "url": ""
+  },
+  {
+    "file": "09301-AAAI26.LaMalfaG-ML.pdf",
+    "title": "Fairness Aware Reinforcement Learning via Proximal Policy Optimization",
+    "authors": "La Malfa et al., AAAI 2026",
+    "pages": 9,
+    "method": "Fair-PPO penalizes retrospective/prospective reward disparities in multi-agent environments.",
+    "decision": "Motivates guarding utility while reducing supported group errors. No PPO/value network or multi-agent fairness-transfer claim is implemented.",
+    "url": "https://github.com/gabrielelamalfakcl/fairness-aware-ppo"
+  },
+  {
+    "file": "2026.eacl-long.38.pdf",
+    "title": "Rethinking Prompt Optimizers: From Prompt Merits to Optimization",
+    "authors": "Zhu et al., EACL 2026",
+    "pages": 29,
+    "method": "Identifies clarity, precision, concise reasoning and preservation of original information; trains a merit-guided optimizer.",
+    "decision": "Implement these merits in bounded local revision requests and preserve conditional label rules during contract cleanup. Do not claim reproduction of the trained MePO model.",
+    "url": "https://aclanthology.org/2026.eacl-long.38/"
+  },
+  {
+    "file": "3744916.3773115.pdf",
+    "title": "Attention Pruning: Automated Fairness Repair of Language Models via Surrogate Simulated Annealing",
+    "authors": "Dasu et al., 2026",
+    "pages": 13,
+    "method": "Surrogate neural networks guide simulated annealing over attention-head pruning masks.",
+    "decision": "The fixed target model must stay fixed. Do not prune its heads or train a surrogate from our small pilot and report model repair as prompt optimization.",
+    "url": "https://doi.org/10.1145/3744916.3773115"
+  },
+  {
+    "file": "2602.06370v1.pdf",
+    "title": "Cost-Aware Model Selection for Text Classification: Multi-Objective Trade-offs Between Fine-Tuned Encoders and LLM Prompting in Production",
+    "authors": "Valdes Gonzalez, 2026",
+    "pages": 26,
+    "method": "Compare encoder/LLM accuracy, latency and costs with reproducible artifacts and Pareto analyses.",
+    "decision": "Preserve exact inference-token accounting, backend diagnostics and source hashes. Model-family switching is a different experiment; Qwen remains fixed in this pilot.",
+    "url": "https://arxiv.org/abs/2602.06370"
+  },
+  {
+    "file": "preprints202604.1399.v1.pdf",
+    "title": "Multi-Objective Scheduling for Large Language Model Inference with Prompt-Level Cost Prediction and SLO Awareness",
+    "authors": "Liao et al., 2026 preprint",
+    "pages": 11,
+    "method": "Predict cost/latency and route workloads across execution pools; simulation-based carbon/SLO analysis.",
+    "decision": "Use the existing exact tokenizer-based admission controller rather than a newly trained scheduler. No inferred HPC billing, carbon or task-quality improvement is imported.",
+    "url": "https://doi.org/10.20944/preprints202604.1399.v1"
+  },
+  {
+    "file": "2602.07799v1.pdf",
+    "title": "Fairness Aware Reward Optimization",
+    "authors": "Choi et al., 2026",
+    "pages": 20,
+    "method": "Train reward models under demographic parity/equalized-odds/counterfactual constraints; reward/policy theory.",
+    "decision": "The useful distinction is utility preservation versus fairness repair. Our supported quality guard is a heuristic; FARO certificates and reward-to-policy transfer do not apply to these discrete prompt edits.",
+    "url": "https://arxiv.org/abs/2602.07799"
+  },
+  {
+    "file": "Fairness-Aware+Prompt+Tuning_+Selective+Prompt+Allocation+for+Bias+Reduction+in+NLP+Models_formatted.pdf",
+    "title": "Fairness-Aware Prompt Tuning: Selective Prompt Allocation for Bias Reduction in NLP Models",
+    "authors": "Yuan and Marshall, supplied manuscript",
+    "pages": 10,
+    "method": "Architectural discussion of a catalog of soft prompts and an input-dependent allocator using auxiliary/proxy features.",
+    "decision": "Do not route by protected attributes or add an unaccounted prompt ensemble. Conditional prompt routing changes deployment semantics and needs its own protocol; retain one static prompt per candidate here.",
+    "url": ""
+  }
+]

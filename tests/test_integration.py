@@ -73,6 +73,7 @@ def test_interrupted_equals_uninterrupted(cls, tmp_path):
         "Tri-Fair-v8.4-Hybrid",
         "Tri-Fair-v8.5",
         "Tri-Fair-v8.6",
+        "Tri-Fair-v8.7",
         "Tri-Fair-v8-NoFeedback",
         "Tri-Fair-v8-NoDemo",
         "Tri-Fair-v8-NoUncertainty",
@@ -171,6 +172,7 @@ def test_complete_public_runner_with_fake_models(
         "Tri-Fair-v8.4-Hybrid",
         "Tri-Fair-v8.5",
         "Tri-Fair-v8.6",
+        "Tri-Fair-v8.7",
         "NSGAII-PO-Fair",
     ],
 )

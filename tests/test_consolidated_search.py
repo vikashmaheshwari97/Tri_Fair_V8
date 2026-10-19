@@ -65,7 +65,7 @@ def test_all_three_strategies_share_one_archive_and_record_real_credit():
 def test_only_one_trifair_in_active_configuration():
     from tri_fair.config.registry import ACTIVE_METHODS
 
-    assert [x for x in ACTIVE_METHODS if x.startswith("Tri-Fair")] == ["Tri-Fair-v8.6"]
+    assert [x for x in ACTIVE_METHODS if x.startswith("Tri-Fair")] == ["Tri-Fair-v8.7"]
 
 
 def test_component_ablation_selects_only_enabled_strategy():
