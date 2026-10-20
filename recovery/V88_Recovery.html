@@ -1,0 +1,33 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><title>Tri-Fair v8.8 recovery</title>
+<style>body{font:16px/1.6 system-ui,sans-serif;max-width:950px;margin:42px auto;padding:0 24px;color:#182b35}h1,h2{color:#006d77}pre{background:#edf4f5;padding:16px;overflow:auto}.note{padding:14px;border-left:4px solid #c4622d;background:#fff7ed}a{color:#006d77}</style>
+<h1>Tri-Fair v8.8: repeatability diagnosis and failure-only recovery</h1>
+<p>Original jobs: training array 2812556, cancelled validation 2812557 and report 2812558. The failed task is Bias-in-Bios, seed 72. Its four baseline methods reported measured results. Tri-Fair stopped during the early repeatability probe after 2,658 downstream tokens. This package checks whether the other three dataset tasks provide the remaining fifteen measured runs before permitting recovery.</p>
+<h2>What failed</h2>
+<p>The Python RuntimeError is the immediate failure. It can mean invalid extracted labels or disagreement between batched, reversed-order and single-example predictions. The pasted log does not contain the actual probe JSON, so it does not identify which condition occurred. Triton JIT warnings report compilation latency; the engine shutdown messages occur after Python exits and do not establish an initial GPU failure.</p>
+<p>vLLM documents batch-dependent numerical behaviour and describes batch-invariant execution as a separate mode. See <a href="https://docs.vllm.ai/en/stable/features/batch_invariance/">batch invariance</a> and <a href="https://docs.vllm.ai/en/stable/usage/reproducibility/">reproducibility</a>. The installed v0.24.0 documentation was not accessible during this diagnosis; this package does not assume that enabling an environment flag fixes that version/model combination.</p>
+<h2>Scope of this hotfix</h2>
+<ul><li>Optimizer, metrics, predictor settings and the repeatability gate stay unchanged.</li>
+<li>Inspect the original probe JSON without GPU work. Reject invalid labels, missing evidence, changed measured source, a different pilot configuration or any additional missing method.</li>
+<li>Permit one controlled Tri-Fair/Bias-in-Bios retry. The default GPU request is one H200 from any eligible Firefly node. Different hardware is a diagnostic choice, not a guarantee of consistency or evidence that the A100 is faulty.</li>
+<li>The retry repeats the mandatory probe before optimization. A failed probe stops the retry and blocks downstream validation.</li>
+<li>Keep original reports, scores, failed probe and all successful run directories byte-for-byte. No original result is deleted, moved, overwritten or re-labelled.</li>
+<li>After a measured, probe-passing and protocol-matched retry, create a new standard evaluation input view pointing to nineteen existing runs and the recovered run. The existing evaluator resolves those pointers without changing the source observations.</li>
+<li>Validation then covers all four datasets and five methods, followed by the existing aggregate report and figures. Outputs and a recovery receipt go into a new recovery directory inside the original batch.</li></ul>
+<div class="note">This is a recovery hotfix, not a confirmed fix for a numerical kernel or parsing error. If the probe reports invalid labels, or the H200 probe also fails, stop and inspect that evidence. Do not disable the probe or enable batch invariance for only Tri-Fair while presenting the saved runs as a matched backend comparison.</div>
+<h2>Rocket commands</h2>
+<pre>cd ~/Tri_Fair_V8
+source "$HOME/venvs/tri-fair-v8/bin/activate"
+export RECOVERY_BATCH="results/tri_fair_v88_pilot_2000000/batch_20261019T223036_12131"
+python recovery/v88_recover.py inspect --batch-root "$RECOVERY_BATCH"
+DRY_RUN=1 bash jobs/submit_recover_v88.sh
+DRY_RUN=0 bash jobs/submit_recover_v88.sh</pre>
+<p>The first command prints the probe's actual predictions, mismatches and invalid-label IDs. Planning and submission stop if the failure is not a documented batch/order disagreement. GPU execution starts only after the source and protocol checks pass. Leave VLLM_BATCH_INVARIANT unset or zero to retain the original profile.</p>
+<p>The printed retry job is a single job, not a four-task training array. Its successful completion triggers a four-task validation array (maximum two concurrent GPUs), then a CPU reporting job. If the retry fails, cancel its newly blocked validation/report jobs using the printed IDs. Do not resubmit the original twenty-run matrix.</p>
+<h2>Accounting and provenance</h2>
+<p>The recovered optimizer has its own original 2M cap. The failed probe's 2,658 tokens are retained as additional failed-attempt usage in the receipt, not hidden or subtracted from an existing measured run. The original Slurm task remains FAILED. Its separate successful retry, if any, is identified by a new job ID and run directory.</p>
+<p>All new helper code is outside src/ and scripts/. Those folders are the existing measured-source fingerprint; their exact bytes are checked against every reused complete run. This preserves the measured runtime rather than bypassing its fingerprint check. New runtime logging_dir.txt pointer files are standard evaluator inputs; no .txt or .md files are included in the downloadable ZIP.</p>
+<h2>Local checks</h2>
+<pre>python -m pytest -q tests/test_v88_recovery.py
+python scripts/verify_release.py</pre>
+<p>The recovery tests use synthetic directories and a stub Slurm command, not an LLM. They check preservation, source/protocol mismatches, invalid-label rejection, mandatory probe passage and dependency ordering. A separate integration check confirmed that the existing evaluator resolves all twenty pointers without loading a model. No real HPC jobs or GPU validation were performed here.</p>
+</html>

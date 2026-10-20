@@ -1,0 +1,44 @@
+{
+  "hotfix": "Tri-Fair v8.8 diagnosis and failure-only recovery",
+  "files": [
+    "recovery/v88_recover.py",
+    "recovery/V88_Recovery.html",
+    "jobs/recover_v88.sbatch",
+    "jobs/submit_recover_v88.sh",
+    "tests/test_v88_recovery.py",
+    "UPGRADE_V88_RECOVERY.json"
+  ],
+  "requires": "Applied v8.8 with original src/ and scripts/ unchanged",
+  "original_batch": "results/tri_fair_v88_pilot_2000000/batch_20261019T223036_12131",
+  "target": {
+    "model": "qwen-3-30b",
+    "dataset": "bias_in_bios",
+    "method": "Tri-Fair-v8.8",
+    "seed": 72,
+    "budget": 2000000
+  },
+  "scope": "Operational recovery only; not a confirmed numerical-kernel or label-parsing fix",
+  "invalid_labels": "Block resubmission; require diagnosis",
+  "batch_order_disagreement": "Permit a single H200 retry with original mandatory probe and original backend flags",
+  "measured_runs_required_before_retry": 19,
+  "original_results_modified": false,
+  "optimizer_changed": false,
+  "baseline_changed": false,
+  "source_fingerprint_check": "Exact existing src/ and scripts/ hash must match reused completed runs",
+  "cpu_tests": "12 passed",
+  "integration_checks": [
+    "Existing evaluator resolved all 20 standard run pointers without model loading",
+    "Existing pilot command builder preserved original matched settings",
+    "Stub-only Slurm dependency-chain submission passed",
+    "Ruff and Bash syntax passed"
+  ],
+  "gpu_validation": false,
+  "hpc_jobs_submitted": false,
+  "sha256": {
+    "recovery/v88_recover.py": "a8ffdc097459d74cb05bc8cf13482a529b1becae1f3da993e067a957807f2637",
+    "recovery/V88_Recovery.html": "5352e3c2fbf1c648e3f2e81ff56751250d167ba546e691f6b3edcf59cefbe5af",
+    "jobs/recover_v88.sbatch": "da32619ae2e2c6f27afde82331ceccf3db89a5bfb82e0cd6b375b9391c9bae21",
+    "jobs/submit_recover_v88.sh": "1f667b47cf9e977baec640d776012af8add4196823e2e56f7ec874bbe83eb21a",
+    "tests/test_v88_recovery.py": "cee022120d51022d73e502c9e5f53e16a4bbc28079dada5a14d7fedb208695bf"
+  }
+}
