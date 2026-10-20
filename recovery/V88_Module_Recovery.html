@@ -1,0 +1,33 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><title>Tri-Fair: validation-only module recovery</title>
+<style>body{max-width:950px;margin:3rem auto;padding:0 1rem;font:17px/1.6 system-ui;color:#163244}h1,h2{color:#14606b}pre{background:#eef4f6;padding:1rem;white-space:pre-wrap;overflow-wrap:anywhere;font-size:14px}</style>
+<h1>Recover validation without retraining</h1>
+<p>Job 2839279 completed all five Bios methods. Job 2839280 stopped before Python evaluation because Lmod could not resolve <code>python-venv/1.0</code>. This is a job-startup dependency failure, separate from the earlier batch-order disagreement. The mandatory module load was retained in the previous job script and caused this failure.</p>
+<p>The new job still loads the same Python base module and activates the existing project venv, but no longer requires the Spack python-venv module. It checks that Python actually belongs to that venv and is supported. All existing source, package, model-config, split and stability-proof checks remain active.</p>
+<p>No file under src/ or scripts/ and no existing recovery launcher is replaced. The source and launcher hashes checked by the passing stability proof therefore remain unchanged. The change is recorded in UPGRADE_V88_MODULE_RECOVERY.json.</p>
+<h2>1. Apply locally in PyCharm PowerShell</h2>
+<pre>cd C:\Users\maheshwari\PycharmProjects\Tri_Fair_V8_Clean
+Expand-Archive -LiteralPath "$HOME\Downloads\Tri_Fair_V88_Validation_Module_Fix.zip" -DestinationPath . -Force
+.\.venv312\Scripts\python.exe -m pytest tests/test_v88_module_recovery.py -q
+git diff --stat
+git add jobs/bios_stability_v88.sbatch jobs/lib/activate_existing_venv.sh jobs/submit_bios_validation_v88.sh tests/test_v88_module_recovery.py recovery/V88_Module_Recovery.html UPGRADE_V88_MODULE_RECOVERY.json
+git commit -m "Remove brittle venv module dependency and recover validation only"
+git push origin main</pre>
+<p>The nine Bash tests run on Linux and are skipped on Windows. They passed in the CPU verification environment. No GPU or actual scheduler execution was available for these tests.</p>
+<h2>2. Pull on Rocket and submit validation only</h2>
+<pre>cd ~/Tri_Fair_V8
+git pull --ff-only
+source "$HOME/venvs/tri-fair-v8/bin/activate"
+export BIOS_OUTPUT="results/tri_fair_v88_stable_bios_2000000/batch_20261020T071902_3371"
+DRY_RUN=1 bash jobs/submit_bios_validation_v88.sh
+DRY_RUN=0 bash jobs/submit_bios_validation_v88.sh
+squeue -u "$USER"</pre>
+<p>The helper finds the original proof through the saved stable_profile.json. It requires a completed report with exactly five measured methods and matching proof hashes. The existing proof verifier then checks source, packages, frozen splits and launcher. Only one job with STABILITY_STAGE=evaluate is submitted. This stage performs held-out validation and generates indicators and research figures.</p>
+<p>Do not rerun submit_bios_stability_v88.sh with MODE=train. Do not rerun the probe or delete existing results. There is no dependency on the old failed validation job.</p>
+<h2>3. Monitor the newly printed validation job ID</h2>
+<pre>sacct -X -j REPLACE_WITH_NEW_JOB_ID --format=JobID,JobName,State,Elapsed,ExitCode
+tail -n 80 logs/bios_stable88_REPLACE_WITH_NEW_JOB_ID.out
+tail -n 80 logs/bios_stable88_REPLACE_WITH_NEW_JOB_ID.err</pre>
+<p>Results remain under the completed training batch. Validation outputs go into <code>heldout_validation/qwen-3-30b/bias_in_bios/seed72/</code>. Success requires COMPLETED with exit code 0:0.</p>
+<h2>References and scope</h2>
+<p>Inspected GitHub commit: <code>1166ac21a01254c782c524a2a4a50f21f804507b</code>. UT HPC documents activation of an existing venv using source: <a href="https://docs.hpc.ut.ee/public/cluster/Software/python_envs/">Python environments</a>. The helper does not install packages, switch optimizers, suppress failures or change inference settings. Actual compute-node module availability remains a cluster property; the repair removes the specific failing python-venv dependency.</p>
+</html>

@@ -1,0 +1,25 @@
+{
+  "base_commit": "1166ac21a01254c782c524a2a4a50f21f804507b",
+  "cause": "Lmod cannot resolve mandatory python-venv/1.0; failure before Python evaluation",
+  "successful_training_job": "2839279",
+  "failed_validation_job": "2839280",
+  "source_files_changed": false,
+  "existing_stability_launcher_changed": false,
+  "training_runs_to_repeat": 0,
+  "stability_probes_to_repeat": 0,
+  "validation_jobs_to_submit": 1,
+  "batch": "results/tri_fair_v88_stable_bios_2000000/batch_20261020T071902_3371",
+  "verification": {
+    "linux_cpu_tests": "9 passed",
+    "bash_syntax": "passed",
+    "ruff": "passed",
+    "gpu_execution": "not available"
+  },
+  "files": {
+    "jobs/bios_stability_v88.sbatch": "772a33e04f2544a948237507a119f0e904273a2cdb9de54f5fd4824ef3d581d8",
+    "jobs/lib/activate_existing_venv.sh": "b589601bad70f647c875e347fec6e6866efa3ab0ce51b9cdb371688b5d58aada",
+    "jobs/submit_bios_validation_v88.sh": "5ebad5fb6d37d18daeb99a4c9743b781eb6d9fed01b7727bba6535fc1f14ada1",
+    "tests/test_v88_module_recovery.py": "88be1899de29e1bd6f58373c5ed84b4a6786f8aa40e6a17ef19bc71224140224",
+    "recovery/V88_Module_Recovery.html": "faf7b62c2174d851b6c89eac2d8d968d94258c620bbc3b72bd8a8c49f8766aaa"
+  }
+}

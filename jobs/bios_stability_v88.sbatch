@@ -12,11 +12,9 @@
 #SBATCH --output=logs/bios_stable88_%j.out
 #SBATCH --error=logs/bios_stable88_%j.err
 set -Eeuo pipefail
-module purge
-module --ignore_cache load python/3.11.14
-module --ignore_cache load python-venv/1.0
-source "${TF_VENV:-$HOME/venvs/tri-fair-v8}/bin/activate"
 cd "${SLURM_SUBMIT_DIR:?Submit from the repository root}"
+source jobs/lib/activate_existing_venv.sh
+tf_activate_existing_venv
 # Set this BEFORE any Python process that could import vLLM.
 export VLLM_BATCH_INVARIANT=1
 source jobs/lib/common.sh
