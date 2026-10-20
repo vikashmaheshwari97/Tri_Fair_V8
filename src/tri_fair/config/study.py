@@ -175,4 +175,16 @@ def build_optimizer_registry():
         "full",
         1,
     )
+    configs["Tri-Fair-v8.9"] = OptimizerConfig(
+        "Tri-Fair-v8.9",
+        "Tri-Fair-v8.9",
+        dict(
+            configs["Tri-Fair-v8.8"].optimizer_params,
+            enable_strategy_learning=True,
+            enable_control_evidence=True,
+            strategy_exploration=0.15,
+        ),
+        "full",
+        1,
+    )
     return configs

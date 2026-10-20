@@ -1,0 +1,22 @@
+{
+  "gpu_experiments_run": false,
+  "gpu_quality_improvement_established": false,
+  "core_runner_and_reporting_regression": {
+    "tests": "129",
+    "failures": "0",
+    "errors": "0",
+    "skipped": "0",
+    "time": "135.006"
+  },
+  "latest_focused_upgrade_including_single_seed_sd": {
+    "tests": "35",
+    "failures": "0",
+    "errors": "0",
+    "skipped": "0",
+    "time": "32.044"
+  },
+  "baseline_integrity_files": 12,
+  "new_plot_sets_rendered_from_original_v88_data": 5,
+  "static_checks": "ruff checks passed; bash -n passed; one- and three-seed dry-run plans checked",
+  "scope": "Offline fake-model execution validates program behavior, not real Qwen accuracy/fairness or GPU throughput."
+}

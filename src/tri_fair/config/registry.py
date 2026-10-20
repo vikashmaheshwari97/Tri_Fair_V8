@@ -12,6 +12,8 @@ from tri_fair.optimizers.stable import StableTriFairOptimizer
 from tri_fair.optimizers.efficient import EfficientTriFairOptimizer
 from tri_fair.optimizers.guarded import GuardedTriFairOptimizer
 from tri_fair.optimizers.repaired import RepairedTriFairOptimizer
+from tri_fair.optimizers.adaptive import AdaptiveTriFairOptimizer
+from tri_fair.optimizers.budget_fill import FILLED_BASELINES
 from tri_fair.optimizers.nsga2 import NSGA2Fair
 from tri_fair.optimizers.hybrid import HybridTriFairOptimizer
 from tri_fair.optimizers.baselines import (
@@ -22,6 +24,7 @@ from tri_fair.optimizers.baselines import (
 )
 
 METHODS = {
+    "Tri-Fair-v8.9": AdaptiveTriFairOptimizer,
     "Tri-Fair-v8.8": RepairedTriFairOptimizer,
     "Tri-Fair-v8.7": GuardedTriFairOptimizer,
     "Tri-Fair-v8.6": EfficientTriFairOptimizer,
@@ -44,7 +47,7 @@ METHODS = {
 # One active proposed method. Earlier versions remain addressable only for
 # reproducing existing checkpoints/results; no historical scores are relabeled.
 ACTIVE_METHODS = (
-    "Tri-Fair-v8.8",
+    "Tri-Fair-v8.9",
     "NSGAII-PO-Fair",
     "SPEA2-PO-Fair",
     "NSGAIII-PO-Fair",
@@ -67,7 +70,16 @@ def build_optimizer(
 ):
     cls = METHODS[optimizer_config.name]
     params = dict(optimizer_config.optimizer_params)
-    overrides = getattr(args, "optimizer_overrides", None) or {}
+    overrides = dict(getattr(args, "optimizer_overrides", None) or {})
+    budget_fill = overrides.pop("budget_fill", False)
+    if not isinstance(budget_fill, bool):
+        raise ValueError("budget_fill must be a boolean")
+    if budget_fill and optimizer_config.name in FILLED_BASELINES:
+        cls = FILLED_BASELINES[optimizer_config.name]
+    elif budget_fill and optimizer_config.name != "Tri-Fair-v8.9":
+        raise ValueError(
+            "Budget filling is supported only for the four matched baselines and Tri-Fair-v8.9"
+        )
     if set(overrides) - set(params):
         raise ValueError(
             f"unsupported optimizer overrides: {sorted(set(overrides) - set(params))}"
@@ -102,6 +114,12 @@ def build_optimizer(
         **params,
     )
     optimizer.effective_parameters = params
+    if budget_fill or optimizer_config.name == "Tri-Fair-v8.9":
+        optimizer.effective_parameters = dict(
+            params,
+            budget_fill=True,
+            shared_budget_protocol="v89-novel-complete-candidate-retries",
+        )
     return optimizer
 
 
@@ -163,4 +181,3 @@ def effective_run_metadata(optimizer, dataset_config, model_config, args):
             },
         },
     }
-

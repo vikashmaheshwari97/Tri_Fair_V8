@@ -1,0 +1,36 @@
+{
+  "base_commit": "20b6641985b66715d1d256584a4821d0402f276b",
+  "reference_batch": "results/tri_fair_v88_three_seed_2000000/batch_20261020T085938_13348",
+  "spea2_bbq_seed74": {
+    "actual_downstream_tokens": 795024,
+    "cap": 2000000,
+    "utilization": 0.397512,
+    "runtime_stop_reason": "no_new_downstream_evaluations",
+    "controller_stop_reason": null,
+    "remaining_after_reclamation": 1204976,
+    "reclamation_continued": false,
+    "interpretation": "The idle watchdog ended the run; no token-budget rejection occurred. Cached/duplicate proposal control flow can stop search well below its cap. The archive cannot distinguish all reasons for identical or empty historical proposals."
+  },
+  "random_bbq_seed74": {
+    "actual_downstream_tokens": 973616,
+    "cap": 2000000,
+    "utilization": 0.486808,
+    "controller_stop_reason": "next_complete_candidate_exceeds_budget",
+    "estimated_next_operation_tokens": 0,
+    "remaining_tokens": 1026384,
+    "trimmed_candidates": 0,
+    "rejected_operations": 0,
+    "interpretation": "The full-evaluation step raised a budget stop after the generator returned an empty list. This is an empty-proposal bug, not evidence that a 1026384-token remainder was insufficient."
+  },
+  "current_algorithm": {
+    "tri_fair_v88": "complete search evaluation before NSGA-II survival; guided edits and bounded parent archive",
+    "progressive_mocapo_intensification_active": false,
+    "baselines": "complete search evaluation; their own selection rules; shared objective-aware variation for NSGA-II/III/SPEA2; independent frozen-seed LLM proposals for Random Search"
+  },
+  "upgrade_measured_gpu_performance_available": false,
+  "accounting": {
+    "optimization_budget": "promptolution raw system, user and output counters, protected before calls",
+    "deployment_objective": "existing mean raw task-input/output token-price score; not physical GPU cost or tokenizer chat-template billing",
+    "meta_generation": "separately counted; not silently added to downstream cap"
+  }
+}

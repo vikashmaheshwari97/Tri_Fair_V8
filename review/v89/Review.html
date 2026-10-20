@@ -1,0 +1,133 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tri-Fair v8.9 — Budget diagnosis, upgrade and pilot</title>
+<style>body{font:16px/1.6 system-ui,sans-serif;color:#182637;background:#f5f7fb;margin:0}main{max-width:1120px;margin:auto;background:white;padding:40px}h1{font-size:34px;line-height:1.2}h2{margin-top:36px;border-top:1px solid #dfe5ed;padding-top:22px}h3{margin-bottom:5px}p{max-width:95ch}table{border-collapse:collapse;width:100%;font-size:14px}td,th{text-align:left;vertical-align:top;border-bottom:1px solid #e1e7ee;padding:10px}th{background:#eef3f9}pre{overflow:auto;white-space:pre;background:#102139;color:#edf5ff;padding:18px;font:13px/1.65 ui-monospace,monospace}code{font-family:ui-monospace,monospace;font-size:.9em}.note{background:#eaf3fc;border-left:4px solid #3679b5;padding:14px 20px}.muted{color:#526174}.kicker{letter-spacing:.12em;font-size:13px;color:#526174;text-transform:uppercase}img{width:100%;height:auto}figure{margin:24px 0}figcaption{font-size:14px;color:#526174}a{color:#195a99}ol.algorithm{font:14px/1.8 ui-monospace,monospace;background:#f8fafc;padding:15px 20px 15px 50px}li{padding-left:5px}@media print{body{background:white}main{padding:0}pre{white-space:pre-wrap;color:black;background:#f5f5f5}h2{break-after:avoid}figure,table{break-inside:avoid}}</style>
+<main><div class="kicker">Research implementation review · 20 October 2026</div>
+<h1>Fix the budget failures first.<br>Test adaptive editing next.</h1>
+<p class="note"><strong>This is an experimental v8.9 upgrade, not measured evidence of better Qwen performance.</strong> It fixes verified proposal-admission failures for every method, adds an isolated Tri-Fair strategy-selection change, and provides readable plots of existing data. Run the seed72 screening before further seeds or a 5M experiment.</p>
+
+<h2>1. What caused the severe budget under-use?</h2>
+<table><thead><tr><th>Observed run</th><th>Verified evidence</th><th>What changes</th></tr></thead><tbody>
+<tr><td>SPEA2 · BBQ · seed74</td><td>795,024 / 2,000,000 tokens (39.7512%). The idle watchdog stopped after three consecutive steps without new downstream evaluation. The controller recorded no budget rejection. Reserve reclamation did not resume an idle-stopped run.</td><td>Cached candidates are detected before evaluation. The generator receives bounded retries with a reproducible advancing meta-seed stream. Retries call the same baseline generator and retain its selection rules.</td></tr>
+<tr><td>Random Search · BBQ · seed74</td><td>973,616 tokens (48.6808%); 1,026,384 remained. The reported next-operation estimate was <strong>0</strong>, with no trimmed candidates or rejected calls. The old full-evaluation step mistook an empty proposal list for budget exhaustion.</td><td>Empty proposals have their own status. They trigger retries; they cannot be reported as a zero-estimate token-budget exhaustion.</td></tr>
+<tr><td>Other near-cap stops</td><td>A complete candidate may legitimately cost more than the remainder. An expensive first proposal previously blocked later candidates.</td><td>Check all proposed candidates for affordability. Retry the original generator when none fit. Never fabricate expenditure or make redundant calls solely to reach 100%.</td></tr>
+</tbody></table>
+<p>The historical SPEA2 archive does not establish whether every idle step came from a duplicate, parsing failure or another empty-output path. The new <code>proposal_admission.jsonl</code> records empty, cached, unaffordable and admitted outcomes. A retry limit is reported honestly; it does not prove that no possible prompt could fit.</p>
+
+<h2>2. Is MO-CAPO intensification active?</h2>
+<p><strong>No: v8.8 and this v8.9 variant use complete search-set evaluation before survival.</strong> In <code>NSGA2PromptOptimizer._step</code>, the full-evaluation override replaces the inherited MO-CAPO step. Class inheritance alone does not mean intensification is being executed. The v8.9 shared step also uses full coverage.</p>
+<table><tr><th>Mechanism</th><th>Tri-Fair v8.8</th><th>Tri-Fair v8.9</th><th>Four baselines in new pilot</th></tr>
+<tr><td>Quality, token-price cost and unfairness objectives</td><td>Yes</td><td>Yes</td><td>Yes, unchanged</td></tr>
+<tr><td>Complete search coverage before survival</td><td>Yes</td><td>Yes</td><td>Yes</td></tr>
+<tr><td>Prediction cache and final search shortlist</td><td>Yes</td><td>Yes</td><td>Yes</td></tr>
+<tr><td>Reserve reclamation</td><td>Shared policy</td><td>Shared policy</td><td>Shared policy</td></tr>
+<tr><td>Novel/affordable proposal retries</td><td>No shared recovery</td><td>New shared protocol</td><td>Same new protocol</td></tr>
+<tr><td>MO-CAPO progressive blocks, nearest-incumbent rejection and incumbent advancement</td><td>Not active</td><td>Not active</td><td>Not active</td></tr>
+<tr><td>Measured parent archive and rendered demo edits</td><td>Tri-Fair-specific</td><td>Retained</td><td>Original baseline operators</td></tr>
+<tr><td>Adaptive strategy credit and complementary-parent arm</td><td>Fixed edit cycle</td><td>New</td><td>Not added</td></tr></table>
+<p>NSGA-II, NSGA-III and SPEA2 already share objective-aware prompt mutation, including fairness feedback. Random Search uses independent LLM proposals from a frozen seed-instruction pool, with elitist retention. These are explicitly adapted prompt-search baselines, not untouched numerical-optimization implementations.</p>
+<p>MO-CAPO's central algorithmic distinction is progressive allocation of evaluation effort. It cannot simply be appended as a paper algorithm while the executable method performs full evaluation. Fairness metrics here are nonlinear group statistics: averaging block fairness values or pruning before adequate group support can change the objective. This upgrade keeps full coverage and targets verified failures rather than introducing an unvalidated racing rule.</p>
+
+<h2>3. What is new only in Tri-Fair?</h2>
+<p>Five proposal strategies replace the fixed six-mode cycle: targeted repair, fairness repair, complementary recombination, compression and demonstration variation. After initial exposure, a Thompson-style selector with 15% explicit exploration chooses strategies using measured search outcomes. The bounded parent archive, actual demo rendering, parsing checks, output contract and repeatability gate remain.</p>
+<p>Strategy credit requires a positive exclusive hypervolume contribution relative to the pre-evaluation, bounded search archive. Credit is discounted when the candidate's measured downstream counter delta exceeds 100K tokens. A fairness-labelled edit additionally needs lower measured unfairness and no more than 0.02 loss of quality. Supported leave-one-block checks discount inconsistent fairness repairs. Fewer than three usable checks produce a missing consistency estimate; no zero-valued stability evidence is invented.</p>
+<p>This is a heuristic adaptation of strategy selection for a changing multi-objective archive. Fractional Beta updates are not calibrated posterior probabilities, and the correlated leave-one-block checks are not confidence intervals. Strategy credit affects future proposals; it does not alter reported objectives or conceal unsuccessful candidates.</p>
+<p>Repair requests include cached mistakes and successful controls with the same true label. For binary tasks, feedback covers both sides of the decision boundary when available. Recombination selects another measured parent whose cached correct predictions complement the first parent's errors. It asks for a compact merged decision rule rather than concatenating prompts. Compression must actually reduce rendered tokens.</p>
+<p><code>operator_outcomes.jsonl</code> contains every measured edit outcome, not only the last 16 edits. It records parent/child identity, objective differences, actual evaluation tokens, HV contribution, supported fold count, reward and survival. Validation and test cases never enter these operators.</p>
+
+<h3>Algorithm: Adaptive full-coverage Tri-Fair v8.9</h3>
+<p><em>Require:</em> frozen search data and few-shot pool, initial instructions, meta/evaluation LLMs, strict token cap, population size, original fairness-support requirements.</p>
+<ol class="algorithm"><li>Render the initial population; run the repeatability gate; evaluate all search rows.</li>
+<li>Initialize the measured parent archive and five strategy states.</li>
+<li>While the shared step limit and downstream cap permit meaningful work:</li>
+<li>&nbsp;&nbsp;Select a strategy with exploration and measured strategy credit.</li>
+<li>&nbsp;&nbsp;Choose a measured parent; retrieve cached errors and successful controls.</li>
+<li>&nbsp;&nbsp;For recombination, choose a complementary measured donor.</li>
+<li>&nbsp;&nbsp;Generate a bounded edit or a valid demonstration variation.</li>
+<li>&nbsp;&nbsp;Reject invalid, cached or duplicate proposals; retry within the shared limit.</li>
+<li>&nbsp;&nbsp;Admit only a candidate whose complete missing search predictions fit.</li>
+<li>&nbsp;&nbsp;Evaluate every search row and require the original fairness readiness.</li>
+<li>&nbsp;&nbsp;Apply NSGA-II survival; retain the measured parent archive.</li>
+<li>&nbsp;&nbsp;Record all objective changes; update strategy credit from actual outcomes.</li>
+<li>Reclaim the shared reserve when eligible; freeze the final search-selected shortlist.</li>
+<li>Evaluate the frozen prompts on held-out validation in a separate stage.</li></ol>
+
+<h2>4. Research reviewed and what was adopted</h2>
+<table><tr><th>Source</th><th>Relevant idea and implementation decision</th></tr>
+<tr><td><a href="https://arxiv.org/abs/2605.18869">MO-CAPO, 2026</a> · <a href="https://github.com/mo374z/mo-capo">code</a></td><td>Reviewed the full-evaluation baseline and progressive intensification code. Shared caching and complete final assessment are retained. No claim of reproducing MO-CAPO racing in v8.9.</td></tr>
+<tr><td><a href="https://arxiv.org/html/2503.01163v1">OPTS, 2025</a> · <a href="https://github.com/shiralab/OPTS">code</a></td><td>Explicit strategy selection replaces an implicit or fixed strategy schedule. The original single-score reward is replaced by an openly documented cost-discounted multi-objective contribution signal.</td></tr>
+<tr><td><a href="https://arxiv.org/pdf/2309.08532">EvoPrompt, ICLR 2024</a> · <a href="https://github.com/beeevita/EvoPrompt">code</a></td><td>LLM-based recombination motivates an optional proposal arm. Its donor uses cached complementary successes. This is not the complete EvoPrompt-DE algorithm.</td></tr>
+<tr><td><a href="https://github.com/scb-10x/apo">scb-10x APO</a> and <a href="https://arxiv.org/abs/2305.03495">ProTeGi/APO, 2023</a></td><td>Use observed errors to propose edits while retaining successful controls. No new API, trained reward model, agent pipeline or external implementation was copied.</td></tr>
+<tr><td><a href="https://link.springer.com/chapter/10.1007/978-3-032-23607-4_11">CLIP Prompt Optimization, 2026</a></td><td>Publisher abstract inspected; full chapter was not accessible. Its vision-language similarity setup does not directly justify replacing this study's classification/fairness objectives or increasing the population.</td></tr>
+<tr><td><a href="https://cameronrwolfe.substack.com/p/automatic-prompt-optimization">Automatic Prompt Optimization overview</a></td><td>Used for background and primary-source navigation. Technical choices above are grounded in the primary papers and inspected code.</td></tr></table>
+<p>Exact inspected repository revisions and scope are in <a href="research_sources.json">research_sources.json</a>. The four primary references are supplied in <code>research/references_v89.bib</code>.</p>
+
+<h2>5. Figures: separate panels, solid lines</h2>
+<p>The new renderer uses one method per row and one dataset per column, with common scales within a dataset. It removes overlaid endpoint symbols and dotted method trajectories. Historical mean curves remain unsmoothed staircases. Sample SD is shown only when multiple seeds have common observed support. Final audited fronts use labelled rows, separately from historical curves.</p>
+<p>Few-shot plots use marker shapes for shot count, eliminating crowded number annotations. Viridis shows the true output-token fraction on one shared observed scale across all panels, explicitly labelled. Method colours remain black, orange, purple, green and pink. Cost is labelled <strong>Avg. Cost [$] per 1M Calls</strong>, and token axes use <strong>Token Budget [×10⁶]</strong>.</p>
+<figure><a href="preview_v88/trajectory_nR2_small_multiples.pdf"><img src="preview_v88/trajectory_nR2_small_multiples.png" alt="Solid-line nR2 method panels from original v8.8 results"></a><figcaption>Preview from the existing v8.8 60-run archive, not a prediction or measurement of v8.9 performance. PDF and SVG copies are included.</figcaption></figure>
+<figure><a href="preview_v88/fewshot_cost_quality_small_multiples.pdf"><img src="preview_v88/fewshot_cost_quality_small_multiples.png" alt="Separate method panels, marker shapes for shot counts and colour for measured token share"></a><figcaption>All saved final candidates are retained. Shape replaces overlapping shot-number labels; axes and colour bars retain actual units.</figcaption></figure>
+<p>Figure inputs are <code>measured_final_indicators.csv</code>, <code>measured_historical_trajectories.csv</code> and <code>fewshot_measured_points.csv</code>. In your existing run they are under:</p>
+<pre>results/tri_fair_v88_three_seed_2000000/batch_20261020T085938_13348/
+  aggregate_validation/qwen-3-30b/paper_figures/</pre>
+<p>Regenerate the old data with the new layout without any GPU work:</p>
+<pre>python research/plot_v89.py \
+  --source-csv results/tri_fair_v88_three_seed_2000000/batch_20261020T085938_13348/aggregate_validation/qwen-3-30b/paper_figures \
+  --output-dir results/tri_fair_v88_three_seed_2000000/batch_20261020T085938_13348/aggregate_validation/qwen-3-30b/paper_figures_faceted</pre>
+
+<h2>6. Apply locally, test, push, then pull on Rocket</h2>
+<p>This ZIP is an overlay for the current repository, based on commit <code>20b6641985b66715d1d256584a4821d0402f276b</code>. It contains no Markdown or text files. Historical methods remain addressable for reproducing old outputs; only v8.9 is used as Tri-Fair in the new pilot. Existing results are not overwritten or deleted. Keep your current venv and package versions.</p>
+<p>In PyCharm's PowerShell terminal, with earlier work committed:</p>
+<pre>cd C:\Users\maheshwari\PycharmProjects\Tri_Fair_V8_Clean
+git pull --ff-only
+if ($LASTEXITCODE -ne 0) { throw "Git pull failed; resolve before applying." }
+
+Expand-Archive -LiteralPath "$HOME\Downloads\Tri_Fair_V89_Budget_Strategy_Figures_Upgrade.zip" -DestinationPath . -Force
+
+.\.venv312\Scripts\python.exe tools\verify_v89_upgrade.py
+if ($LASTEXITCODE -ne 0) { throw "Upgrade verification failed." }
+.\.venv312\Scripts\python.exe -m pytest tests/test_v89_upgrade.py -q
+if ($LASTEXITCODE -ne 0) { throw "Tests failed; do not push." }
+
+git add -- src/tri_fair/config/registry.py src/tri_fair/config/study.py src/tri_fair/cli/pilot.py src/tri_fair/cli/pilot_v89.py src/tri_fair/optimizers/budget_fill.py src/tri_fair/optimizers/adaptive.py configs/v89_budget_fill.json jobs/submit_pilot_v89.sh jobs/pilot_v89.sbatch jobs/pilot_v89_report.sbatch research/run_pilot_v89.py research/plot_v89.py research/references_v89.bib tests/test_v89_upgrade.py tools/verify_v89_upgrade.py UPGRADE_V89.json review/v89
+git diff --cached --stat
+git commit -m "Fix matched budget filling and add adaptive Tri-Fair v8.9 pilot"
+if ($LASTEXITCODE -ne 0) { throw "Commit failed." }
+git push origin main
+if ($LASTEXITCODE -ne 0) { throw "Push failed; do not pull on Rocket yet." }</pre>
+<p>Then on Rocket:</p>
+<pre>cd ~/Tri_Fair_V8
+git pull --ff-only
+source "$HOME/venvs/tri-fair-v8/bin/activate"
+python tools/verify_v89_upgrade.py
+
+unset NODELIST GPU_TYPE PILOT_GPU_TYPE PILOT_RESULTS_ROOT SEED SBATCH_NODELIST SBATCH_GPUS_PER_TASK
+
+MODEL=qwen-3-30b PILOT_SEEDS=72 PILOT_BUDGET=2000000 \
+MAX_CONCURRENT=5 DRY_RUN=1 bash jobs/submit_pilot_v89.sh
+
+# Submit after the dry-run plan is correct:
+MODEL=qwen-3-30b PILOT_SEEDS=72 PILOT_BUDGET=2000000 \
+MAX_CONCURRENT=5 DRY_RUN=0 bash jobs/submit_pilot_v89.sh</pre>
+<p><strong>Expected:</strong> 4 dataset tasks × 5 methods = 20 optimizer runs, then 4 held-out validation tasks and one CPU report. Five methods run sequentially inside each dataset task. Therefore seed72 alone can use at most four GPUs; <code>%5</code> is a concurrency ceiling, not a request for an extra task. The allowed nodes remain Pegasus2, Firefly1–3 and Shepard2. Scheduling on several nodes is not guaranteed.</p>
+<p>The new default results root is <code>results/tri_fair_v89_matched_2000000/batch_...</code>. Submission prints the three job IDs. Inspect them with:</p>
+<pre>sacct -X --array -j TRAIN_JOB,VALIDATION_JOB,REPORT_JOB \
+  --format=JobID,JobName,State,Elapsed,ExitCode</pre>
+<p>Replace the three placeholders. Do not change frozen source files while a batch is active. The runner refuses mixed source/package fingerprints and incompatible seed settings. A validation dependency waits for all requested training tasks.</p>
+
+<h2>7. What to inspect before spending more</h2>
+<table><tr><th>Question</th><th>Output relative to the new batch</th></tr>
+<tr><td>Actual budget use, including meta-generation</td><td><code>aggregate_validation/qwen-3-30b/budget_utilization_all_runs.csv</code> and <code>budget_readiness.json</code></td></tr>
+<tr><td>Held-out quality, cost, unfairness, HVopt, HVpes, nR2</td><td><code>aggregate_validation/qwen-3-30b/front_indicators_per_seed.csv</code> and <code>front_indicators_summary.csv</code></td></tr>
+<tr><td>Raw held-out evaluations</td><td><code>heldout_validation/qwen-3-30b/DATASET/seed72/eval_checkpoints_union.parquet</code></td></tr>
+<tr><td>Why proposals did not consume budget</td><td>Each method's <code>run/proposal_admission.jsonl</code>, <code>budget_summary.json</code> and <code>run_summary.json</code></td></tr>
+<tr><td>Whether fairness edits really helped</td><td>Tri-Fair's <code>run/operator_outcomes.jsonl</code> and saved strategy states</td></tr>
+<tr><td>Exact plotted values and layout provenance</td><td><code>aggregate_validation/qwen-3-30b/paper_figures/</code>, containing the three measured CSVs and <code>figure_provenance.json</code></td></tr></table>
+<p>Exact 100% expenditure is neither guaranteed nor a scientific goal: the final complete candidate may not fit. The pilot reports a 90% utilization diagnostic and all actual expenditure. A proposal retry limit is kept distinct from a true observed affordability rejection. No extra repeated evaluations are added to make a budget bar look full.</p>
+<p>The optimization cap applies to downstream inference. Meta tokens and a configured token-price estimate including meta-generation are separately reported. Deployment cost retains the study's existing mean raw task-input/output convention, which omits the default system string and serialized chat-template overhead. It is not an invoice or a complete physical GPU-cost measurement. Changing that objective would require a separately versioned, shared metric study.</p>
+<p>Only if seed72 held-out fronts and utilization support further work should you freeze this configuration and run additional seeds. The launcher also supports <code>PILOT_SEEDS=73,74</code> for a new batch. Do not casually merge different source hashes. The current helper deliberately rejects 5M; a final study should be explicitly frozen and reviewed separately.</p>
+<p>Previously inspected validation results are development evidence. Keep the final test set sealed until the method and selection policy are fixed. One seed cannot establish significance; three seeds still provide limited evidence. Higher search HV, better utilization and more elaborate operators do not guarantee better held-out fairness.</p>
+
+<h2>8. Validation and scope</h2>
+<p id="validation-result">129 core/runner/reporting tests passed. The latest focused suite, including the added single-seed SD check, passed 35 tests. These suites overlap and must not be added as independent test counts. Final CPU validation details are supplied in <code>validation/summary.json</code> and <code>validation/final_cpu_validation.xml</code>. Tests cover the actual empty-proposal regression, all four baseline selectors, full-coverage token admission, cache-only retries, reserve reclamation, strategy credit, checkpoint restoration, public train runner and held-out reporting. No real Qwen GPU evaluation was performed here.</p>
+<p>All twelve protected baseline/data/metric/finalization files pass their original integrity checks. The new protocol uses additive subclasses; only registration/profile/pilot plumbing changes in existing files. The original baseline proposal and selector bodies are byte-identical. A fresh five-method comparison is required because the shared execution protocol changed.</p>
+</main></html>

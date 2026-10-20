@@ -1,0 +1,72 @@
+[
+  {
+    "name": "Tri_Fair_V8",
+    "url": "https://github.com/vikashmaheshwari97/Tri_Fair_V8",
+    "commit": "20b6641985b66715d1d256584a4821d0402f276b",
+    "reviewed": "all package source plus affected tests and launch/report code"
+  },
+  {
+    "name": "MO-CAPO",
+    "url": "https://github.com/mo374z/mo-capo",
+    "paper": "https://arxiv.org/abs/2605.18869",
+    "commit": "265848bb6e0482ab7ef11028d0b8483f6560e724",
+    "reviewed": [
+      "src/mo_capo.py",
+      "src/nsgaii_po.py",
+      "paper Algorithms 1/2 supplied in user context and retrieved PDF"
+    ],
+    "adoption": "Shared history/complete final evaluation principles retained. Progressive racing is NOT claimed or enabled in v8.9."
+  },
+  {
+    "name": "OPTS",
+    "url": "https://github.com/shiralab/OPTS",
+    "paper": "https://arxiv.org/html/2503.01163v1",
+    "commit": "934b6f333daa50ebe4de77cbc0883464541f7cce",
+    "reviewed": [
+      "README.md",
+      "popt/opts.py",
+      "paper method and algorithm"
+    ],
+    "adoption": "Explicit strategy selection and exploration. Original adaptation uses cost-discounted search-HV contribution, not the paper's single accuracy reward. Fractional Beta updates are a heuristic, not a calibrated success posterior."
+  },
+  {
+    "name": "EvoPrompt",
+    "url": "https://github.com/beeevita/EvoPrompt",
+    "paper": "https://arxiv.org/pdf/2309.08532",
+    "commit": "94caff336555df99acc5c338c7930c40cc550ad9",
+    "reviewed": [
+      "evoluter.py",
+      "paper method and algorithm"
+    ],
+    "adoption": "A recombination proposal arm with a cached complementary donor; not a full reproduction of EvoPrompt-DE."
+  },
+  {
+    "name": "scb-10x APO",
+    "url": "https://github.com/scb-10x/apo",
+    "commit": "a4fe925c4c1748915b78227468e13f9d4fa7bb65",
+    "reviewed": [
+      "README.md",
+      "src/optimization/optimizer.py",
+      "src/optimization/gradient_generator.py"
+    ],
+    "adoption": "Positive controls alongside error feedback; no agent-task pipeline, API dependency or code copied."
+  },
+  {
+    "name": "ProTeGi/APO primary paper",
+    "url": "https://arxiv.org/abs/2305.03495",
+    "reviewed": "abstract/method description",
+    "adoption": "Error-guided edits with bounded success-preserving controls; no claim of reproducing the entire beam/bandit algorithm."
+  },
+  {
+    "name": "CLIP Prompt Optimization with Evolutionary-Driven LLMs",
+    "url": "https://link.springer.com/chapter/10.1007/978-3-032-23607-4_11",
+    "reviewed": "publisher abstract only; full chapter not accessible",
+    "adoption": "No CLIP similarity objective or population-size change transferred to this classification study."
+  },
+  {
+    "name": "Automatic Prompt Optimization overview",
+    "url": "https://cameronrwolfe.substack.com/p/automatic-prompt-optimization",
+    "reviewed": "overview and linked primary methods",
+    "adoption": "Background navigation only; primary papers support technical choices."
+  }
+]

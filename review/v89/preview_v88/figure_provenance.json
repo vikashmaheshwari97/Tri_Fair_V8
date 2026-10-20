@@ -1,0 +1,26 @@
+{
+  "source_csv_directory": "/workspace/scratch/c555a19106ea/v88_60_analysis/input/results/tri_fair_v88_three_seed_2000000/batch_20261020T085938_13348/aggregate_validation/qwen-3-30b/paper_figures",
+  "source_sha256": {
+    "measured_final_indicators.csv": "5f3efa1ce981896466ba765f47243735e96ee02affcb2b188a17bec72a62e46f",
+    "measured_historical_trajectories.csv": "e18d402800f0a8d59c70c8e7b30e9c1cf1fdb0aa310d9ab227cf4d6b33a67dd4",
+    "fewshot_measured_points.csv": "4acbb26ca6da7e3ff87a33f626eb7ba83ac7f40e1ce788bfb088aad2b31e615f"
+  },
+  "figures": [
+    "trajectory_nR2_small_multiples",
+    "trajectory_HVpes_small_multiples",
+    "final_front_indicators_named_rows",
+    "balanced_objectives_named_rows",
+    "fewshot_cost_quality_small_multiples"
+  ],
+  "model": "qwen-3-30b",
+  "split": "validation",
+  "budget": 2000000,
+  "metric_values_modified": false,
+  "history_interpolation": "previous observation only within common observed support",
+  "bands": "sample SD; not CI",
+  "all_trajectory_lines_solid": true,
+  "fewshot_colour_limits": [
+    0,
+    0.13
+  ]
+}

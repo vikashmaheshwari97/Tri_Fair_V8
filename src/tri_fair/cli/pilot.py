@@ -96,6 +96,15 @@ def train_command(args, method, root):
         command.append("--structured-labels")
     if getattr(args, "batch_invariant", False):
         command.append("--batch-invariant")
+    if getattr(args, "budget_fill", False):
+        command.extend(
+            [
+                "--optimizer-overrides",
+                str(
+                    Path(__file__).resolve().parents[3] / "configs/v89_budget_fill.json"
+                ),
+            ]
+        )
     return command
 
 
@@ -375,6 +384,7 @@ def main(
             "search_budget_tokens": int(args.budget * (1 - args.final_search_reserve)),
             "audit_is_included_in_total_cap": True,
             "reclaim_audit_reserve": args.reclaim_audit_reserve,
+            "budget_fill": bool(getattr(args, "budget_fill", False)),
         },
         "units": {
             "quality": "fraction",
