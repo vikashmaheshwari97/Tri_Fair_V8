@@ -20,6 +20,7 @@ import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
 from tri_fair.reporting.front_report import analyse
 from tri_fair.reporting.research_figures import final_rows, trajectory_rows
+from figure_style_v88 import extra_figures
 
 DATASETS = {
     "bbq": "BBQ",
@@ -28,13 +29,13 @@ DATASETS = {
     "winobias": "WinoBias",
 }
 STYLE = {
-    "Tri-Fair-v8.8": ("Tri-Fair", "#006D77", "o"),
+    "Tri-Fair-v8.8": ("Tri-Fair", "#000000", "o"),
     "Tri-Fair-v8.7": ("Tri-Fair", "#006D77", "o"),
     "Tri-Fair-v8.6": ("Tri-Fair", "#006D77", "o"),
-    "NSGAIII-PO-Fair": ("NSGA-III-PO-Fair", "#C4622D", "s"),
-    "SPEA2-PO-Fair": ("SPEA2-PO-Fair", "#7B4AA3", "^"),
-    "RandomSearch-PO-Fair": ("Random Search", "#3B5B92", "D"),
-    "NSGAII-PO-Fair": ("NSGA-II-PO-Fair", "#B58A00", "v"),
+    "NSGAIII-PO-Fair": ("NSGA-III-PO-Fair", "#785EF0", "^"),
+    "SPEA2-PO-Fair": ("SPEA2-PO-Fair", "#009E73", "D"),
+    "RandomSearch-PO-Fair": ("Random Search", "#CC79A7", "v"),
+    "NSGAII-PO-Fair": ("NSGA-II-PO-Fair", "#E69F00", "s"),
 }
 
 
@@ -119,8 +120,7 @@ def make_figures(
     trajectory.to_csv(output_dir / "measured_historical_trajectories.csv", index=False)
     plt.rcParams.update(
         {
-            "font.family": "serif",
-            "font.serif": ["DejaVu Serif"],
+            "font.family": "DejaVu Sans",
             "font.size": 11,
             "axes.labelsize": 12,
             "axes.labelweight": "bold",
@@ -263,7 +263,9 @@ def make_figures(
                 )
             qlabel = "Macro-F1 (%)" if ds == "bias_in_bios" else "Accuracy (%)"
             ax.set_xlabel(
-                "Inference cost score" if x.endswith("cost") else "Unfairness ceiling"
+                "Avg. Cost [$] per 1M Calls"
+                if x.endswith("cost")
+                else "Unfairness ceiling"
             )
             ax.set_ylabel(qlabel if y.endswith("quality_percent") else "Unfairness")
         footer = f"{model} | Held-out {split} | " + (
@@ -359,9 +361,7 @@ def make_figures(
                     lw=1.6,
                     zorder=5,
                 )
-            ax.set(
-                xlim=(0, budget / 1e6), xlabel="Downstream tokens (×10⁶)", ylabel=title
-            )
+            ax.set(xlim=(0, budget / 1e6), xlabel="Token Budget [×10⁶]", ylabel=title)
         save(
             fig,
             name,
@@ -372,6 +372,22 @@ def make_figures(
                 else "Historical mean ± sample SD on common support."
             ),
         )
+    made.extend(
+        extra_figures(
+            final,
+            trajectory,
+            indicators,
+            output_dir,
+            datasets=datasets,
+            methods=methods,
+            style=STYLE,
+            names=DATASETS,
+            split=split,
+            model=model,
+            budget=budget,
+            formats=formats,
+        )
+    )
     pd.DataFrame(support).to_csv(output_dir / "attainment_support.csv", index=False)
     provenance = dict(
         model=model,
@@ -392,6 +408,8 @@ def make_figures(
             "Two-objective quality-cost projection ignores unfairness; see fixed fairness slices",
             "Fixed Tri-Fair bounds and 4096 seeded three-objective preferences retained; not MO-CAPO two-objective numbers",
             "No post-run selection of a winning method, threshold or seed; no model calls",
+            "MO-CAPO exact method palette and viridis output-token share; symbols remapped to Tri-Fair study methods",
+            "Cost axis is the configured model price estimate per million calls, not observed HPC charges",
         ],
         sources=[
             dict(path=str(p), sha256=hashlib.sha256(p.read_bytes()).hexdigest())
@@ -433,4 +451,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

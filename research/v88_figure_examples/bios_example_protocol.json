@@ -1,0 +1,47 @@
+{
+  "model": "qwen-3-30b",
+  "split": "validation",
+  "budget": 2000000,
+  "seeds": [
+    72
+  ],
+  "figures": [
+    "attainment_quality_cost",
+    "attainment_unfairness_cost",
+    "attainment_fairness_010",
+    "attainment_fairness_020",
+    "attainment_fairness_030",
+    "trajectory_nR2",
+    "trajectory_HVpes",
+    "bias_in_bios_reference_panels",
+    "final_front_indicators",
+    "fewshot_Tri-Fair-v8.8",
+    "fewshot_NSGAIII-PO-Fair",
+    "fewshot_SPEA2-PO-Fair",
+    "fewshot_RandomSearch-PO-Fair",
+    "fewshot_NSGAII-PO-Fair"
+  ],
+  "source_repository": "https://github.com/mo374z/mo-capo",
+  "source_commit": "265848bb6e0482ab7ef11028d0b8483f6560e724",
+  "inspected_functions": [
+    "plot_trajectory_single",
+    "plot_eaf_with_bands",
+    "calculate_nR2"
+  ],
+  "notes": [
+    "Original rendering code; MO-CAPO visual conventions adapted to measured three-objective results",
+    "One seed has no cross-seed bands; no synthetic initial baseline",
+    "Two-objective quality-cost projection ignores unfairness; see fixed fairness slices",
+    "Fixed Tri-Fair bounds and 4096 seeded three-objective preferences retained; not MO-CAPO two-objective numbers",
+    "No post-run selection of a winning method, threshold or seed; no model calls",
+    "MO-CAPO exact method palette and viridis output-token share; symbols remapped to Tri-Fair study methods",
+    "Cost axis is the configured model price estimate per million calls, not observed HPC charges"
+  ],
+  "sources": [
+    {
+      "path": "/workspace/scratch/c555a19106ea/v88_three_seed_work/real_bios_preview/heldout_validation/qwen-3-30b/bias_in_bios/seed72/eval_checkpoints_union.parquet",
+      "sha256": "7552d5b46f02221c452a0cf06fcbef200799a59f3fc44ef14939460ade396bc1"
+    }
+  ],
+  "example_scope": "Real Bios seed72 validation only; job 2848816. Not a four-dataset or three-seed result."
+}

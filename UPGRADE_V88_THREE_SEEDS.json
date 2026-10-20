@@ -1,0 +1,57 @@
+{
+  "base_commit": "769b8027a62a7760e3153c9e1af11413d7a18978",
+  "method": "Tri-Fair-v8.8",
+  "optimizer_changes": false,
+  "baseline_changes": false,
+  "source_files_replaced": false,
+  "seeds": [
+    72,
+    73,
+    74
+  ],
+  "datasets": [
+    "bbq",
+    "civil_comments",
+    "bias_in_bios",
+    "winobias"
+  ],
+  "methods": [
+    "Tri-Fair-v8.8",
+    "NSGAII-PO-Fair",
+    "NSGAIII-PO-Fair",
+    "SPEA2-PO-Fair",
+    "RandomSearch-PO-Fair"
+  ],
+  "model": "qwen-3-30b",
+  "budget_per_method": 2000000,
+  "optimizer_runs": 60,
+  "array": "0-11%5",
+  "batch_invariance": "enabled for all new training and evaluation runs",
+  "existing_results_reused": false,
+  "existing_results_deleted": false,
+  "mocapo_visual_source_commit": "265848bb6e0482ab7ef11028d0b8483f6560e724",
+  "verification": {
+    "focused_cpu_tests": "16 passed",
+    "additional_plot_regression_checks": "2 passed",
+    "bash_syntax": "passed",
+    "ruff": "passed",
+    "baseline_rendering_preflight": "passed: 12 protected files unchanged",
+    "real_Bios_figure_rendering": "passed; real job 2848816",
+    "dense_four_panel_layout": "passed with synthetic layout-only input; excluded from package",
+    "live_gpu_or_slurm_execution": "not available"
+  },
+  "files": {
+    "jobs/submit_three_seed_v88.sh": "1d2949e8d78ea0107525d074ce58ddac4237452cd91fb6f8fedc7963a05037de",
+    "jobs/three_seed_v88.sbatch": "492c0092ef730bfb329c3e6734fc31368af9a2df039ab36df4f57063ed1ad3d7",
+    "jobs/three_seed_v88_report.sbatch": "f7a4ec2cbc283d7d35153e9ad54f28fa6401eea4b4234529d59e5fa530d3437b",
+    "jobs/submit_three_seed_v88_postprocess.sh": "e8bbf4a03879203bf9564f01ca1022ffd002c687f459a73654ed2788ecb177ca",
+    "research/run_three_seed_v88.py": "831cb1893600abbf29d8caa8f99d3d9e58b96cb4dae25be8cb25f29722ed12b0",
+    "research/plot_mocapo_style.py": "c54deb55f6e0fa8342f1e85a024e494df366c6aacb6e481376dc29b5668c2479",
+    "research/figure_style_v88.py": "e4d6bb11b283bc6f04d60c655da4fc1ee74481041eb273fe2065be82ebed232c",
+    "research/V88_Three_Seed_Run.html": "bd447db82ce58169283644bce89f22b261f0e1784d1db3e629c4a129dc817a42",
+    "tests/test_three_seed_v88.py": "abec1877748044d22d677e104a1c564aee72d53fff985a052a33769d7c9471a3",
+    "research/v88_figure_examples/bias_in_bios_reference_panels.png": "97f1e481c3c95cd2f19a62666ec5c0b652112637e8c08e3da02d91ac554732c7",
+    "research/v88_figure_examples/fewshot_Tri-Fair-v8.8.png": "fec686c412b70eaaa3eecd374eece1b778d70002806fa17b19f50791796c9081",
+    "research/v88_figure_examples/bios_example_protocol.json": "a2d9745795dc131671cf07edbbca8e7994fb6bf3aca73b855fbd9db9e83f329c"
+  }
+}

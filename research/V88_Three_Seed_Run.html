@@ -1,0 +1,46 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><title>Tri-Fair v8.8: matched three-seed run</title>
+<style>body{max-width:1000px;margin:3rem auto;padding:0 1rem;font:17px/1.6 system-ui;color:#172b3a}h1,h2{color:#114f63}pre{background:#f0f4f7;padding:1rem;white-space:pre-wrap;overflow-wrap:anywhere;font-size:14px}table{border-collapse:collapse;width:100%}td,th{padding:.5rem;border:1px solid #ccd7df;text-align:left}code{font-size:.9em}</style>
+<h1>Matched Qwen run: 4 datasets × 3 seeds × 5 methods</h1>
+<p>This patch adds orchestration and measured figures. Tri-Fair-v8.8 and all baseline algorithms, scoring, search partitions and final-audit settings remain unchanged. It enables batch invariance consistently for every new method/run and its held-out validation. The completed earlier batches remain separate.</p>
+<table><tr><th>Setting</th><th>Frozen value</th></tr><tr><td>Model</td><td>qwen-3-30b</td></tr><tr><td>Datasets</td><td>BBQ, Civil Comments, Bias-in-Bios, WinoBias</td></tr><tr><td>Seeds</td><td>72, 73, 74</td></tr><tr><td>Methods</td><td>Tri-Fair-v8.8, NSGAII-PO-Fair, NSGAIII-PO-Fair, SPEA2-PO-Fair, RandomSearch-PO-Fair</td></tr><tr><td>Budget</td><td>2,000,000 downstream tokens per method, including search and final audit</td></tr><tr><td>Total</td><td>60 optimizer runs; 120M downstream-token ceiling, plus separately logged meta-model and validation tokens</td></tr><tr><td>Scheduling</td><td>12 seed/dataset tasks, array 0-11%5; one GPU per task; five methods sequentially within each task</td></tr><tr><td>GPU eligibility</td><td>Pegasus2, Firefly1–3, Shepard2 via exclusions and an existing node guard. Scheduler chooses placement; five is the concurrency ceiling, not a reservation of five GPUs or one GPU on each node.</td></tr></table>
+<h2>Apply in PyCharm PowerShell</h2>
+<pre>cd C:\Users\maheshwari\PycharmProjects\Tri_Fair_V8_Clean
+git pull --ff-only
+Expand-Archive -LiteralPath "$HOME\Downloads\Tri_Fair_V88_Three_Seeds_Figures_Fix.zip" -DestinationPath . -Force
+.\.venv312\Scripts\python.exe -m pytest tests/test_three_seed_v88.py -q
+git diff --stat
+git add jobs/submit_three_seed_v88.sh jobs/three_seed_v88.sbatch jobs/three_seed_v88_report.sbatch jobs/submit_three_seed_v88_postprocess.sh research/run_three_seed_v88.py research/plot_mocapo_style.py research/figure_style_v88.py research/V88_Three_Seed_Run.html research/v88_figure_examples tests/test_three_seed_v88.py UPGRADE_V88_THREE_SEEDS.json
+git commit -m "Add matched three-seed v8.8 matrix and MO-CAPO style figures"
+git push origin main</pre>
+<p>The Git base inspected was <code>769b8027a62a7760e3153c9e1af11413d7a18978</code>. Existing module activation helpers must already be present from that commit. The provided CPU tests run without a GPU; three Bash integration cases are skipped on Windows.</p>
+<h2>Pull and submit on Rocket</h2>
+<pre>cd ~/Tri_Fair_V8
+git pull --ff-only
+source "$HOME/venvs/tri-fair-v8/bin/activate"
+unset NODELIST GPU_TYPE PILOT_GPU_TYPE PILOT_RESULTS_ROOT SEED SBATCH_NODELIST
+MODEL=qwen-3-30b PILOT_SEEDS=72,73,74 PILOT_BUDGET=2000000 MAX_CONCURRENT=5 DRY_RUN=1 bash jobs/submit_three_seed_v88.sh
+MODEL=qwen-3-30b PILOT_SEEDS=72,73,74 PILOT_BUDGET=2000000 MAX_CONCURRENT=5 DRY_RUN=0 bash jobs/submit_three_seed_v88.sh</pre>
+<p>The first command prints the plan and submits nothing. The second creates a fresh batch and prints training, validation and report job IDs. Training must finish before validation begins; validation must finish before aggregation. Consequently their concurrency limits do not add together. A failed dependency cancels its dependent job instead of leaving it pending indefinitely.</p>
+<p>Do not install packages, edit source/job/plot files or pull further code changes while this batch runs. Source/job/plot fingerprints, package versions and existing split hashes are checked against <code>matrix_config.json</code>. A mismatch stops the job. Existing optimizer repeatability checks and fairness-readiness gates remain mandatory; they are not suppressed by this patch.</p>
+<h2>Monitor</h2>
+<pre>squeue -r -u "$USER" -o "%.18i %.20j %.2t %.10M %.30R"
+sacct -X --array -j TRAIN_ID,VALIDATION_ID,REPORT_ID --format=JobID,State,Elapsed,ExitCode</pre>
+<p>Replace the three IDs with those printed by the submitter. Job logs are <code>logs/three88_ARRAYID_TASKID.out</code> and <code>.err</code>; the report log is <code>logs/three88_report_JOBID.out</code>. Each array has 12 tasks, not 60 tasks. Task indices 0–3 use seed72; 4–7 seed73; 8–11 seed74; dataset order is BBQ, Civil Comments, Bias-in-Bios, WinoBias.</p>
+<h2>Results and figures</h2>
+<p>The exact batch root is printed at submission and saved with <code>submission_jobs.json</code>. Its default prefix is <code>results/tri_fair_v88_three_seed_2000000/batch_...</code>. Training checkpoints remain under <code>qwen-3-30b/DATASET/seedSEED/TIMESTAMP/METHOD/run/</code>. Validation membership Parquets are under <code>heldout_validation/qwen-3-30b/DATASET/seedSEED/eval_checkpoints_union.parquet</code>.</p>
+<p>Aggregated files are under <code>aggregate_validation/qwen-3-30b/</code>: <code>front_indicators_per_seed.csv</code> (60 runs), <code>front_indicators_summary.csv</code> (20 method/dataset groups), and <code>aggregate_protocol.json</code>. Legacy columns named <code>balanced_test_*</code> describe validation here: inspect the explicitly saved <code>evaluation_split</code>.</p>
+<p><code>paper_figures/</code> contains PNG, PDF and editable SVG exports: one four-panel reference figure per dataset; quality–cost attainment and fixed-fairness slices; nR2/HVpes token-budget trajectories; final HVopt/HVpes/nR2 comparisons; and a separate four-dataset few-shot figure for each method. The requested labels are <b>Token Budget [×10⁶]</b> and <b>Avg. Cost [$] per 1M Calls</b>.</p>
+<p>CSV sources alongside the figures: <code>measured_final_indicators.csv</code>, <code>measured_historical_trajectories.csv</code>, <code>fewshot_measured_points.csv</code>, and <code>attainment_support.csv</code>. <code>plot_protocol.json</code> records input checksums and visual/metric conventions. Few-shot colour is measured output/(input+output) tokens on a fixed viridis 0–1 scale; it is not unfairness or cost share. Numbers show actual demonstration counts. Crowded labels are displaced with leader lines to the original points.</p>
+<p>Cost means the configured token-price estimate per million calls, not actual cluster charges. For Qwen the existing weights are $0.11/M input tokens and $0.41/M output tokens; multiplying mean per-call token counts by those rates gives the plotted estimate per million calls. No pricing change or external current-price claim is made.</p>
+<p>Top attainment panels use median and seed range. Historical trajectories use mean ± sample SD on common observed support, without extrapolation to unused budget. One seed has no shaded variability band. Final front indicators use the existing fixed bounds and 4096 seeded preferences. These descriptive intervals are not significance tests.</p>
+<h2>Retry postprocessing without retraining</h2>
+<pre>export PILOT_RESULTS_ROOT="results/tri_fair_v88_three_seed_2000000/REPLACE_WITH_EXACT_BATCH"
+STAGE=evaluate DRY_RUN=1 bash jobs/submit_three_seed_v88_postprocess.sh
+STAGE=evaluate DRY_RUN=0 bash jobs/submit_three_seed_v88_postprocess.sh
+# If validation already completed and only the CPU report failed:
+STAGE=report DRY_RUN=0 bash jobs/submit_three_seed_v88_postprocess.sh</pre>
+<p>The evaluation retry requires all five completed training methods for each task and reuses compatible evaluation caches. It submits no training runs. If a training task failed, inspect its method logs first; this helper does not resume or silently replace failed optimization. The main submitter refuses an already existing batch directory.</p>
+<h2>Reference and verification</h2>
+<p>Visual source inspected: <a href="https://github.com/mo374z/mo-capo/blob/265848bb6e0482ab7ef11028d0b8483f6560e724/analysis/analysis_pipeline.py">MO-CAPO analysis pipeline</a>, especially its palette, trajectory, attainment and few-shot functions. Original plotting implementation here. Tri-Fair uses black #000000, NSGA-II orange #E69F00, NSGA-III purple #785EF0, SPEA2 green #009E73 and Random Search pink #CC79A7. The reference uses viridis for output-token share.</p>
+<p>The included Bios examples were rendered from your completed validation Parquet (job 2848816), not invented results. Checks passed: focused CPU tests, Bash syntax, Ruff, baseline/rendering preflight, real Bios figure rendering and a separate synthetic dense-layout test. GPU inference and live Slurm execution were not available here. This patch enables a matched repeat; it does not claim improved quality or statistical significance in advance.</p>
+</html>
