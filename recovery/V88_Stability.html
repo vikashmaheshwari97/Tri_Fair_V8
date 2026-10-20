@@ -1,0 +1,39 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><title>Tri-Fair v8.8 stability repair</title>
+<style>body{max-width:960px;margin:3rem auto;padding:0 1rem;font:17px/1.6 system-ui;color:#173044}h1,h2{color:#125b67}pre{background:#edf4f6;padding:1rem;white-space:pre-wrap;overflow-wrap:anywhere;font-size:14px}aside{border-left:4px solid #bd823b;padding:1rem;background:#fff8ec}</style>
+<h1>Tri-Fair v8.8: probe before training</h1>
+<p>The recovered model loaded successfully on firefly1. It stopped at the same gate as pegasus2: Bios example <code>dev|9162</code> received <code>professor</code> in one batch and <code>comedian</code> in the other order and alone. This failure occurs before optimizer search. Another GPU-only retry does not address the inference setting.</p>
+<p>This repair makes the existing batch-invariance option explicit from process startup, forwards it through the pilot, checks that recorded CLI settings agree with the environment, and applies the same profile to training and held-out evaluation. No optimizer, fairness metric, baseline logic, or reported result is changed.</p>
+<p>The probe runs the original mandatory gate twice on each of the four v8.8 initial prompts, including rendered demonstrations. It verifies the first prompt and eight search IDs against the old failed probe. A strict raw-output parser detects malformed labels instead of upstream's fallback to the first class. Every diagnostic call is charged against a separate 100K downstream-token cap, with at most 192 predictions. The model startup and kernel compilation still consume GPU time.</p>
+<aside>GPU execution has not been tested here. vLLM 0.24.0 documents batch invariance as beta. A finite probe pass does not prove universal determinism or better accuracy. There is no automatic fallback or automatic optimizer submission after the probe. A failure must remain a failure.</aside>
+<h2>1. Apply and test locally</h2>
+<p>Run in PowerShell from the PyCharm project root. The ZIP contains no Markdown or text files.</p>
+<pre>Expand-Archive -LiteralPath "$HOME\Downloads\Tri_Fair_V88_Stability_Fix.zip" -DestinationPath . -Force
+.\.venv312\Scripts\python.exe -m pytest tests/test_v88_stability.py tests/test_guarded_search.py tests/test_repaired_search.py tests/test_pilot_heldout.py tests/test_refinement_pilot.py -q
+git diff --stat
+git add src/tri_fair/runtime/inference_profile.py src/tri_fair/cli/train.py src/tri_fair/cli/evaluate.py src/tri_fair/cli/pilot.py recovery/v88_bios_stability.py recovery/V88_Stability.html jobs/bios_stability_v88.sbatch jobs/submit_bios_stability_v88.sh tests/test_v88_stability.py UPGRADE_V88_STABILITY.json
+git commit -m "Fix v8.8 inference profile and add probe-gated matched Bios recovery"
+git push origin main</pre>
+<h2>2. Pull and submit only the diagnostic</h2>
+<pre>cd ~/Tri_Fair_V8
+git pull --ff-only
+source "$HOME/venvs/tri-fair-v8/bin/activate"
+MODE=probe DRY_RUN=1 bash jobs/submit_bios_stability_v88.sh
+MODE=probe DRY_RUN=0 bash jobs/submit_bios_stability_v88.sh</pre>
+<p>The default original-probe path is the exact failed run in batch <code>batch_20261019T223036_12131</code>. If it was moved, set <code>ORIGINAL_PROBE</code> to the actual original JSON before submitting. The job requests one H200 and can run on any Firefly node. There is no array and no B200 request.</p>
+<p>The script prints the new proof path. Inspect the new job using its printed numeric job ID:</p>
+<pre>sacct -X -j REPLACE_WITH_PROBE_JOB_ID --format=JobID,State,Elapsed,ExitCode
+cat REPLACE_WITH_PRINTED_PROOF_PATH
+tail -n 100 logs/bios_stable88_REPLACE_WITH_PROBE_JOB_ID.err</pre>
+<p>Replace the placeholders; do not submit training unless Slurm says COMPLETED, exit code is 0:0, and proof says passed with eight scenarios, 192 predictions, and no disagreement. On failure, share the new proof, raw_outputs.json and job stderr. Do not repeatedly resubmit the same failed profile.</p>
+<h2>3. Only after a pass: five matched Bios methods</h2>
+<pre>export PROBE_PROOF="REPLACE_WITH_PRINTED_PROOF_PATH"
+MODE=train DRY_RUN=1 bash jobs/submit_bios_stability_v88.sh
+MODE=train DRY_RUN=0 bash jobs/submit_bios_stability_v88.sh</pre>
+<p>This submits one training job, with the five methods sequentially, then a dependent validation and figure job. It requests one H200 per job. Validation cannot start if training fails; invalid dependencies are cancelled. Before training and evaluation, the helper checks source, launcher, packages, frozen manifest, model configuration and failure-evidence hashes against the passing proof.</p>
+<p>Matched comparison: Tri-Fair-v8.8, NSGAII-PO-Fair, NSGAIII-PO-Fair, SPEA2-PO-Fair, RandomSearch-PO-Fair; Qwen; Bios; seed72; a 2M downstream cap per method. The new runtime profile applies to every method. Tri-Fair's own mandatory gate still runs inside its normal cap.</p>
+<p>The four old Bios baseline measurements use a different inference profile, so the new Bios comparison retrains them. The other three datasets and all original results remain intact. The helper does not merge old-profile results into the new comparison. Existing results can still be inspected as historical evidence. Do not start seeds73/74 or a 5M matrix until this run has been reviewed.</p>
+<p>New outputs: stable_profile.json, per-method pilot reports and checkpoints, ready_for_validation.json, held-out validation union, indicators including HV and nR2 where supported, and research figures. No significant performance advantage is established by one seed.</p>
+<h2>References and verification scope</h2>
+<p>Inspected repository commit: <code>9ccbaa907add4088738a2a8296aff23e430d4afd</code>. See <a href="https://github.com/vllm-project/vllm/blob/v0.24.0/docs/features/batch_invariance.md">vLLM 0.24.0 batch-invariance documentation</a> and <a href="https://docs.vllm.ai/en/stable/usage/reproducibility/">vLLM reproducibility</a>.</p>
+<p>CPU tests cover early environment initialization, profile mismatch rejection, forwarding for all five methods, strict parsing, the real gate with stable and batch-dependent fake inference, failed-proof rejection, and changed-source/split rejection. They do not validate Qwen or CUDA kernels.</p>
+</html>

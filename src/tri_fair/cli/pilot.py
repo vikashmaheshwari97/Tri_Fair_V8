@@ -94,6 +94,8 @@ def train_command(args, method, root):
         command.append("--reclaim-audit-reserve")
     if not getattr(args, "unconstrained_labels", False):
         command.append("--structured-labels")
+    if getattr(args, "batch_invariant", False):
+        command.append("--batch-invariant")
     return command
 
 
@@ -296,6 +298,7 @@ def main(
         choices=["qwen-3-30b", "mistral-3-24b", "gpt-oss-120b"],
     )
     parser.add_argument("--seed", type=int, default=72)
+    parser.add_argument("--batch-invariant", action="store_true")
     parser.add_argument("--budget", type=int, default=2000000)
     parser.add_argument("--n-init-prompts", type=int, default=4)
     parser.add_argument("--max-few-shot-examples", type=int, default=2)
@@ -360,6 +363,7 @@ def main(
         "methods": methods,
         "pilot_configuration": {
             "structured_labels": not args.unconstrained_labels,
+            "batch_invariant": args.batch_invariant,
             "max_idle_steps": 3,
             "max_search_steps": 200,
             "meta_max_output_tokens": 512,

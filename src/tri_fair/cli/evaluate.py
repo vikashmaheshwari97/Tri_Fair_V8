@@ -7,6 +7,15 @@ variation; GPU arithmetic can still depend on batch shape.
 """
 
 from __future__ import annotations
+# ruff: noqa: E402
+# Inference environment bootstrap must precede imports that load vLLM.
+from tri_fair.runtime.inference_profile import (
+    bootstrap_batch_invariance,
+    require_matching_profile,
+)
+
+bootstrap_batch_invariance()
+
 import argparse
 import json
 import logging
@@ -362,10 +371,7 @@ def run(args: argparse.Namespace) -> Path:
             model_config,
             llm_kwargs=dict(model_config.llm_kwargs, enable_prefix_caching=True),
         )
-    if getattr(args, "batch_invariant", False):
-        import os
-
-        os.environ["VLLM_BATCH_INVARIANT"] = "1"
+    require_matching_profile(getattr(args, "batch_invariant", False))
     code_root = Path(__file__).resolve().parents[3]
     evaluator_hash = sha256()
     for path in sorted((code_root / "src").rglob("*.py")):

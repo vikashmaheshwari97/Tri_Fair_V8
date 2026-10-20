@@ -1,4 +1,13 @@
 """Run a current Tri-Fair method with strict budgets and resumable checkpoints."""
+# ruff: noqa: E402
+# Inference environment bootstrap must precede imports that load vLLM.
+
+from tri_fair.runtime.inference_profile import (
+    bootstrap_batch_invariance,
+    require_matching_profile,
+)
+
+bootstrap_batch_invariance()
 
 from tri_fair.config.study import build_optimizer_registry
 import argparse
@@ -346,10 +355,7 @@ def run(args: argparse.Namespace, *, logging_dir: Path | None = None) -> Path:
             model_config,
             llm_kwargs=dict(model_config.llm_kwargs, enable_prefix_caching=True),
         )
-    if args.batch_invariant:
-        import os
-
-        os.environ["VLLM_BATCH_INVARIANT"] = "1"
+    require_matching_profile(args.batch_invariant)
     is_fairness_dataset = dataset_config.task_type == "Fairness"
     is_fairness_optimizer = args.optimizer in FAIRNESS_OPTIMIZERS
     if is_fairness_optimizer and (not is_fairness_dataset):

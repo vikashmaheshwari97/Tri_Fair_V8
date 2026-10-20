@@ -1,0 +1,48 @@
+{
+  "base_commit": "9ccbaa907add4088738a2a8296aff23e430d4afd",
+  "kind": "execution reliability repair, not an optimizer-quality upgrade",
+  "observed_failure": "identical Bios batch-order disagreement on pegasus2 and firefly1; dev|9162; professor versus comedian",
+  "changes": [
+    "src/tri_fair/runtime/inference_profile.py",
+    "src/tri_fair/cli/train.py",
+    "src/tri_fair/cli/evaluate.py",
+    "src/tri_fair/cli/pilot.py",
+    "recovery/v88_bios_stability.py",
+    "jobs/bios_stability_v88.sbatch",
+    "jobs/submit_bios_stability_v88.sh",
+    "tests/test_v88_stability.py"
+  ],
+  "optimizer_implementations_changed": false,
+  "baseline_implementations_changed": false,
+  "default_action": "probe only; no optimizer submission",
+  "diagnostic_prediction_ceiling": 192,
+  "diagnostic_downstream_token_ceiling": 100000,
+  "gpu_profile": "one H200 on any Firefly node",
+  "matched_followup": "only Bios, Qwen, seed72, five methods, 2M cap each, batch invariance on in training and held-out validation",
+  "old_results": "preserved, separate profile; no reuse of old Bios baselines in new matched comparison",
+  "gpu_validated": false,
+  "references": [
+    "https://github.com/vllm-project/vllm/blob/v0.24.0/docs/features/batch_invariance.md",
+    "https://docs.vllm.ai/en/stable/usage/reproducibility/"
+  ],
+  "verification": {
+    "targeted_search_pilot_reporting_suite": "58 passed",
+    "stability_integration_budget_suite": "53 passed (overlapping stability tests)",
+    "final_stability_suite": "11 passed",
+    "ruff": "passed",
+    "bash_syntax": "passed",
+    "actual_submit_helper_dry_run": "passed; no training submission",
+    "gpu_execution": "not available"
+  },
+  "sha256": {
+    "src/tri_fair/runtime/inference_profile.py": "a024abb217f3d8a621aeb3709136cca8175edff80de1cc6b0a3c38be269ba4b4",
+    "src/tri_fair/cli/train.py": "9641d5c3d792b3740b40efafa45772ad620c063dfbed55f2909ca6c25b487689",
+    "src/tri_fair/cli/evaluate.py": "5be58580f26509b378217de7a2676a1d5617f1776a529f913493d53365d70b37",
+    "src/tri_fair/cli/pilot.py": "164750be492e3e06b5307e06caa64224f336260eba4718165f0776de872a2411",
+    "recovery/v88_bios_stability.py": "17fd1d28ee0a4455992eedf70ea82dd3effbf577e12271b835bdc31190ea7ddb",
+    "jobs/bios_stability_v88.sbatch": "21559cb92eaaa3d7dd6d6eeec7490c58ace8afdee603932762057e740643c7cc",
+    "jobs/submit_bios_stability_v88.sh": "470953143627f03f8ddf7baf96a152219e91ca5c79bed91d0925ad8a5c7bd604",
+    "tests/test_v88_stability.py": "479df14c2dc802a27d250058bde7104dc90e456906bd5313d69bf3392f6ef0e9",
+    "recovery/V88_Stability.html": "56abe2c84e1d770133e76eb8445e884511c8a5fa2875dd15b2cc0ede68cc5654"
+  }
+}
