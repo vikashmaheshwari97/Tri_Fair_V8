@@ -1,0 +1,322 @@
+{
+  "base_commit": "ab32df3f0f24b85be50b8637d7368f890c9746f4",
+  "purpose": "Plot-only clean renderer and measured 60-run audit",
+  "optimizer_changes": false,
+  "metric_changes": false,
+  "baseline_changes": false,
+  "inference_calls": 0,
+  "original_exports_modified": false,
+  "replaces_existing_source_files": false,
+  "training_jobs_to_submit": 0,
+  "verification": {
+    "cpu_tests": "10 passed",
+    "ruff": "passed",
+    "six_headline_metrics_recomputed": "all 60 runs matched the original CSV within 1e-12",
+    "mean_sample_sd_recomputed": "passed",
+    "original_figure_source_csv_sha256": "unchanged: all 3 byte-identical",
+    "visual_QA": "trajectory panels, labelled final-front intervals and combined panels rendered and inspected"
+  },
+  "analysis_summary": {
+    "status": "passed",
+    "training_runs": 60,
+    "validation_tasks": 12,
+    "aggregate_groups": 20,
+    "audited_front_candidate_counts": {
+      "4": 57,
+      "3": 2,
+      "2": 1
+    },
+    "source_sha256": "640c968d5c6598e8fafc22edd32f3dfec2e4901d5af8b48de34dd591e58bc14d",
+    "code_revision": "ab32df3f0f24b85be50b8637d7368f890c9746f4",
+    "all_12_probes_passed": true,
+    "per_seed_contests": 72,
+    "aggregate_contests": 24,
+    "tie_absolute_tolerance": 1e-12,
+    "per_seed_win_counts": [
+      {
+        "optimizer": "Tri-Fair-v8.8",
+        "outright_win": 20,
+        "tied_win": 4,
+        "leading": 24,
+        "fractional_win": 21.083333333333332
+      },
+      {
+        "optimizer": "NSGAII-PO-Fair",
+        "outright_win": 14,
+        "tied_win": 9,
+        "leading": 23,
+        "fractional_win": 17.083333333333332
+      },
+      {
+        "optimizer": "NSGAIII-PO-Fair",
+        "outright_win": 11,
+        "tied_win": 7,
+        "leading": 18,
+        "fractional_win": 13.083333333333334
+      },
+      {
+        "optimizer": "SPEA2-PO-Fair",
+        "outright_win": 9,
+        "tied_win": 4,
+        "leading": 13,
+        "fractional_win": 10.5
+      },
+      {
+        "optimizer": "RandomSearch-PO-Fair",
+        "outright_win": 9,
+        "tied_win": 5,
+        "leading": 14,
+        "fractional_win": 10.25
+      }
+    ],
+    "aggregate_win_counts": [
+      {
+        "optimizer": "Tri-Fair-v8.8",
+        "outright_win": 3,
+        "tied_win": 1,
+        "leading": 4,
+        "fractional_win": 3.5
+      },
+      {
+        "optimizer": "NSGAII-PO-Fair",
+        "outright_win": 9,
+        "tied_win": 0,
+        "leading": 9,
+        "fractional_win": 9.0
+      },
+      {
+        "optimizer": "NSGAIII-PO-Fair",
+        "outright_win": 4,
+        "tied_win": 0,
+        "leading": 4,
+        "fractional_win": 4.0
+      },
+      {
+        "optimizer": "SPEA2-PO-Fair",
+        "outright_win": 3,
+        "tied_win": 1,
+        "leading": 4,
+        "fractional_win": 3.5
+      },
+      {
+        "optimizer": "RandomSearch-PO-Fair",
+        "outright_win": 4,
+        "tied_win": 0,
+        "leading": 4,
+        "fractional_win": 4.0
+      }
+    ],
+    "downstream_tokens": 111866624,
+    "meta_tokens": 1199854,
+    "min_exact_sign_test_p": 0.25,
+    "tri_details": [
+      {
+        "dataset": "bbq",
+        "seed_details": [
+          {
+            "seed": 72,
+            "balanced_test_quality": 0.9431818181818182,
+            "balanced_test_cost": 17.34,
+            "balanced_test_fairness": 0.3026549062375086,
+            "hv_test_optimistic_3d": 0.800417547573134,
+            "hv_test_pessimistic_3d": 0.7601351481508742,
+            "noisy_r2_3d": 0.1252215940403979
+          },
+          {
+            "seed": 73,
+            "balanced_test_quality": 0.9204545454545454,
+            "balanced_test_cost": 16.98,
+            "balanced_test_fairness": 0.3971321415446833,
+            "hv_test_optimistic_3d": 0.7105693608806731,
+            "hv_test_pessimistic_3d": 0.7082377306157208,
+            "noisy_r2_3d": 0.1495033962318994
+          },
+          {
+            "seed": 74,
+            "balanced_test_quality": 0.9090909090909092,
+            "balanced_test_cost": 16.50875,
+            "balanced_test_fairness": 0.4611375534785693,
+            "hv_test_optimistic_3d": 0.652788628940479,
+            "hv_test_pessimistic_3d": 0.652788628940479,
+            "noisy_r2_3d": 0.1579885282895363
+          }
+        ],
+        "mean_quality_gap": 0.035353535353535394,
+        "mean_unfairness_gap": 0.10987577577798398,
+        "mean_hv_gap": 0.014204676562404
+      },
+      {
+        "dataset": "civil_comments",
+        "seed_details": [
+          {
+            "seed": 72,
+            "balanced_test_quality": 0.7395833333333334,
+            "balanced_test_cost": 22.16208333333333,
+            "balanced_test_fairness": 0.2094385181380037,
+            "hv_test_optimistic_3d": 0.732030357642958,
+            "hv_test_pessimistic_3d": 0.732030357642958,
+            "noisy_r2_3d": 0.1306327480382611
+          },
+          {
+            "seed": 73,
+            "balanced_test_quality": 0.7916666666666666,
+            "balanced_test_cost": 24.774010416666663,
+            "balanced_test_fairness": 0.1170522573366737,
+            "hv_test_optimistic_3d": 0.807163407449022,
+            "hv_test_pessimistic_3d": 0.7898846159115345,
+            "noisy_r2_3d": 0.1075295647239766
+          },
+          {
+            "seed": 74,
+            "balanced_test_quality": 0.8177083333333334,
+            "balanced_test_cost": 17.995833333333334,
+            "balanced_test_fairness": 0.1707423967448544,
+            "hv_test_optimistic_3d": 0.7924567157838929,
+            "hv_test_pessimistic_3d": 0.67810105152506,
+            "noisy_r2_3d": 0.1122103825270308
+          }
+        ],
+        "mean_quality_gap": -0.019097222222222248,
+        "mean_unfairness_gap": 0.047787337428814136,
+        "mean_hv_gap": 0.04387815193210679
+      },
+      {
+        "dataset": "bias_in_bios",
+        "seed_details": [
+          {
+            "seed": 72,
+            "balanced_test_quality": 0.7353617815966257,
+            "balanced_test_cost": 21.005089285714284,
+            "balanced_test_fairness": 0.2779558871811477,
+            "hv_test_optimistic_3d": 0.7172042193272111,
+            "hv_test_pessimistic_3d": 0.7120024697652665,
+            "noisy_r2_3d": 0.1300419676721572
+          },
+          {
+            "seed": 73,
+            "balanced_test_quality": 0.7198788424771109,
+            "balanced_test_cost": 21.916666666666668,
+            "balanced_test_fairness": 0.2038263709738589,
+            "hv_test_optimistic_3d": 0.7010255606359378,
+            "hv_test_pessimistic_3d": 0.6958949628091582,
+            "noisy_r2_3d": 0.1360179849459097
+          },
+          {
+            "seed": 74,
+            "balanced_test_quality": 0.7247113528372899,
+            "balanced_test_cost": 17.52104166666667,
+            "balanced_test_fairness": 0.2603540984116954,
+            "hv_test_optimistic_3d": 0.6982077725323333,
+            "hv_test_pessimistic_3d": 0.6982077725323333,
+            "noisy_r2_3d": 0.1384120519069248
+          }
+        ],
+        "mean_quality_gap": -0.0015034381100446081,
+        "mean_unfairness_gap": 0.07489295425821386,
+        "mean_hv_gap": 0.0034441157962414003
+      },
+      {
+        "dataset": "winobias",
+        "seed_details": [
+          {
+            "seed": 72,
+            "balanced_test_quality": 0.8671875,
+            "balanced_test_cost": 13.452421875,
+            "balanced_test_fairness": 0.2733258700708734,
+            "hv_test_optimistic_3d": 0.8677249050070935,
+            "hv_test_pessimistic_3d": 0.8677249050070935,
+            "noisy_r2_3d": 0.0958411080292536
+          },
+          {
+            "seed": 73,
+            "balanced_test_quality": 0.84375,
+            "balanced_test_cost": 11.451796875,
+            "balanced_test_fairness": 0.2948119103767688,
+            "hv_test_optimistic_3d": 0.8729076545904398,
+            "hv_test_pessimistic_3d": 0.8729076545904398,
+            "noisy_r2_3d": 0.0946923832078237
+          },
+          {
+            "seed": 74,
+            "balanced_test_quality": 0.828125,
+            "balanced_test_cost": 12.22953125,
+            "balanced_test_fairness": 0.2000976324197765,
+            "hv_test_optimistic_3d": 0.8474285506359912,
+            "hv_test_pessimistic_3d": 0.8410936230597227,
+            "noisy_r2_3d": 0.1042831024618558
+          }
+        ],
+        "mean_quality_gap": -0.022135416666666668,
+        "mean_unfairness_gap": 0.07296064747801007,
+        "mean_hv_gap": 0.0021116425254228332
+      }
+    ],
+    "original_zip_sha256": "9664aa3c1921056e22c09700121bb45b484ecec1be1e1edebb8ae145b33fc038"
+  },
+  "files": {
+    "research/clean_style_v88.py": "772ae1526760810161c83fbc0a3771e36396801cb86390a5dfe8b4cd4e15b19e",
+    "research/replot_v88_clean.py": "008bcda6509480ee72bdb41c863b76d49864853203f40b4a8fd04303792222ae",
+    "review/v88_60_runs/Review.html": "cf594c6f01488e4ef1fa515a63e1ce5ad877d11fd796970471e8fec3c61734dd",
+    "review/v88_60_runs/analysis/aggregate_metric_comparisons.csv": "307300fb93390cbaa3f9966769a067fa7a2666154b0167a7d74bd75f14f31005",
+    "review/v88_60_runs/analysis/all_methods_validation_mean_sd.csv": "219c9926ffca86c9d28675f85aae4af672445856a8ed5710fc5f2a50a38ad046",
+    "review/v88_60_runs/analysis/audit_summary.json": "a9688be7fed52fcea6fcf04a3ca14e80116e27ed566938b7f399e138bbfd5e9e",
+    "review/v88_60_runs/analysis/descriptive_ranks.csv": "31de6e0411830d82342f2ba27b26a3b2c15a7f170e627baf76dd68c1c7e57cdf",
+    "review/v88_60_runs/analysis/final_prompt_rendering_audit.csv": "6597babf6a56b75de9be7a9f62095e11c8937eca74e03fb92d6c2ed6528bb831",
+    "review/v88_60_runs/analysis/front_indicators_per_seed.csv": "5f3efa1ce981896466ba765f47243735e96ee02affcb2b188a17bec72a62e46f",
+    "review/v88_60_runs/analysis/front_indicators_summary.csv": "ef369adae1dd5fc94aacb8ca9d26fb7a2ff325f13e9f11effb1ba4aefe0c1fe8",
+    "review/v88_60_runs/analysis/outright_wins_by_metric.csv": "5b3c3fbea59a73e5f6938595466b1ef70fbf2b9653a43c5be14dbd89b5515e12",
+    "review/v88_60_runs/analysis/per_seed_metric_comparisons.csv": "48c66762413df23627fc825d7983c24b64faedb9f945dc0115aa9d6fe560dc19",
+    "review/v88_60_runs/analysis/repeatability_probes.csv": "ebb34d615c16f8c076faf915c1cf6d985eefa36a656844f83c89f0502ef795ce",
+    "review/v88_60_runs/analysis/run_budget_and_search_diagnostics.csv": "ed22dcdb092fb884fcefe87226e2047f592323282e7e36380c113eb494209020",
+    "review/v88_60_runs/analysis/tri_operator_counts.csv": "88bed649c9d197c8820674bd1e0f84b0eebee6eabcc0d956115be4e02e77ff20",
+    "review/v88_60_runs/analysis/tri_pairwise_comparisons.csv": "bf47308c0ce7f4d9ddc39b2e1f72b5b1f2ee400eac3c6f9328167176adecdb05",
+    "review/v88_60_runs/analysis/tri_recent_edit_outcomes.csv": "768a815fbdedfcb869a3e2027977dfd6c57cae9e63e72093ea9963adb9ab88db",
+    "review/v88_60_runs/analysis/tri_recent_edit_summary_TAIL_ONLY.csv": "66c93dbc9e0bef1d426954b7f1370369e1d5253951ee3584212c42291bea49ee",
+    "review/v88_60_runs/analysis/validation_integrity.csv": "68974c34c369a9de2356a5d5002e60948ff3382f9db90a6206f8e8e8254f3eee",
+    "review/v88_60_runs/analysis/wins_by_dataset.csv": "868ec4fc62a777795ec3429a28e4512c85750c4c5651000fe4fa21326014bbec",
+    "review/v88_60_runs/analysis/wins_dataset_means_24_contests.csv": "64d1d19023d5dc96af8b9a5b6f6fd2c909ca89b9e6d216598a094c15dc8c3665",
+    "review/v88_60_runs/analysis/wins_per_seed_72_contests.csv": "5d33ed0d42f9ad96722e74d5cdec845f4c2bc8cca23133613a9d72f43b6355cf",
+    "review/v88_60_runs/audit_60.py": "aabd079b9f9a7500a25a9e925726d545738991920ace1bb3a9f272ce80db0174",
+    "review/v88_60_runs/clean_figures/bbq_reference_panels.pdf": "fb2bdfa3a0b0796473ce95ed5cc460dba661a13378b71b130e9c43d39139d854",
+    "review/v88_60_runs/clean_figures/bbq_reference_panels.png": "e5a280e24f44ffa91f6ce8ceba6730e3c45a7668c97e254e913c058772177973",
+    "review/v88_60_runs/clean_figures/bbq_reference_panels.svg": "c5e23392a622d6e6c66dc73b17a557263dc3ff1276efb381d4bf6224a347b2ee",
+    "review/v88_60_runs/clean_figures/bias_in_bios_reference_panels.pdf": "1a4eb5b9c00272c514cd6508d88e4552a52ae986d8cfabc2d29e87b3441b7d3d",
+    "review/v88_60_runs/clean_figures/bias_in_bios_reference_panels.png": "65199cfcf7e801224a6329121f9f001369beb812ebca61768573eeb08ee78642",
+    "review/v88_60_runs/clean_figures/bias_in_bios_reference_panels.svg": "12779f861d683c4bf74110507874e7467311316c2d228e595b2b90da22f85da5",
+    "review/v88_60_runs/clean_figures/civil_comments_reference_panels.pdf": "463e5ce4d0bea286ac56e8fc268af2ed347de3b9ba3a3293e81f1f6de6ae5c1f",
+    "review/v88_60_runs/clean_figures/civil_comments_reference_panels.png": "e019988dbfd8a2d6e9ce23edb17d7f765fe6548b02b66980e5aff529b84f98e9",
+    "review/v88_60_runs/clean_figures/civil_comments_reference_panels.svg": "7eb967886445f0830e98ae8d6af3336308ab05317ebd4670e7fc49567819949b",
+    "review/v88_60_runs/clean_figures/clean_plot_protocol.json": "f7c0fe6168cb95af599542176e6bdc7debdfb692669453317154bd68ac18f4c1",
+    "review/v88_60_runs/clean_figures/fewshot_NSGAII-PO-Fair.pdf": "c78657f4ac03b217f9023d091f629b4f547f36e07a16a41ed25ec3cbddd1d8d4",
+    "review/v88_60_runs/clean_figures/fewshot_NSGAII-PO-Fair.png": "58b527218a707ed9491dc0518e5686d0efc9cd8263f9f6c6f7c815937b050821",
+    "review/v88_60_runs/clean_figures/fewshot_NSGAII-PO-Fair.svg": "c68e37e729fd03ea9bcc7d6270624c31a4bd005850edb6a09ef3ee6b671627fd",
+    "review/v88_60_runs/clean_figures/fewshot_NSGAIII-PO-Fair.pdf": "79e3fc6dbd27d0ce6f8d708c5d09eee2c04236ab52b469ca07cbd5fb05723605",
+    "review/v88_60_runs/clean_figures/fewshot_NSGAIII-PO-Fair.png": "efd383a9a5ac53a9b2b47fc8f580eee76e8aa4523c5da42e301374998f0e398a",
+    "review/v88_60_runs/clean_figures/fewshot_NSGAIII-PO-Fair.svg": "b908a1a3c3c9ef5c4a00df61ea1e1e6ad3e7b7f8c456cc5624cdf8c8bde1289d",
+    "review/v88_60_runs/clean_figures/fewshot_RandomSearch-PO-Fair.pdf": "4bfbba56d44b3555ff5136094e5ebae28bb5a03577a9998986c4957da732b1cc",
+    "review/v88_60_runs/clean_figures/fewshot_RandomSearch-PO-Fair.png": "87cf8d3b831a5cfa551aaeb84e2dcb987ae4f9c639df7a04631dfadb28dab385",
+    "review/v88_60_runs/clean_figures/fewshot_RandomSearch-PO-Fair.svg": "e9448d7def1c99542f666dedb98f97b6b0a1ba38f7ed1592bbc6f49033cbb59f",
+    "review/v88_60_runs/clean_figures/fewshot_SPEA2-PO-Fair.pdf": "3afeb009c596676a4beb12ad099e99da04f8360aefa9ffb8736a415f5e1f4b84",
+    "review/v88_60_runs/clean_figures/fewshot_SPEA2-PO-Fair.png": "df26d7977709b2f3cc3dfba06f310d8b51c2cfc26299d68975daeaa469fb3879",
+    "review/v88_60_runs/clean_figures/fewshot_SPEA2-PO-Fair.svg": "6800dc97fc766ad5551162afcf70a730f994dc81ad65382fa1b949f8e4bf63e0",
+    "review/v88_60_runs/clean_figures/fewshot_Tri-Fair-v8.8.pdf": "a7085f3f47eecc4f1353f4fef867d398f03834b0a93e41234b6fc8a048da48f7",
+    "review/v88_60_runs/clean_figures/fewshot_Tri-Fair-v8.8.png": "aec7e7ec07d0a6ac69c2dee9f65dc9e4882f109263842f2885b96b6901546295",
+    "review/v88_60_runs/clean_figures/fewshot_Tri-Fair-v8.8.svg": "ab5937b8bc7f42ecd6314118715807bd1d608fbecdd3f4fa2a2d8738d98ee994",
+    "review/v88_60_runs/clean_figures/fewshot_measured_points.csv": "4acbb26ca6da7e3ff87a33f626eb7ba83ac7f40e1ce788bfb088aad2b31e615f",
+    "review/v88_60_runs/clean_figures/final_front_indicators.pdf": "3e01ce88d97593c6edcacafa70fe20bd04c15bcbcb9f50d1e4078e1816f814a8",
+    "review/v88_60_runs/clean_figures/final_front_indicators.png": "98d9004bd27a152b9e7cecdb42ea4cd7af7753348767bdfacb801c2be9d0e004",
+    "review/v88_60_runs/clean_figures/final_front_indicators.svg": "71d34b95c8d2b5acf2dff8d002c4633d3102b1ddd9c65314c0030618efcf2fd8",
+    "review/v88_60_runs/clean_figures/measured_final_indicators.csv": "5f3efa1ce981896466ba765f47243735e96ee02affcb2b188a17bec72a62e46f",
+    "review/v88_60_runs/clean_figures/measured_historical_trajectories.csv": "e18d402800f0a8d59c70c8e7b30e9c1cf1fdb0aa310d9ab227cf4d6b33a67dd4",
+    "review/v88_60_runs/clean_figures/trajectory_HVpes.pdf": "6200421e0cbd17eb7287d19d5a26fca530fe885f2a871834288ed3b1785af549",
+    "review/v88_60_runs/clean_figures/trajectory_HVpes.png": "01c9dab27738d19f4f4ed6b1827ef3d55d6faf63f12ce5f5db68ebc307db3a20",
+    "review/v88_60_runs/clean_figures/trajectory_HVpes.svg": "3f192d6b82865645cd5aa499027b77da8ec29e5cd1618c90daef84a58317d5a4",
+    "review/v88_60_runs/clean_figures/trajectory_nR2.pdf": "662222ab4d778a32b5b66c83154822d876131adf93e45da240ed24a55f3d49d9",
+    "review/v88_60_runs/clean_figures/trajectory_nR2.png": "4c7112e4bad853b8b2fd69b50c27b1b91e398ad90335aaae12ace0b10aea9ddb",
+    "review/v88_60_runs/clean_figures/trajectory_nR2.svg": "9fae8aa3dfa784deafd5e12f0d2eaae250b837c103d5ae734ac4c9d72afb0300",
+    "review/v88_60_runs/clean_figures/winobias_reference_panels.pdf": "da3eedea2746d4dc0c7e3e0b08d64fef31e9cb98621899e54dd4c5f3937f5f0e",
+    "review/v88_60_runs/clean_figures/winobias_reference_panels.png": "acc11d2502a688841d12f356fdd05737f6d5bf3cca68d44a5613e603a3a9abf8",
+    "review/v88_60_runs/clean_figures/winobias_reference_panels.svg": "1f539665df7331329883e39add1b666b31f83c77aa83d266cdcc592f6cf9d897",
+    "tests/test_v88_clean_plots.py": "e546e9f7b5c566acc890620d21405e0ff95a948b7760eda1cb6689c0457904d6"
+  }
+}
