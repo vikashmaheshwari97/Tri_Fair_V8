@@ -1,29 +1,38 @@
 """Explicit factory and effective metadata for the upgraded study."""
 
 from __future__ import annotations
-from dataclasses import asdict
-from pathlib import Path
+
 import hashlib
 import subprocess
-from tri_fair.optimizers.trifair import TriFairOptimizer
-from tri_fair.optimizers.refined import RefinedTriFairOptimizer
-from tri_fair.optimizers.attributed import AttributedTriFairOptimizer
-from tri_fair.optimizers.stable import StableTriFairOptimizer
-from tri_fair.optimizers.efficient import EfficientTriFairOptimizer
-from tri_fair.optimizers.guarded import GuardedTriFairOptimizer
-from tri_fair.optimizers.repaired import RepairedTriFairOptimizer
+from dataclasses import asdict
+from pathlib import Path
+
 from tri_fair.optimizers.adaptive import AdaptiveTriFairOptimizer
-from tri_fair.optimizers.budget_fill import FILLED_BASELINES
-from tri_fair.optimizers.nsga2 import NSGA2Fair
-from tri_fair.optimizers.hybrid import HybridTriFairOptimizer
+from tri_fair.optimizers.attributed import AttributedTriFairOptimizer
 from tri_fair.optimizers.baselines import (
-    SPEA2POFair,
     NSGAIIIPOFair,
     RandomSearchPOFair,
     ReflectiveNSGAIIPOFair,
+    SPEA2POFair,
 )
+from tri_fair.optimizers.budget_fill import FILLED_BASELINES
+from tri_fair.optimizers.directional import DirectionalTriFairOptimizer
+from tri_fair.optimizers.intensified import IntensifiedTriFairOptimizer
+from tri_fair.optimizers.efficient import EfficientTriFairOptimizer
+from tri_fair.optimizers.guarded import GuardedTriFairOptimizer
+from tri_fair.optimizers.hybrid import HybridTriFairOptimizer
+from tri_fair.optimizers.nsga2 import NSGA2Fair
+from tri_fair.optimizers.refined import RefinedTriFairOptimizer
+from tri_fair.optimizers.repaired import RepairedTriFairOptimizer
+from tri_fair.optimizers.stable import StableTriFairOptimizer
+from tri_fair.optimizers.trifair import TriFairOptimizer
 
 METHODS = {
+    "Tri-Fair-v9.1": IntensifiedTriFairOptimizer,
+    "Tri-Fair-v9.1-FullEval": IntensifiedTriFairOptimizer,
+    "Tri-Fair-v9.0": DirectionalTriFairOptimizer,
+    "Tri-Fair-v9.0-NoDisparity": DirectionalTriFairOptimizer,
+    "Tri-Fair-v9.0-NoCoverage": DirectionalTriFairOptimizer,
     "Tri-Fair-v8.9": AdaptiveTriFairOptimizer,
     "Tri-Fair-v8.8": RepairedTriFairOptimizer,
     "Tri-Fair-v8.7": GuardedTriFairOptimizer,
@@ -76,15 +85,35 @@ def build_optimizer(
         raise ValueError("budget_fill must be a boolean")
     if budget_fill and optimizer_config.name in FILLED_BASELINES:
         cls = FILLED_BASELINES[optimizer_config.name]
-    elif budget_fill and optimizer_config.name != "Tri-Fair-v8.9":
+    elif budget_fill and optimizer_config.name not in {
+        "Tri-Fair-v9.1",
+        "Tri-Fair-v9.1-FullEval",
+        "Tri-Fair-v8.9",
+        "Tri-Fair-v9.0",
+        "Tri-Fair-v9.0-NoDisparity",
+        "Tri-Fair-v9.0-NoCoverage",
+    }:
         raise ValueError(
-            "Budget filling is supported only for the four matched baselines and Tri-Fair-v8.9"
+            "Budget filling is supported only for the four matched baselines and Tri-Fair-v8.9/v9.0 variants"
         )
     if set(overrides) - set(params):
         raise ValueError(
             f"unsupported optimizer overrides: {sorted(set(overrides) - set(params))}"
         )
     params.update(overrides)
+    if issubclass(cls, DirectionalTriFairOptimizer):
+        # Reserve generation and chat-template overhead within the same loaded
+        # engine's context; meta and downstream share that engine.
+        ceiling = (
+            model_config.max_model_len
+            - getattr(args, "meta_max_output_tokens", 512)
+            - 128
+        )
+        if ceiling < 512:
+            raise ValueError("Insufficient model context for directional search")
+        params["generation_input_token_limit"] = min(
+            params["generation_input_token_limit"], ceiling
+        )
     if args.crossovers_per_iteration is not None:
         params["crossovers_per_iter"] = args.crossovers_per_iteration
     if args.max_few_shot_examples is not None:
@@ -114,12 +143,18 @@ def build_optimizer(
         **params,
     )
     optimizer.effective_parameters = params
-    if budget_fill or optimizer_config.name == "Tri-Fair-v8.9":
+    if budget_fill or issubclass(
+        cls, (AdaptiveTriFairOptimizer, DirectionalTriFairOptimizer)
+    ):
         optimizer.effective_parameters = dict(
             params,
             budget_fill=True,
             shared_budget_protocol="v89-novel-complete-candidate-retries",
         )
+    if issubclass(cls, IntensifiedTriFairOptimizer):
+        optimizer.effective_parameters["shared_budget_protocol"] = (
+            "v91-next-block-admission-hard-total-cap" if optimizer.enable_intensification
+            else "v89-novel-complete-candidate-retries")
     return optimizer
 
 

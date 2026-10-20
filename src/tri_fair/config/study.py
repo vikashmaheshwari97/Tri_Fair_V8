@@ -1,6 +1,7 @@
 """Explicit current-study optimizer settings and component ablations."""
 
 from copy import deepcopy
+
 from tri_fair.config.schema import OptimizerConfig
 
 STUDY_VERSION = "8.1-clean-search-validation-test"
@@ -187,4 +188,37 @@ def build_optimizer_registry():
         "full",
         1,
     )
+    configs["Tri-Fair-v9.0"] = OptimizerConfig(
+        "Tri-Fair-v9.0",
+        "Tri-Fair-v9.0",
+        dict(
+            configs["Tri-Fair-v8.9"].optimizer_params,
+            prompt_word_limit=160,
+            generation_input_token_limit=2350,
+            enable_disparity_evidence=True,
+            enable_coverage_survival=True,
+        ),
+        "full",
+        1,
+    )
+    for suffix, flag in (
+        ("NoDisparity", "enable_disparity_evidence"),
+        ("NoCoverage", "enable_coverage_survival"),
+    ):
+        name = "Tri-Fair-v9.0-" + suffix
+        configs[name] = OptimizerConfig(
+            name,
+            name,
+            dict(configs["Tri-Fair-v9.0"].optimizer_params, **{flag: False}),
+            "full",
+            1,
+        )
+    for name, enabled in (("Tri-Fair-v9.1", True), ("Tri-Fair-v9.1-FullEval", False)):
+        configs[name] = OptimizerConfig(
+            name, name,
+            dict(configs["Tri-Fair-v9.0"].optimizer_params,
+                 enable_intensification=enabled, intensification_min_blocks=2,
+                 intensification_margins=(0.01, 0.5, 0.01)),
+            "full", 1,
+        )
     return configs

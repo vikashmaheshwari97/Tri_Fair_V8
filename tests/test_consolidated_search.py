@@ -1,11 +1,13 @@
 """One shared optimizer, actual search credit and reproducible adaptation."""
 
 import random
+
 import numpy as np
 import pytest
+
 from tests.fakes import optimizer
 from tri_fair.optimizers.consolidated import ConsolidatedTriFairOptimizer
-from tri_fair.search.portfolio import ARMS, select_arm, cached_front_gain
+from tri_fair.search.portfolio import ARMS, cached_front_gain, select_arm
 
 
 def test_scheduler_cold_start_and_reward_driven_selection():
@@ -63,9 +65,15 @@ def test_all_three_strategies_share_one_archive_and_record_real_credit():
 
 
 def test_only_one_trifair_in_active_configuration():
+    import json
+    from pathlib import Path
+
     from tri_fair.config.registry import ACTIVE_METHODS
 
-    assert [x for x in ACTIVE_METHODS if x.startswith("Tri-Fair")] == ["Tri-Fair-v8.8"]
+    config = json.loads(
+        (Path(__file__).resolve().parents[1] / "configs/active_study.json").read_text()
+    )
+    assert [x for x in ACTIVE_METHODS if x.startswith("Tri-Fair")] == [config["method"]]
 
 
 def test_component_ablation_selects_only_enabled_strategy():
@@ -90,4 +98,3 @@ def test_no_false_budget_exhaustion_when_merge_has_no_second_parent():
     obj.incumbents = obj.incumbents[:1]
     assert obj._merge_challengers() == []
     assert obj.proposal_rejections["merge_requires_two_observed_parents"] == 1
-

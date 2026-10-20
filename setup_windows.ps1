@@ -9,7 +9,7 @@ if (-not (Test-Path '.venv312\Scripts\python.exe')) {
 $TaskPython = Join-Path $PSScriptRoot '.venv312\Scripts\python.exe'
 & $TaskPython -c "import sys; assert sys.version_info[:2] == (3,12), 'This environment must use Python 3.12'"
 if ($LASTEXITCODE -ne 0) { throw 'The existing .venv312 uses another Python. Choose a fresh directory.' }
-& $TaskPython -m pip install -r requirements-cpu.txt
+& $TaskPython -m pip install -e ".[dev,analysis]"
 if ($LASTEXITCODE -ne 0) { throw 'Dependency installation failed.' }
 & $TaskPython -m tri_fair.cli.doctor
 if ($LASTEXITCODE -ne 0) { throw 'Environment validation failed.' }
