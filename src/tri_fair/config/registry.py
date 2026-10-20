@@ -17,10 +17,11 @@ from tri_fair.optimizers.baselines import (
 )
 from tri_fair.optimizers.budget_fill import FILLED_BASELINES
 from tri_fair.optimizers.directional import DirectionalTriFairOptimizer
-from tri_fair.optimizers.intensified import IntensifiedTriFairOptimizer
 from tri_fair.optimizers.efficient import EfficientTriFairOptimizer
 from tri_fair.optimizers.guarded import GuardedTriFairOptimizer
 from tri_fair.optimizers.hybrid import HybridTriFairOptimizer
+from tri_fair.optimizers.intensified import IntensifiedTriFairOptimizer
+from tri_fair.optimizers.mocapo_fair import MOCAPOFairOptimizer
 from tri_fair.optimizers.nsga2 import NSGA2Fair
 from tri_fair.optimizers.refined import RefinedTriFairOptimizer
 from tri_fair.optimizers.repaired import RepairedTriFairOptimizer
@@ -28,6 +29,9 @@ from tri_fair.optimizers.stable import StableTriFairOptimizer
 from tri_fair.optimizers.trifair import TriFairOptimizer
 
 METHODS = {
+    "Tri-Fair-v9.2": MOCAPOFairOptimizer,
+    "Tri-Fair-v9.2-NoWeakerDominance": MOCAPOFairOptimizer,
+    "Tri-Fair-v9.2-FullEval": MOCAPOFairOptimizer,
     "Tri-Fair-v9.1": IntensifiedTriFairOptimizer,
     "Tri-Fair-v9.1-FullEval": IntensifiedTriFairOptimizer,
     "Tri-Fair-v9.0": DirectionalTriFairOptimizer,
@@ -56,7 +60,7 @@ METHODS = {
 # One active proposed method. Earlier versions remain addressable only for
 # reproducing existing checkpoints/results; no historical scores are relabeled.
 ACTIVE_METHODS = (
-    "Tri-Fair-v8.9",
+    "Tri-Fair-v9.2",
     "NSGAII-PO-Fair",
     "SPEA2-PO-Fair",
     "NSGAIII-PO-Fair",
@@ -86,6 +90,9 @@ def build_optimizer(
     if budget_fill and optimizer_config.name in FILLED_BASELINES:
         cls = FILLED_BASELINES[optimizer_config.name]
     elif budget_fill and optimizer_config.name not in {
+        "Tri-Fair-v9.2",
+        "Tri-Fair-v9.2-NoWeakerDominance",
+        "Tri-Fair-v9.2-FullEval",
         "Tri-Fair-v9.1",
         "Tri-Fair-v9.1-FullEval",
         "Tri-Fair-v8.9",
@@ -155,6 +162,10 @@ def build_optimizer(
         optimizer.effective_parameters["shared_budget_protocol"] = (
             "v91-next-block-admission-hard-total-cap" if optimizer.enable_intensification
             else "v89-novel-complete-candidate-retries")
+    if isinstance(optimizer, MOCAPOFairOptimizer):
+        optimizer.effective_parameters = dict(params, budget_fill=False,
+            shared_budget_protocol="atomic block admission; hard total cap",
+            baseline_budget_fill_requested=budget_fill)
     return optimizer
 
 

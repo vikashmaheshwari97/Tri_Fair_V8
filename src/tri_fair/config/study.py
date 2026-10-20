@@ -221,4 +221,12 @@ def build_optimizer_registry():
                  intensification_margins=(0.01, 0.5, 0.01)),
             "full", 1,
         )
+    for name, extra in {
+        "Tri-Fair-v9.2": {},
+        "Tri-Fair-v9.2-NoWeakerDominance": {"no_weaker_dominance": True},
+        "Tri-Fair-v9.2-FullEval": {"full_evaluation": True},
+    }.items():
+        configs[name] = OptimizerConfig(name, name, dict(
+            crossovers_per_iter=6, upper_shots=4, check_fs_accuracy=True,
+            create_fs_reasoning=False, **extra), "sequential_block", 1)
     return configs

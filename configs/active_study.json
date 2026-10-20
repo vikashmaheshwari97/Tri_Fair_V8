@@ -1,13 +1,10 @@
 {
-  "method": "Tri-Fair-v8.9",
+  "method": "Tri-Fair-v9.2",
   "paper_label": "Tri-Fair",
-  "implementation": "AdaptiveTriFairOptimizer",
+  "implementation": "MOCAPOFairOptimizer",
   "proposal_strategies": [
-    "repair",
-    "fairness",
-    "recombine",
-    "compress",
-    "demonstrations"
+    "original CAPO crossover",
+    "original CAPO mutation"
   ],
   "shared_population_cache_and_budget": true,
   "historical_versions": "retained for reproduction; excluded from active defaults",
@@ -24,25 +21,25 @@
   "population_size": 4,
   "maximum_demonstrations": 2,
   "audit_candidates": 4,
-  "validation": "one shared union of unique audited-final and real historical prompts",
+  "validation": "shared union of frozen terminal audited prompts only",
   "validation_tokens": "additional, measured separately; never fed to optimization",
   "gpu_performance": "not yet measured",
-  "internal_revision": "8.9",
+  "internal_revision": "9.2",
   "pilot_controls": [
     "NSGAII-PO-Fair",
     "NSGAIII-PO-Fair",
     "SPEA2-PO-Fair",
     "RandomSearch-PO-Fair"
   ],
-  "reserve_reclamation": "Complete protected search shortlist, reuse spare cap for search, freeze fully cached final shortlist",
-  "final_selection": "Same Pareto balanced/quality/cost/unfairness anchors for every method",
-  "candidate_evaluation": "full search coverage before environmental selection",
-  "repeatability_probe": "search-only, 8 examples in batched/reversed/single calls, actual tokens counted inside Tri-Fair cap",
+  "reserve_reclamation": "disabled in v9.2 pilot: one terminal frozen full-search audit",
+  "final_selection": "all terminal incumbents (population cap4, audit cap4), full-search audit before held-out evaluation",
+  "candidate_evaluation": "progressive common-block intensification; mixed-fidelity population",
+  "repeatability_probe": "H200 batch-invariant structured-label protocol; no unsupported claim of cross-hardware invariance",
   "seeds": [
     72,
     73,
     74
   ],
-  "parent_archive_cap": 24,
-  "experimental_candidate": "Tri-Fair-v9.1 (explicit pilot only; progressive intensification)"
+  "parent_archive_cap": null,
+  "experimental_candidate": "Historical adaptive strategies remain separately addressable; excluded from v9.2 main method"
 }

@@ -154,6 +154,8 @@ def parse_args() -> argparse.Namespace:
 
 
 def _validate_args(args: argparse.Namespace) -> None:
+    if args.optimizer.startswith("Tri-Fair-v9.2") and getattr(args, "reclaim_audit_reserve", False):
+        raise ValueError("v9.2 uses a frozen terminal audit; reserve reclamation would change the mixed-fidelity protocol")
     if args.max_idle_steps < 0:
         raise ValueError("max-idle-steps cannot be negative")
     if args.final_search_candidates < 0 or not 0 < args.final_search_reserve < 1:

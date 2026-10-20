@@ -1,0 +1,46 @@
+{
+  "release": "Tri-Fair-v9.2-MO-CAPO-three-objective-extension",
+  "reference_repository": "https://github.com/mo374z/mo-capo",
+  "reference_commit": "265848bb6e0482ab7ef11028d0b8483f6560e724",
+  "reference_algorithm": "src/mo_capo.py, MO-CAPO Algorithms 1 and 2 supplied by the user",
+  "foundation": "Existing tri_fair.optimizers.pareto.ParetoPromptOptimizer; original promptolution CAPO operators",
+  "main_method": "Tri-Fair-v9.2",
+  "paper_label": "Tri-Fair",
+  "algorithm_components": {
+    "initialization": "Initial instructions plus 0..kmax few shots, one common random search block",
+    "variation": "Original CAPO perform_crossover and perform_mutation; no adaptive Tri-Fair editor",
+    "intensification": "Progressive random blocks from incumbent intersection; compare on improvement or at common-basis completion; nearest-incumbent early rejection",
+    "mixed_fidelity": "Rejected challengers retain partial evaluations in the non-incumbent population; survivors need only the current common basis",
+    "parent_selection": "Incumbent priority, crowding distance, equal-set NDS/CD, subset weaker dominance, random fallback",
+    "environmental_selection": "Preferential non-incumbent removal; identical sets use NDS/CD, differing sets remove fewest evaluations; incumbent-only crowding on intersection",
+    "incumbent_advancement": "One least-evaluated incumbent, union gaps first, otherwise one new block",
+    "distance_scaling": "Observed global min/max for all three objectives",
+    "objectives_maximization_representation": ["quality", "negative input/output token-price cost", "negative unfairness"]
+  },
+  "necessary_fairness_adaptations": [
+    "Compute Macro-F1 and unfairness from pooled predictions over the union of the compared blocks, not an arithmetic average of nonlinear block scores.",
+    "Defer three-objective dominance and crowding decisions when fairness support is insufficient; retain provisional incumbents. This does not claim a confidence interval or statistical superiority.",
+    "At the last common block follow paper Algorithm 2 case (b): admit then recompute NDS. This differs from an early-rejection check at the last block in the current upstream implementation.",
+    "Canonicalize block sets so insertion order cannot change equal-fidelity comparisons.",
+    "Bound distinct-parent retries to avoid an infinite tournament loop.",
+    "Strict downstream accounting stops before an unaffordable atomic model call."
+  ],
+  "experiment_protocol": {
+    "search_fraction": 0.7,
+    "terminal_audit_reserve_fraction": 0.3,
+    "audit": "Freeze terminal incumbent shortlist, complete full search coverage, then evaluate held-out validation. No audit-to-search feedback or continuation.",
+    "same_reserve_for_all_methods": true,
+    "budget_fill_for_baselines": "Existing v8.9 empty/duplicate/unaffordable retry wrapper; baseline selection rules unchanged",
+    "unused_reserve": "Reported separately; an equal total ceiling is not equal actual expenditure",
+    "historical_partial_fronts": "Saved in search logs, never presented as fully evaluated held-out trajectories",
+    "gpu": "H200 family by default, batch-invariant engine and structured labels for every method",
+    "search_no_validation_feedback": true,
+    "final_test_used": false,
+    "seed72_screen_runs": 20,
+    "seed72_ablation_runs": 12
+  },
+  "separate_ablations": ["Tri-Fair-v9.2-NoWeakerDominance", "Tri-Fair-v9.2-FullEval"],
+  "historical_methods": "v8.9, v9.0 and v9.1 remain addressable for reproduction; their learned editing strategies are not inherited by v9.2",
+  "validation_limits": "CPU control-flow, accounting and integration checks only. No GPU run or improved experimental quality is claimed. Original two-objective numerical identity is not claimed.",
+  "baseline_or_metric_degradation": false
+}
