@@ -1,0 +1,150 @@
+{
+  "source_archive": "tri_fair_v92_screen_qwen-3-30b_2000000.zip",
+  "source_sha256": "2a562d0a524367a53d7fafca550b2d750f285f5323d65e3b139c6dc39ba68606",
+  "diagnostic_only": true,
+  "not_independent_replications": true,
+  "gpu_used": false,
+  "metrics_changed": false,
+  "records": [
+    {
+      "dataset": "bbq",
+      "logged_population_rows": 120,
+      "ready_rows": 72,
+      "support_by_evaluation_level": {
+        "1": {
+          "rows": 7,
+          "ready_rows": 0
+        },
+        "2": {
+          "rows": 19,
+          "ready_rows": 0
+        },
+        "3": {
+          "rows": 22,
+          "ready_rows": 0
+        },
+        "4": {
+          "rows": 30,
+          "ready_rows": 30
+        },
+        "5": {
+          "rows": 20,
+          "ready_rows": 20
+        },
+        "6": {
+          "rows": 22,
+          "ready_rows": 22
+        }
+      },
+      "failure_reasons": {
+        "maximum confidence-interval width 0.6999 > allowed 0.6000": 16,
+        "valid units 0 < required 22": 7,
+        "maximum confidence-interval width inf > allowed 0.6000": 7,
+        "maximum confidence-interval width 0.6538 > allowed 0.6000": 3,
+        "maximum confidence-interval width 0.6248 > allowed 0.6000": 18,
+        "maximum confidence-interval width 0.6032 > allowed 0.6000": 4
+      }
+    },
+    {
+      "dataset": "bias_in_bios",
+      "logged_population_rows": 92,
+      "ready_rows": 0,
+      "support_by_evaluation_level": {
+        "1": {
+          "rows": 7,
+          "ready_rows": 0
+        },
+        "2": {
+          "rows": 19,
+          "ready_rows": 0
+        },
+        "3": {
+          "rows": 22,
+          "ready_rows": 0
+        },
+        "4": {
+          "rows": 29,
+          "ready_rows": 0
+        },
+        "5": {
+          "rows": 15,
+          "ready_rows": 0
+        }
+      },
+      "failure_reasons": {
+        "valid units 0 < required 28": 48,
+        "maximum confidence-interval width inf > allowed 0.6500": 48,
+        "maximum confidence-interval width 0.6999 > allowed 0.6500": 29,
+        "maximum confidence-interval width 0.6517 > allowed 0.6500": 15
+      }
+    },
+    {
+      "dataset": "civil_comments",
+      "logged_population_rows": 80,
+      "ready_rows": 73,
+      "support_by_evaluation_level": {
+        "1": {
+          "rows": 7,
+          "ready_rows": 0
+        },
+        "2": {
+          "rows": 20,
+          "ready_rows": 20
+        },
+        "3": {
+          "rows": 19,
+          "ready_rows": 19
+        },
+        "4": {
+          "rows": 34,
+          "ready_rows": 34
+        }
+      },
+      "failure_reasons": {
+        "valid units 3 < required 8": 7,
+        "maximum confidence-interval width 0.5696 > allowed 0.5500": 3,
+        "maximum confidence-interval width 0.5574 > allowed 0.5500": 1
+      }
+    },
+    {
+      "dataset": "winobias",
+      "logged_population_rows": 136,
+      "ready_rows": 136,
+      "support_by_evaluation_level": {
+        "1": {
+          "rows": 7,
+          "ready_rows": 7
+        },
+        "2": {
+          "rows": 11,
+          "ready_rows": 11
+        },
+        "3": {
+          "rows": 15,
+          "ready_rows": 15
+        },
+        "4": {
+          "rows": 9,
+          "ready_rows": 9
+        },
+        "5": {
+          "rows": 14,
+          "ready_rows": 14
+        },
+        "6": {
+          "rows": 22,
+          "ready_rows": 22
+        },
+        "7": {
+          "rows": 16,
+          "ready_rows": 16
+        },
+        "8": {
+          "rows": 42,
+          "ready_rows": 42
+        }
+      },
+      "failure_reasons": {}
+    }
+  ]
+}

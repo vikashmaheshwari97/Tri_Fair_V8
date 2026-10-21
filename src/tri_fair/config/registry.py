@@ -23,12 +23,17 @@ from tri_fair.optimizers.hybrid import HybridTriFairOptimizer
 from tri_fair.optimizers.intensified import IntensifiedTriFairOptimizer
 from tri_fair.optimizers.mocapo_fair import MOCAPOFairOptimizer
 from tri_fair.optimizers.nsga2 import NSGA2Fair
+from tri_fair.optimizers.plain_baselines import PLAIN_BASELINES, PlainVariationProtocol
 from tri_fair.optimizers.refined import RefinedTriFairOptimizer
 from tri_fair.optimizers.repaired import RepairedTriFairOptimizer
 from tri_fair.optimizers.stable import StableTriFairOptimizer
+from tri_fair.optimizers.support_ready import SupportReadyTriFairOptimizer
 from tri_fair.optimizers.trifair import TriFairOptimizer
 
 METHODS = {
+    **PLAIN_BASELINES,
+    "Tri-Fair-v9.3": SupportReadyTriFairOptimizer,
+    "Tri-Fair-v9.3-NoReadinessWarmup": SupportReadyTriFairOptimizer,
     "Tri-Fair-v9.2": MOCAPOFairOptimizer,
     "Tri-Fair-v9.2-NoWeakerDominance": MOCAPOFairOptimizer,
     "Tri-Fair-v9.2-FullEval": MOCAPOFairOptimizer,
@@ -59,14 +64,7 @@ METHODS = {
 
 # One active proposed method. Earlier versions remain addressable only for
 # reproducing existing checkpoints/results; no historical scores are relabeled.
-ACTIVE_METHODS = (
-    "Tri-Fair-v9.2",
-    "NSGAII-PO-Fair",
-    "SPEA2-PO-Fair",
-    "NSGAIII-PO-Fair",
-    "RandomSearch-PO-Fair",
-    "NSGAII-PO-Fair-Enhanced",
-)
+ACTIVE_METHODS = ("Tri-Fair-v9.3", *PLAIN_BASELINES)
 
 
 def build_optimizer(
@@ -90,6 +88,9 @@ def build_optimizer(
     if budget_fill and optimizer_config.name in FILLED_BASELINES:
         cls = FILLED_BASELINES[optimizer_config.name]
     elif budget_fill and optimizer_config.name not in {
+        *PLAIN_BASELINES,
+        "Tri-Fair-v9.3",
+        "Tri-Fair-v9.3-NoReadinessWarmup",
         "Tri-Fair-v9.2",
         "Tri-Fair-v9.2-NoWeakerDominance",
         "Tri-Fair-v9.2-FullEval",
@@ -101,7 +102,7 @@ def build_optimizer(
         "Tri-Fair-v9.0-NoCoverage",
     }:
         raise ValueError(
-            "Budget filling is supported only for the four matched baselines and Tri-Fair-v8.9/v9.0 variants"
+            "Budget filling requires a registered comparator or explicit Tri-Fair pilot variant"
         )
     if set(overrides) - set(params):
         raise ValueError(
@@ -166,6 +167,10 @@ def build_optimizer(
         optimizer.effective_parameters = dict(params, budget_fill=False,
             shared_budget_protocol="atomic block admission; hard total cap",
             baseline_budget_fill_requested=budget_fill)
+    if isinstance(optimizer, PlainVariationProtocol):
+        optimizer.effective_parameters = dict(params, budget_fill=True,
+            variation_protocol="original CAPO for evolutionary methods; independent proposals for Random Search",
+            shared_budget_protocol="v89-novel-complete-candidate-retries")
     return optimizer
 
 

@@ -1,0 +1,46 @@
+{
+  "release": "Tri-Fair-v9.3-plain-baselines-and-readiness-warmup",
+  "reference": {
+    "paper": "MO-CAPO: Multi-Objective Cost-Aware Prompt Optimization",
+    "sections": ["4.2", "A.2.1", "Algorithms 3, 4 and 5"],
+    "source": "https://github.com/mo374z/mo-capo",
+    "reference_commit": "265848bb6e0482ab7ef11028d0b8483f6560e724",
+    "finding": "NSGA-II-PO includes CAPO initialization, crossover, mutation and full-development evaluation; it does not use progressive intensification or mixed-fidelity selection.",
+    "scope": "NSGA-III, SPEA2 and Random Search here are additional prompt-search adaptations, not baselines defined or evaluated in the MO-CAPO paper."
+  },
+  "baseline_protocol": {
+    "new_identities": ["NSGAII-PO-Fair-Plain", "NSGAIII-PO-Fair-Plain", "SPEA2-PO-Fair-Plain", "RandomSearch-PO-Fair-Plain"],
+    "shared_initialization": "Same frozen instruction pool, random 0..kmax demonstrations and demonstration verification convention as Tri-Fair; label-only demonstrations remain a shared configured difference from the paper's reasoning-shot setup.",
+    "variation": "Original CAPO crossover/mutation for NSGA-II, NSGA-III and SPEA2; frozen-pool independent proposals for Random Search.",
+    "removed": "Custom objective-aware variation for the three evolutionary comparators",
+    "retained": "Required initialization, standard proposal operators, original method-specific parent/survival selectors, identical three-objective metrics, strict token accounting, caching and admission retries",
+    "absent": ["progressive intensification", "mixed-fidelity population", "weaker-dominance comparisons", "incumbent advancement", "adaptive feedback strategies"],
+    "historical_results": "Original method identities and implementations remain unchanged. The new Plain suffix prevents silently mixing protocols.",
+    "expected_direction_of_performance_change": "Unknown; plain operators can perform better or worse. No deliberately weakened selection, metric, population, budget or decoding rule is used."
+  },
+  "tri_fair_protocol": {
+    "method": "Tri-Fair-v9.3",
+    "base": "Unchanged MOCAPOFairOptimizer v9.2",
+    "new_component": "Fairness-readiness warm-up: after the initial common random block, add search blocks to the initial population until all pass the unchanged fairness gate.",
+    "block_choice": "Existing metadata-and-observed-uncertainty selector. No model predictions or validation/test outcomes from unseen blocks are consulted.",
+    "warmup_budget": "Every downstream token counts against the same search and total caps; diagnostics separate the additional initialization cost.",
+    "remaining_algorithm": "Original CAPO variation, progressive shared-block racing, partial rejected challengers, weaker-dominance selection and gap-first incumbent advancement remain inherited from v9.2.",
+    "limitation": "If supported fairness requires all search blocks, warm-up can collapse the initial fidelity advantage and make racing little different from full evaluation. This is reported rather than hidden.",
+    "not_an_exact_reproduction": "The readiness-aware initialization schedule is an explicit fairness adaptation. Use unchanged v9.2 as the structural-reproduction control.",
+    "failure_behavior": "Fail with diagnostics when full search coverage cannot satisfy existing fairness gates. No threshold relaxation or synthetic objective substitution."
+  },
+  "metrics_and_protocol": {
+    "fairness_thresholds_changed": false,
+    "datasets_or_splits_changed": false,
+    "objective_directions": ["quality maximize", "input/output-token-price cost minimize", "unfairness minimize"],
+    "validation_or_test_feedback": false,
+    "existing_2m_ceiling": true,
+    "search_fraction": 0.7,
+    "terminal_audit_reserve_fraction": 0.3,
+    "reserve_policy": "Same frozen terminal audit reserve for all methods. Unused reserve is reported; an equal ceiling is not equal actual expenditure.",
+    "reasoning_demonstrations": false,
+    "pilot": "Single seed72, four datasets; default ablation8 runs, explicit screen20 runs; no automatic full matrix or5M submission",
+    "GPU": "H200, batch-invariant inference and structured labels consistently across methods"
+  },
+  "validation_limits": "CPU behavioral and integration tests only. GPU quality improvement and statistical superiority remain untested."
+}

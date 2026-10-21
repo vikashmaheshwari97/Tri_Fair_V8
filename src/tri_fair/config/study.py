@@ -229,4 +229,8 @@ def build_optimizer_registry():
         configs[name] = OptimizerConfig(name, name, dict(
             crossovers_per_iter=6, upper_shots=4, check_fs_accuracy=True,
             create_fs_reasoning=False, **extra), "sequential_block", 1)
+    for name in ("NSGAII-PO-Fair-Plain", "NSGAIII-PO-Fair-Plain", "SPEA2-PO-Fair-Plain", "RandomSearch-PO-Fair-Plain"):
+        configs[name] = OptimizerConfig(name, name, dict(shared, objective_aware_variation=False), "full", 1)
+    for name, enabled in (("Tri-Fair-v9.3", True), ("Tri-Fair-v9.3-NoReadinessWarmup", False)):
+        configs[name] = OptimizerConfig(name, name, dict(configs["Tri-Fair-v9.2"].optimizer_params, bootstrap_readiness=enabled), "sequential_block", 1)
     return configs

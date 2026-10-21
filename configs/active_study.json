@@ -1,7 +1,7 @@
 {
-  "method": "Tri-Fair-v9.2",
+  "method": "Tri-Fair-v9.3",
   "paper_label": "Tri-Fair",
-  "implementation": "MOCAPOFairOptimizer",
+  "implementation": "SupportReadyTriFairOptimizer",
   "proposal_strategies": [
     "original CAPO crossover",
     "original CAPO mutation"
@@ -24,16 +24,16 @@
   "validation": "shared union of frozen terminal audited prompts only",
   "validation_tokens": "additional, measured separately; never fed to optimization",
   "gpu_performance": "not yet measured",
-  "internal_revision": "9.2",
+  "internal_revision": "9.3",
   "pilot_controls": [
-    "NSGAII-PO-Fair",
-    "NSGAIII-PO-Fair",
-    "SPEA2-PO-Fair",
-    "RandomSearch-PO-Fair"
+    "NSGAII-PO-Fair-Plain",
+    "NSGAIII-PO-Fair-Plain",
+    "SPEA2-PO-Fair-Plain",
+    "RandomSearch-PO-Fair-Plain"
   ],
   "reserve_reclamation": "disabled in v9.2 pilot: one terminal frozen full-search audit",
   "final_selection": "all terminal incumbents (population cap4, audit cap4), full-search audit before held-out evaluation",
-  "candidate_evaluation": "progressive common-block intensification; mixed-fidelity population",
+  "candidate_evaluation": "readiness warm-up then progressive common-block intensification",
   "repeatability_probe": "H200 batch-invariant structured-label protocol; no unsupported claim of cross-hardware invariance",
   "seeds": [
     72,
@@ -41,5 +41,8 @@
     74
   ],
   "parent_archive_cap": null,
-  "experimental_candidate": "Historical adaptive strategies remain separately addressable; excluded from v9.2 main method"
+  "experimental_candidate": "Tri-Fair-v9.2 remains an unchanged structural-reproduction control",
+  "initialization": "one random block, then metadata-directed common evidence until unchanged fairness readiness passes",
+  "baseline_protocol": "Plain CAPO initialization/variation; full search evaluations; original selectors",
+  "fairness_thresholds_changed": false
 }
