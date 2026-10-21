@@ -102,6 +102,13 @@ class MOCAPOFairOptimizer(
         if self.prompts:
             self.scores = self._get_evaluated_vectors(self.prompts).tolist()
 
+    def _build_initial_prompt(self, prompt, shots):
+        # Preserve historical v9.2/v9.3 rendering for reproducibility. New
+        # versions override this hook to validate demonstration visibility.
+        return Prompt(
+            prompt.instruction, shots, downstream_template=prompt.downstream_template
+        )
+
     def _pre_optimization_loop(self):
         self.current_step = 0
         population = []
@@ -111,13 +118,7 @@ class MOCAPOFairOptimizer(
                 num_examples=random.randint(0, self.upper_shots),
                 optimizer=self,
             )
-            population.append(
-                Prompt(
-                    prompt.instruction,
-                    shots,
-                    downstream_template=prompt.downstream_template,
-                )
-            )
+            population.append(self._build_initial_prompt(prompt, shots))
         # A single common random block, not fairness-ready/full initialization.
         blocks = (
             list(range(self.task.n_blocks))

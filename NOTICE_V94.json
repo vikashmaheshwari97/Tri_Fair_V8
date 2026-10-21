@@ -1,0 +1,71 @@
+{
+  "release": "Tri-Fair-v9.4-experimental-evidence-racing",
+  "base_commit": "9ea60cb9bf257430356b34eb8b88f115da7f2784",
+  "not_a_guarantee_of_dominance": true,
+  "gpu_performance_validated": false,
+  "final_test_used": false,
+  "verified_bug": "The historical MO-CAPO-style initializer passed a zero-shot downstream_template to Prompt with nonempty few_shots, causing those demonstrations to be omitted. v9.4 overrides an explicit construction hook using rendered_prompt. Historical v9.2/v9.3 keep the old behavior for reproducibility.",
+  "verification_gap": "The old generic preflight tested the rendering helper but not the actual optimizer initializer. New preflight invokes the real override and regression tests exercise the complete initializer.",
+  "tri_fair_changes": [
+    "visible and token-charged initial demonstrations",
+    "cached-search conditional-error/recall feedback",
+    "bounded complete-instruction generation and novelty retries",
+    "one complete demo-unit removal in compression",
+    "delete-one-block stable ordering before early rejection",
+    "same-basis edit outcome diagnostics"
+  ],
+  "structure_retained": [
+    "readiness warm-up",
+    "mixed-fidelity population",
+    "nearest incumbent progressive intensification",
+    "weaker-dominance tournament selection",
+    "gap-first incumbent advancement",
+    "partial rejected candidates retained as genetic material"
+  ],
+  "explicit_departures_from_MOCAPO": [
+    "fairness-readiness initialization adaptation",
+    "scoped evidence variation instead of exclusively CAPO crossover/mutation",
+    "early rejection stability heuristic; no confidence guarantee"
+  ],
+  "baseline_policy": "All four plain baseline implementations, selectors, shared frozen seed instructions, demonstration pool, labels, datasets and mathematical fairness metrics remain unchanged. No intentional degradation.",
+  "budget_policy": {
+    "downstream_cap": 2000000,
+    "search_fraction": 0.8,
+    "audit_fraction": 0.2,
+    "applies_identically_to_all_methods": true,
+    "audit_feedback": false,
+    "reserve_reclamation": false,
+    "meta_tokens_reported_separately": true,
+    "validation_tokens_additional_reported_separately": true,
+    "actual_expenditure_equal": false,
+    "difference_from_v93": "80/20 allocation replaces 70/30 for all methods; do not pool old v9.3 screen and new baseline results as one matched experiment."
+  },
+  "figures": {
+    "method_colors": "MO-CAPO analysis palette: black, orange #E69F00, purple #785EF0, green #009E73, pink #CC79A7",
+    "fewshot_palette": [
+      "#ffffcc",
+      "#c7e9b4",
+      "#7fcdbb",
+      "#41b6c4",
+      "#2c7fb8",
+      "#253494"
+    ],
+    "fewshot_count": "actually rendered demonstrations; both stored and hidden counts exported",
+    "front_indicators": "terminal audited shortlist only; not the entire search history",
+    "uncertainty": "sample SD across seeds only; no bands with one seed; no significance claim",
+    "no_fabricated_trajectories": true
+  },
+  "risk": "More conservative rejection can spend more evaluation tokens per challenger. Accurate demonstration rendering can also raise initialization cost. A measured GPU pilot is required to assess the trade-off.",
+  "outputs": "All sources, scalar objectives, fairness components, attempt logs and checkpoints are preserved; no measured results overwritten.",
+  "verified_saved_artifact_evidence": {
+    "source_archive_sha256": "e0f176daf878d95d3f816178c641c2652015adc3fe59986630ec9d9b80d2d2e8",
+    "method": "Tri-Fair-v9.3",
+    "hidden_demonstrations_in_terminal_candidates": {
+      "bbq": 2,
+      "bias_in_bios": 2,
+      "civil_comments": 0,
+      "winobias": 2
+    },
+    "point": "These are omitted demonstrations, not evidence of data leakage or falsified outputs."
+  }
+}

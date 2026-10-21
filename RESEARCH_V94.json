@@ -1,0 +1,103 @@
+{
+  "scope": "Review of the 11 supplied studies, plus official repository implementations. Concepts are adapted explicitly; no new empirical superiority is claimed.",
+  "sources": [
+    {
+      "file": "2606.19605v2(1).pdf",
+      "title": "FAPO: Fully Automated Prompt Optimization of Multi-Step LLM Pipelines",
+      "use": "Adopt scoped error-driven editing, immutable attempt/outcome logs and fixed scorers. Use cached search cases only; do not port agentic pipeline or validation-driven iteration.",
+      "code": "src/tri_fair/search/evidence_v94.py",
+      "sha256": "6b9330aa4365d8e7d06f41141cfb04297c8ffe79adfc5a1785fb53d1ae8522d1"
+    },
+    {
+      "file": "06826-AAAI26.GiovanelliJ-ML(1).pdf",
+      "title": "HAMLET4Fairness: Enhancing Fairness in AI Pipelines Through Human-Centered AutoML and Argumentation",
+      "use": "Adopt explicit metric/domain constraints and visible fairness/utility components. Do not claim to implement its ASP argumentation or AutoML pipeline search.",
+      "sha256": "8cc68613734ecc5eae8a1f38430e9206ae71aae1825e5240cb89d51d1776939c"
+    },
+    {
+      "file": "2608.25707v1(2).pdf",
+      "title": "Fairness-Aware Test-Time Prompt Tuning",
+      "use": "The method tunes soft prompts for vision-language models using target/spurious entropy. Requires gradients and a different inference protocol; not directly transplanted into discrete frozen-LLM prompt search.",
+      "sha256": "62247acce39db688f3d2441f2c9b7c2ad6bdec0739e36beb6664576c2a6603fe"
+    },
+    {
+      "file": "preprints202604.1399.v1(2).pdf",
+      "title": "Multi-Objective Scheduling for Large Language Model Inference with Prompt-Level Cost Prediction and SLO Awareness",
+      "use": "Retain explicit input/output expenditure. Its routing/latency/carbon predictors are a different search space and are not added as unmeasured claims.",
+      "sha256": "4800d34cb8edb09a886cce1610ef00e6910c4dae3ee8f1b8744dc39efbb54b65"
+    },
+    {
+      "file": "ICLR-2~1.PDF",
+      "title": "More Than What Was Chosen: LLM-based Explainable Recommendation Beyond Noisy User Preferences",
+      "use": "C-APO here means Conflict-Aware Direct Preference Optimization for recommendation. It is not CAPO cost-aware prompt optimization. DPO model training is outside this fixed-model experiment.",
+      "sha256": "477cd1e56a125c5eb672104312ab11e82e89fa3416683379fe6cfa8ee609b55f"
+    },
+    {
+      "file": "FARO(1).pdf",
+      "title": "Fairness Aware Reward Optimization",
+      "use": "Its proxy-Lagrangian reward-model training and fairness certificates require a trained reward model. They do not transfer to hard-label prompt edits; no certificate is claimed.",
+      "sha256": "a41b5750421f65a430b2c682e409e808fbde72736e3a40f98bf05b011b7362dc"
+    },
+    {
+      "file": "Bias-Fairness-Mitigating-Popularity-Bias-LLM-Based-Recommendation-Systems-via(1).pdf",
+      "title": "From Bias to Fairness: Mitigating Popularity Bias in LLM-Based Recommendation Systems via Supervised Fine-Tuning and Direct Preference Optimization",
+      "use": "Popularity-capped SFT/QLoRA/DPO changes model weights and recommendation labels. Not a compatible direct addition to the current four classification datasets.",
+      "sha256": "5c4309975ba4b360cf1b039cbbac5a18f9ea8a51c4044f46bde659bae2176956"
+    },
+    {
+      "file": "3833420(1).pdf",
+      "title": "RosePO: Customized Preference Alignment in LLM-Based Recommendation",
+      "use": "Pairwise preference construction and uncertainty calibration concern trained recommenders. No direct drop-in implementation for this frozen classifier.",
+      "sha256": "7e80e45ad841fead366039adcf16aad3e564ed9e92de4b4e9a7bc4b7318d0ebc"
+    },
+    {
+      "file": "2507.11344v1(2).pdf",
+      "title": "Guiding LLM Decision-Making with Fairness Reward Models",
+      "use": "Relevant to Civil Comments and Bios; requires training a fairness reward model and sampling/scoring multiple reasoning traces. That raises recurring inference cost and changes decoding; retain as a separate future experiment.",
+      "sha256": "55bd1e10bf20478240b62a6876f8ed83eb0f0578f9f56b7f0a5ce825af3cb54b"
+    },
+    {
+      "file": "2026.eacl-long.38(2).pdf",
+      "title": "Rethinking Prompt Optimizers: From Prompt Merits to Optimization",
+      "use": "Use clarity, precise decision boundaries and compact preservation of task information in edit requests. MePO preference-training itself is not ported.",
+      "sha256": "cd08f53ae6ecaff1238f1f105c38b8d40324f4c03d78ffd2127ea4751d916454"
+    },
+    {
+      "file": "2026.findings-acl.490(2).pdf",
+      "title": "LLM Prompt Duel Optimizer: Efficient Label-Free Prompt Optimization",
+      "use": "The label-free pairwise judge is unnecessary where gold labels already exist. No LLM judge replaces measured accuracy/fairness.",
+      "sha256": "10d0b34a6900b74798f495b00c8117930c80acde869b9a72101bf0aceee0fed2"
+    }
+  ],
+  "additional_primary_source": {
+    "url": "https://arxiv.org/abs/2605.14553",
+    "title": "Efficient Multi-objective Prompt Optimization via Pure-exploration Bandits",
+    "use": "Motivates careful uncertain comparisons. The new delete-one-block guard is an engineering sensitivity check, not this paper's bandit algorithm or a transfer of its statistical guarantees."
+  },
+  "repositories": [
+    {
+      "url": "https://github.com/cisco-foundation-ai/fully-automated-prompt-optimization",
+      "commit": "269db66eded77946497c8f8e10526c334726fe3c",
+      "reviewed": [
+        "src/hephaestus/analysis/step_attribution.py",
+        "docs/processes/prompt-iteration-loop.md",
+        "README.md"
+      ],
+      "use": "Failure attribution and smallest scoped edits; independently implemented, no copied agent runtime."
+    },
+    {
+      "url": "https://github.com/aaai-26/HAMLET4FAIRNESS-eval",
+      "commit": "4803f0ebcbfc42b21d81bedfb6927a073e6d3531",
+      "use": "This is a reproduction/results/resources repository, not a discrete LLM prompt optimizer. Its README redirects end-to-end HAMLET use to the framework repository."
+    },
+    {
+      "url": "https://github.com/mo374z/mo-capo",
+      "commit": "265848bb6e0482ab7ef11028d0b8483f6560e724",
+      "reviewed": [
+        "src/mo_capo.py",
+        "analysis/analysis_pipeline.py"
+      ],
+      "use": "Maintain three-objective progressive common-basis optimizer structure; reuse published plotting color values, disclose changed variation and stability guard."
+    }
+  ]
+}

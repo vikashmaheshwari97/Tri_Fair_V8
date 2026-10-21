@@ -18,6 +18,7 @@ from tri_fair.optimizers.baselines import (
 from tri_fair.optimizers.budget_fill import FILLED_BASELINES
 from tri_fair.optimizers.directional import DirectionalTriFairOptimizer
 from tri_fair.optimizers.efficient import EfficientTriFairOptimizer
+from tri_fair.optimizers.evidence_racing import EvidenceRacingTriFairOptimizer
 from tri_fair.optimizers.guarded import GuardedTriFairOptimizer
 from tri_fair.optimizers.hybrid import HybridTriFairOptimizer
 from tri_fair.optimizers.intensified import IntensifiedTriFairOptimizer
@@ -31,6 +32,9 @@ from tri_fair.optimizers.support_ready import SupportReadyTriFairOptimizer
 from tri_fair.optimizers.trifair import TriFairOptimizer
 
 METHODS = {
+    "Tri-Fair-v9.4": EvidenceRacingTriFairOptimizer,
+    "Tri-Fair-v9.4-NoEvidence": EvidenceRacingTriFairOptimizer,
+    "Tri-Fair-v9.4-NoStability": EvidenceRacingTriFairOptimizer,
     **PLAIN_BASELINES,
     "Tri-Fair-v9.3": SupportReadyTriFairOptimizer,
     "Tri-Fair-v9.3-NoReadinessWarmup": SupportReadyTriFairOptimizer,
@@ -64,7 +68,7 @@ METHODS = {
 
 # One active proposed method. Earlier versions remain addressable only for
 # reproducing existing checkpoints/results; no historical scores are relabeled.
-ACTIVE_METHODS = ("Tri-Fair-v9.3", *PLAIN_BASELINES)
+ACTIVE_METHODS = ("Tri-Fair-v9.4", *PLAIN_BASELINES)
 
 
 def build_optimizer(
@@ -89,6 +93,9 @@ def build_optimizer(
         cls = FILLED_BASELINES[optimizer_config.name]
     elif budget_fill and optimizer_config.name not in {
         *PLAIN_BASELINES,
+        "Tri-Fair-v9.4",
+        "Tri-Fair-v9.4-NoEvidence",
+        "Tri-Fair-v9.4-NoStability",
         "Tri-Fair-v9.3",
         "Tri-Fair-v9.3-NoReadinessWarmup",
         "Tri-Fair-v9.2",
@@ -109,7 +116,7 @@ def build_optimizer(
             f"unsupported optimizer overrides: {sorted(set(overrides) - set(params))}"
         )
     params.update(overrides)
-    if issubclass(cls, DirectionalTriFairOptimizer):
+    if issubclass(cls, (DirectionalTriFairOptimizer, EvidenceRacingTriFairOptimizer)):
         # Reserve generation and chat-template overhead within the same loaded
         # engine's context; meta and downstream share that engine.
         ceiling = (
@@ -171,6 +178,12 @@ def build_optimizer(
         optimizer.effective_parameters = dict(params, budget_fill=True,
             variation_protocol="original CAPO for evolutionary methods; independent proposals for Random Search",
             shared_budget_protocol="v89-novel-complete-candidate-retries")
+    if isinstance(optimizer, EvidenceRacingTriFairOptimizer):
+        optimizer.effective_parameters = dict(
+            params, budget_fill=True,
+            shared_budget_protocol="atomic blocks; bounded novel proposals; frozen terminal audit",
+            variation_protocol="cached-search evidence edits plus original CAPO exploration",
+        )
     return optimizer
 
 

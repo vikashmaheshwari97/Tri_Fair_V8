@@ -233,4 +233,14 @@ def build_optimizer_registry():
         configs[name] = OptimizerConfig(name, name, dict(shared, objective_aware_variation=False), "full", 1)
     for name, enabled in (("Tri-Fair-v9.3", True), ("Tri-Fair-v9.3-NoReadinessWarmup", False)):
         configs[name] = OptimizerConfig(name, name, dict(configs["Tri-Fair-v9.2"].optimizer_params, bootstrap_readiness=enabled), "sequential_block", 1)
+    for name, extra in {
+        "Tri-Fair-v9.4": {},
+        "Tri-Fair-v9.4-NoEvidence": {"evidence_variation": False},
+        "Tri-Fair-v9.4-NoStability": {"stability_guard": False},
+    }.items():
+        configs[name] = OptimizerConfig(name, name, dict(
+            configs["Tri-Fair-v9.3"].optimizer_params,
+            evidence_variation=True, stability_guard=True, proposal_retries=8,
+            instruction_token_limit=160, generation_input_token_limit=2200,
+        ) | extra, "sequential_block", 1)
     return configs

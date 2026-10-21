@@ -1,14 +1,17 @@
 {
-  "method": "Tri-Fair-v9.3",
+  "method": "Tri-Fair-v9.4",
   "paper_label": "Tri-Fair",
-  "implementation": "SupportReadyTriFairOptimizer",
+  "implementation": "EvidenceRacingTriFairOptimizer",
   "proposal_strategies": [
-    "original CAPO crossover",
-    "original CAPO mutation"
+    "cached-error decision-rule repair",
+    "conditional fairness/recall repair",
+    "instruction or demonstration compression",
+    "complementary recombination",
+    "original CAPO exploration"
   ],
   "shared_population_cache_and_budget": true,
   "historical_versions": "retained for reproduction; excluded from active defaults",
-  "pilot_control": "NSGAII-PO-Fair remains available for matched confirmation",
+  "pilot_control": "four unchanged plain full-evaluation baselines",
   "datasets": [
     "bbq",
     "civil_comments",
@@ -16,22 +19,22 @@
     "winobias"
   ],
   "budget_ceiling_per_method": 2000000,
-  "search_fraction": 0.7,
-  "audit_fraction": 0.3,
+  "search_fraction": 0.8,
+  "audit_fraction": 0.2,
   "population_size": 4,
   "maximum_demonstrations": 2,
   "audit_candidates": 4,
   "validation": "shared union of frozen terminal audited prompts only",
   "validation_tokens": "additional, measured separately; never fed to optimization",
   "gpu_performance": "not yet measured",
-  "internal_revision": "9.3",
+  "internal_revision": "9.4",
   "pilot_controls": [
     "NSGAII-PO-Fair-Plain",
     "NSGAIII-PO-Fair-Plain",
     "SPEA2-PO-Fair-Plain",
     "RandomSearch-PO-Fair-Plain"
   ],
-  "reserve_reclamation": "disabled in v9.2 pilot: one terminal frozen full-search audit",
+  "reserve_reclamation": "disabled: one frozen terminal full-search audit for every method",
   "final_selection": "all terminal incumbents (population cap4, audit cap4), full-search audit before held-out evaluation",
   "candidate_evaluation": "readiness warm-up then progressive common-block intensification",
   "repeatability_probe": "H200 batch-invariant structured-label protocol; no unsupported claim of cross-hardware invariance",
@@ -41,8 +44,9 @@
     74
   ],
   "parent_archive_cap": null,
-  "experimental_candidate": "Tri-Fair-v9.2 remains an unchanged structural-reproduction control",
+  "experimental_candidate": "v9.4 evidence-racing extension; v9.2 structural reproduction and v9.3 retained unchanged",
   "initialization": "one random block, then metadata-directed common evidence until unchanged fairness readiness passes",
   "baseline_protocol": "Plain CAPO initialization/variation; full search evaluations; original selectors",
-  "fairness_thresholds_changed": false
+  "fairness_thresholds_changed": false,
+  "early_rejection": "supported delete-one-block sensitivity guard, not confidence intervals"
 }
